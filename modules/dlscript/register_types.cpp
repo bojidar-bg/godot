@@ -27,11 +27,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 #include "register_types.h"
+#include "dl_script.h"
 
 
-void register_cscript_types() {
+
+DLScriptLanguage *script_language_dl=NULL;
+// ResourceFormatLoaderDLScript *resource_loader_dl=NULL;
+
+void register_dlscript_types() {
+
+	ObjectTypeDB::register_type<DLLibrary>();
+	ObjectTypeDB::register_type<DLScript>();
+
+	script_language_dl=memnew( DLScriptLanguage );
+	//script_language_gd->init();
+	ScriptServer::register_language(script_language_dl);
+	// resource_loader_gd=memnew( ResourceFormatLoaderGDScript );
+	// ResourceLoader::add_resource_format_loader(resource_loader_gd);
+
 
 }
-void unregister_cscript_types() {
+void unregister_dlscript_types() {
+
+
+	ScriptServer::unregister_language(script_language_dl);
+
+	if (script_language_dl)
+		memdelete( script_language_dl );
+
 
 }

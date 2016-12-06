@@ -459,9 +459,9 @@ int GDAPI godot_class_constant_get_value(char* p_class,char *p_constant);
 
 typedef int godot_call_error;
 
-#define GODOT_CALL_OK
-#define GODOT_CALL_ERROR_WRONG_ARGUMENTS
-#define GODOT_CALL_ERROR_INVALID_INSTANCE
+#define GODOT_CALL_OK 0
+#define GODOT_CALL_ERROR_WRONG_ARGUMENTS 1
+#define GODOT_CALL_ERROR_INVALID_INSTANCE 2
 
 godot_instance GDAPI godot_instance_new(char* p_class);
 int GDAPI godot_instance_get_class(godot_instance p_instance,char* p_class,int p_max_len);
@@ -526,30 +526,31 @@ godot_variant GDAPI godot_instance_get(godot_instance p_instance, char* p_prop);
 godot_property_info GDAPI **godot_instance_get_property_list(godot_instance p_instance);
 void GDAPI godot_instance_free_property_list(godot_instance p_instance,godot_property_info** p_list);
 
-
-
 void GDAPI godot_list_free(char **p_name); //helper to free all the class list
 
+////// Singleton API
+
+godot_instance GDAPI godot_global_get_singleton(char* p_name); // result shouldn't be freed
 
 ////// Script API
 
 typedef void* (godot_script_instance_func)(godot_instance); //passed an instance, return a pointer to your userdata
 typedef void (godot_script_free_func)(godot_instance,void*); //passed an instance, please free your userdata
 
-void GDAPI godot_script_register(char* p_base,char* p_name,godot_script_instance_func p_instance_func,godot_script_free_func p_free_func);
-void GDAPI godot_script_unregister(char* p_name);
+void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_script_instance_func p_instance_func,godot_script_free_func p_free_func);
+void GDAPI godot_script_unregister(const char* p_name);
 
 typedef GDAPI godot_variant (godot_script_func)(godot_instance,void*,godot_variant*,int); //instance,userdata,arguments,argument count. Return something or NULL. Arguments must not be freed.
 
 
-void GDAPI godot_script_add_function(char* p_name,char* p_function_name,godot_script_func p_func);
-void GDAPI godot_script_add_validated_function(char* p_name,char* p_function_name,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant* p_default_args,int p_default_arg_count);
+void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_script_func p_func);
+void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant* p_default_args,int p_default_arg_count);
 
 typedef void (godot_set_property_func)(godot_instance,void*,godot_variant); //instance,userdata,value. Value must not be freed.
 typedef godot_variant (godot_get_property_func)(godot_instance,void*); //instance,userdata. Return a value or NULL.
 
-void GDAPI godot_script_add_property(char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func);
-void GDAPI godot_script_add_listed_property(char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage);
+void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func);
+void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage);
 
 
 ////// System Functions
