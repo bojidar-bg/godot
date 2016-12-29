@@ -85,6 +85,8 @@ ScriptInstance* DLScript::instance_create(Object *p_this) {
 	}
 	#endif
 	
+	ERR_FAIL_COND_V(library->_initialize_handle() != OK, NULL);
+	
 	DLInstance* new_instance = memnew( DLInstance );
 	
 	new_instance->owner = p_this;
@@ -189,8 +191,23 @@ DLScript::~DLScript() {
 
 // Library
 
+static const char* _dl_platforms_info[] = {
+	"|unix|so|Unix",
+		"unix|x11|so|X11",
+		"unix|android|so|Android",
+		"unix|blackberry|so|Blackberry 10",
+		"unix|haiku|so|Haiku", // Right?
+	"|mac|dynlib|Mac",
+		"mac|ios|dynlib|iOS",
+		"mac|osx|dynlib|OSX",
+	"|html5|js|HTML5",
+	"|windows|dll|Windows",
+		"windows|uwp|dll|UWP",
+	NULL // Finishing condition
+};
+
 void DLLibrary::set_platform_file(StringName p_platform, String p_file) {
-	if(p_file.empty()) {
+	if (p_file.empty()) {
 		platform_files.erase(p_platform);
 	} else {
 		platform_files[p_platform] = p_file;
@@ -198,11 +215,62 @@ void DLLibrary::set_platform_file(StringName p_platform, String p_file) {
 }
 
 String DLLibrary::get_platform_file(StringName p_platform) const {
-	if(platform_files.has(p_platform)) {
+	if (platform_files.has(p_platform)) {
 		return platform_files[p_platform];
 	} else {
 		return "";
 	}
+}
+
+Error DLLibrary::_initialize_handle() {
+	if (library_handle)
+		return OK; // Already initialized
+		
+	void* _library_handle;
+	
+	Error error;
+	const String platform_name = OS::get_singleton()->get_name();
+	String platform_file("");
+	char** platform_info = (char**) _dl_platforms_info;
+	
+	while (*platform_info) {
+		String platform_info_string(*platform_info);
+		
+		if (platform_name == platform_info_string.get_slicec('|', 3)) {
+			String platform_key = platform_info_string.get_slicec('|', 1);
+			String fallback_platform_key = platform_info_string.get_slicec('|', 0);
+			
+			if (platform_files.has(platform_key)) {
+				platform_file = platform_files[platform_key];
+			} else if (!fallback_platform_key.empty() && platform_files.has(fallback_platform_key)) {
+				platform_file = platform_files[fallback_platform_key];
+			} else {
+				return ERR_UNAVAILABLE;
+			}
+		}
+		platform_info ++;
+	}
+	ERR_FAIL_COND_V(platform_file == "", ERR_DOES_NOT_EXIST);
+	
+	error = OS::get_singleton()->open_dynamic_library(Globals::get_singleton()->globalize_path(platform_file), _library_handle);
+	if (error) return error;
+	ERR_FAIL_COND_V(!_library_handle, ERR_BUG);
+	
+	
+	void* library_init;
+	error = OS::get_singleton()->get_dynamic_library_symbol_handle(_library_handle, DLScriptLanguage::get_init_symbol_name(),  library_init);
+	if (error) return error;
+	ERR_FAIL_COND_V(!library_init, ERR_BUG);
+	
+	void (*library_init_fpointer)() = (void(*)()) library_init;
+	library_init_fpointer();
+	{
+		ERR_EXPLAIN("Couldn't initialize library");
+		ERR_FAIL_V(ERR_SCRIPT_FAILED);
+	}
+	
+	library_handle = _library_handle;
+	return OK;
 }
 
 
@@ -212,7 +280,7 @@ bool DLLibrary::_set(const StringName& p_name, const Variant& p_value) {
 		set_platform_file(name.get_slice("/",1), p_value);
 		return true;
 	}
-	return false; // TODO
+	return false;
 }
 
 bool DLLibrary::_get(const StringName& p_name,Variant &r_ret) const {
@@ -221,19 +289,30 @@ bool DLLibrary::_get(const StringName& p_name,Variant &r_ret) const {
 		r_ret = get_platform_file(name.get_slice("/",1));
 		return true;
 	}
-	return false; // TODO
+	return false;
 }
 
 void DLLibrary::_get_property_list( List<PropertyInfo> *p_list) const {
-	p_list->push_back(PropertyInfo(Variant::STRING, "platform/linux", PROPERTY_HINT_FILE, "*.so"));
-	if(platform_files.has("android")) {
-		p_list->push_back(PropertyInfo(Variant::STRING, "platform/android", PROPERTY_HINT_FILE, "*.so", PROPERTY_USAGE_DEFAULT|PROPERTY_USAGE_CHECKABLE|PROPERTY_USAGE_CHECKED));
-	} else {
-		p_list->push_back(PropertyInfo(Variant::STRING, "platform/android", PROPERTY_HINT_FILE, "*.so", PROPERTY_USAGE_DEFAULT|PROPERTY_USAGE_CHECKABLE));
+	char** platform_info = (char**) _dl_platforms_info;
+	
+	while (*platform_info) {
+		String platform_info_string(*platform_info);
+		String fallback_platform_key = platform_info_string.get_slicec('|', 0);
+		String platform_key = platform_info_string.get_slicec('|', 1);
+		String platform_extension = platform_info_string.get_slicec('|', 2);
+		
+		if (fallback_platform_key.empty()) {
+			p_list->push_back(PropertyInfo(Variant::STRING, "platform/" + platform_key, PROPERTY_HINT_FILE, "*." + platform_extension));
+			
+		} else {
+			if (platform_files.has(platform_key)) {
+				p_list->push_back(PropertyInfo(Variant::STRING, "platform/" + platform_key, PROPERTY_HINT_FILE, "*." + platform_extension, PROPERTY_USAGE_DEFAULT|PROPERTY_USAGE_CHECKABLE|PROPERTY_USAGE_CHECKED));
+			} else {
+				p_list->push_back(PropertyInfo(Variant::STRING, "platform/" + platform_key, PROPERTY_HINT_FILE, "*." + platform_extension, PROPERTY_USAGE_DEFAULT|PROPERTY_USAGE_CHECKABLE));
+			}
+		}
+		platform_info ++;
 	}
-	p_list->push_back(PropertyInfo(Variant::STRING, "platform/windows", PROPERTY_HINT_FILE, "*.dll"));
-	p_list->push_back(PropertyInfo(Variant::STRING, "platform/mac", PROPERTY_HINT_FILE, "*.dynlib"));
-	// and others
 }
 
 
@@ -445,6 +524,10 @@ int DLScriptLanguage::profiling_get_frame_data(ProfilingInfo *p_info_arr,int p_i
 }
 
 void DLScriptLanguage::frame() {
+}
+
+String DLScriptLanguage::get_init_symbol_name() {
+	return "godot_dlscript_init"; // TODO: Maybe make some internal function which would do the actual stuff
 }
 
 

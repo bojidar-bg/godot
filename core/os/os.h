@@ -184,6 +184,10 @@ public:
 	virtual bool get_borderless_window() { return 0; }
 
 
+	virtual Error open_dynamic_library(const String p_path, void* &p_library_handle) { return ERR_UNAVAILABLE; };
+	virtual Error close_dynamic_library(void* p_library_handle) { return ERR_UNAVAILABLE; };
+	virtual Error get_dynamic_library_symbol_handle(void* p_library_handle, const String p_name, void* &p_symbol_handle) { return ERR_UNAVAILABLE; };
+
 
 	virtual void set_iterations_per_second(int p_ips);
 	virtual int get_iterations_per_second() const;
