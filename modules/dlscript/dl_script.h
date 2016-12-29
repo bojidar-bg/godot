@@ -95,17 +95,19 @@ public:
 	~DLScript();
 };
 
+
 class DLLibrary : public Resource {
 
 	OBJ_TYPE( DLLibrary, Resource );
 	OBJ_SAVE_TYPE( DLLibrary );
 	
 	Map<StringName,String> platform_files;
+	void* library_handle;
 
 protected:
 friend class DLScript;
 
-	bool _initialize_handle(); // bool?
+	Error _initialize_handle();
 	// bool _get_script(const StringName& p_name); // bool?
 
 	bool _set(const StringName& p_name, const Variant& p_value);
@@ -123,6 +125,7 @@ public:
 	~DLLibrary();
 
 };
+
 
 class DLInstance : public ScriptInstance {
 friend class DLScript;
@@ -170,6 +173,7 @@ public:
 	~DLInstance();
 
 };
+
 
 class DLScriptLanguage : public ScriptLanguage {
 	friend class DLScript;
@@ -258,6 +262,8 @@ public:
 
 
 	virtual void frame();
+
+	static String get_init_symbol_name();
 
 	DLScriptLanguage();
 	~DLScriptLanguage();
