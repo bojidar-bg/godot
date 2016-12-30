@@ -265,6 +265,9 @@ public:
 
 	static String get_init_symbol_name();
 
+	/* HACKER FUNCTIONS */
+	void _compile_dummy_for_the_api();
+
 	DLScriptLanguage();
 	~DLScriptLanguage();
 };

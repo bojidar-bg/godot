@@ -431,6 +431,16 @@ void DLScriptLanguage::finish() {
 	// cleanup is for noobs
 }
 
+// scons doesn't want to link in the api source so we need to call a dummy function to cause it to link
+extern "C" void _api_anchor();
+
+void DLScriptLanguage::_compile_dummy_for_the_api()
+{
+	_api_anchor();
+}
+
+
+
 Ref<Script> DLScriptLanguage::get_template(const String& p_class_name, const String& p_base_class_name) const {
 	DLScript* src = memnew( DLScript );
 	src->set_script_name(p_class_name);

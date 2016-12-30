@@ -102,7 +102,7 @@ void GDAPI godot_array_insert(godot_array p_array,int p_position,godot_variant p
 void GDAPI godot_array_remove(godot_array p_array,int p_position);
 void GDAPI godot_array_clear(godot_array p_array);
 int GDAPI godot_array_get_size(godot_array p_array);
-int GDAPI godot_array_find(godot_array p_array,godot_variant p_value,int p_from_pos=-1);
+int GDAPI godot_array_find(godot_array p_array,godot_variant p_value,int p_from_pos);
 godot_array GDAPI godot_array_copy(godot_array p_array);
 void GDAPI godot_array_free(godot_array p_array);
 
@@ -376,7 +376,7 @@ typedef void *godot_instance;
 #define GODOT_VARIANT_COLOR_ARRAY 28
 #define GODOT_VARIANT_MAX 29
 
-godot_variant *godot_variant_new();
+godot_variant godot_variant_new();
 
 int GDAPI godot_variant_get_type(godot_variant p_variant);
 
@@ -473,8 +473,8 @@ typedef struct {
 	int usage;
 } godot_property_info;
 
-godot_call_error GDAPI godot_instance_call(godot_instance p_instance, char* p_method, ...);
-godot_call_error GDAPI godot_instance_call_ret(godot_instance p_instance, godot_variant r_return, char* p_method, ...);
+godot_call_error GDAPI godot_instance_call(godot_instance p_instance, char* p_method, godot_variant *p_args, int p_num_args);
+godot_call_error GDAPI godot_instance_call_ret(godot_instance p_instance, godot_variant r_return, char* p_method, godot_variant *p_args, int p_num_args);
 godot_bool GDAPI godot_instance_set(godot_instance p_instance, char* p_prop,godot_variant p_value);
 godot_variant GDAPI godot_instance_get(godot_instance p_instance, char* p_prop);
 
