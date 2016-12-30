@@ -74,6 +74,7 @@ class PopupMenu : public Popup {
 	void _submenu_timeout();
 
 	bool invalidated_click;
+	bool hide_on_item_selection;
 	Vector2 moved;
 
 	Array _get_items() const;
@@ -116,6 +117,8 @@ public:
 	void set_item_tooltip(int p_idx,const String& p_tooltip);
 	void set_item_shortcut(int p_idx, const Ref<ShortCut>& p_shortcut);
 
+	void toggle_item_checked(int p_idx);
+
 	String get_item_text(int p_idx) const;
 	Ref<Texture> get_item_icon(int p_idx) const;
 	bool is_item_checked(int p_idx) const;
@@ -151,6 +154,8 @@ public:
 	void clear_autohide_areas();
 
 	void set_invalidate_click_until_motion();
+	void set_hide_on_item_selection(bool p_enabled);
+	bool is_hide_on_item_selection();
 
 	PopupMenu();
 	~PopupMenu();

@@ -184,6 +184,10 @@ public:
 	virtual bool get_borderless_window() { return 0; }
 
 
+	virtual Error open_dynamic_library(const String p_path, void* &p_library_handle) { return ERR_UNAVAILABLE; };
+	virtual Error close_dynamic_library(void* p_library_handle) { return ERR_UNAVAILABLE; };
+	virtual Error get_dynamic_library_symbol_handle(void* p_library_handle, const String p_name, void* &p_symbol_handle) { return ERR_UNAVAILABLE; };
+
 
 	virtual void set_iterations_per_second(int p_ips);
 	virtual int get_iterations_per_second() const;
@@ -431,7 +435,7 @@ public:
 	virtual void set_context(int p_context);
 
 	virtual void set_use_vsync(bool p_enable);
-	virtual bool is_vsnc_enabled() const;
+	virtual bool is_vsync_enabled() const;
 
 	Dictionary get_engine_version() const;
 

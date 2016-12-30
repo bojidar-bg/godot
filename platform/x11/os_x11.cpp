@@ -1951,7 +1951,7 @@ void OS_X11::set_use_vsync(bool p_enable) {
 		return context_gl->set_use_vsync(p_enable);
 }
 
-bool OS_X11::is_vsnc_enabled() const {
+bool OS_X11::is_vsync_enabled() const {
 
 	if (context_gl)
 		return context_gl->is_using_vsync();
@@ -1989,6 +1989,11 @@ OS_X11::OS_X11() {
 #ifdef ALSA_ENABLED
 	AudioDriverManagerSW::add_driver(&driver_alsa);
 #endif
+
+	if(AudioDriverManagerSW::get_driver_count() == 0){
+		WARN_PRINT("No sound driver found... Defaulting to dummy driver");
+		AudioDriverManagerSW::add_driver(&driver_dummy);
+	}
 
 	minimized = false;
 	xim_style=0L;

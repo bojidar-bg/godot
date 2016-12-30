@@ -472,6 +472,8 @@ static void _call_##m_type##_##m_method(Variant& r_ret,Variant& p_self,const Var
 	VCALL_LOCALMEM1(Array,resize);
 	VCALL_LOCALMEM2(Array,insert);
 	VCALL_LOCALMEM1(Array,remove);
+	VCALL_LOCALMEM0R(Array,front);
+	VCALL_LOCALMEM0R(Array,back);
 	VCALL_LOCALMEM2R(Array,find);
 	VCALL_LOCALMEM2R(Array,rfind);
 	VCALL_LOCALMEM1R(Array,find_last);
@@ -1576,6 +1578,8 @@ _VariantCall::addfunc(Variant::m_vtype,Variant::m_ret,_SCS(#m_method),VCALL(m_cl
 	ADDFUNC2(ARRAY,NIL,Array,insert,INT,"pos",NIL,"value",varray());
 	ADDFUNC1(ARRAY,NIL,Array,remove,INT,"pos",varray());
 	ADDFUNC1(ARRAY,NIL,Array,erase,NIL,"value",varray());
+	ADDFUNC0(ARRAY,NIL,Array,front,varray());
+	ADDFUNC0(ARRAY,NIL,Array,back,varray());
 	ADDFUNC2(ARRAY,INT,Array,find,NIL,"what",INT,"from",varray(0));
 	ADDFUNC2(ARRAY,INT,Array,rfind,NIL,"what",INT,"from",varray(-1));
 	ADDFUNC1(ARRAY,INT,Array,find_last,NIL,"value",varray());
@@ -1820,6 +1824,11 @@ _VariantCall::addfunc(Variant::m_vtype,Variant::m_ret,_SCS(#m_method),VCALL(m_cl
 	_VariantCall::add_constant(Variant::IMAGE,"INTERPOLATE_NEAREST",Image::INTERPOLATE_NEAREST);
 	_VariantCall::add_constant(Variant::IMAGE,"INTERPOLATE_BILINEAR",Image::INTERPOLATE_BILINEAR);
 	_VariantCall::add_constant(Variant::IMAGE,"INTERPOLATE_CUBIC",Image::INTERPOLATE_CUBIC);
+
+	_VariantCall::add_constant(Variant::INT, "IP_TYPE_NONE", IP_Address::TYPE_NONE);
+	_VariantCall::add_constant(Variant::INT, "IP_TYPE_IPV4", IP_Address::TYPE_IPV4);
+	_VariantCall::add_constant(Variant::INT, "IP_TYPE_IPV6", IP_Address::TYPE_IPV6);
+	_VariantCall::add_constant(Variant::INT, "IP_TYPE_ANY", IP_Address::TYPE_ANY);
 }
 
 void unregister_variant_methods() {

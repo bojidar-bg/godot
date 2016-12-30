@@ -407,7 +407,10 @@ class VisualServerRaster : public VisualServer {
 
 		_FORCE_INLINE_ bool operator()(const CanvasItem* p_left,const CanvasItem* p_right) const {
 
-			return p_left->xform.elements[2].y < p_right->xform.elements[2].y;
+			if(Math::abs(p_left->xform.elements[2].y - p_right->xform.elements[2].y) < CMP_EPSILON )
+				return p_left->xform.elements[2].x < p_right->xform.elements[2].x;
+			else
+				return p_left->xform.elements[2].y < p_right->xform.elements[2].y;
 		}
 	};
 
@@ -1283,6 +1286,7 @@ public:
 
 	virtual void set_boot_image(const Image& p_image, const Color& p_color, bool p_scale);
 	virtual void set_default_clear_color(const Color& p_color);
+	virtual Color get_default_clear_color() const;
 
 	VisualServerRaster(Rasterizer *p_rasterizer);
 	~VisualServerRaster();

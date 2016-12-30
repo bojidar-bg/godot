@@ -100,7 +100,7 @@ void ScriptTextEditor::_load_theme_settings() {
 	/* keyword color */
 
 
-	text_edit->set_custom_bg_color(EDITOR_DEF("text_editor/background_color",Color(0,0,0,0)));
+	text_edit->add_color_override("background_color", EDITOR_DEF("text_editor/background_color",Color(0,0,0,0)));
 	text_edit->add_color_override("completion_background_color", EDITOR_DEF("text_editor/completion_background_color", Color(0,0,0,0)));
 	text_edit->add_color_override("completion_selected_color", EDITOR_DEF("text_editor/completion_selected_color", Color::html("434244")));
 	text_edit->add_color_override("completion_existing_color", EDITOR_DEF("text_editor/completion_existing_color", Color::html("21dfdfdf")));
@@ -122,6 +122,7 @@ void ScriptTextEditor::_load_theme_settings() {
 	text_edit->add_color_override("breakpoint_color", EDITOR_DEF("text_editor/breakpoint_color", Color(0.8,0.8,0.4,0.2)));
 	text_edit->add_color_override("search_result_color",EDITOR_DEF("text_editor/search_result_color",Color(0.05,0.25,0.05,1)));
 	text_edit->add_color_override("search_result_border_color",EDITOR_DEF("text_editor/search_result_border_color",Color(0.1,0.45,0.1,1)));
+	text_edit->add_color_override("symbol_color",EDITOR_DEF("text_editor/symbol_color",Color::hex(0x005291ff)));
 	text_edit->add_constant_override("line_spacing", EDITOR_DEF("text_editor/line_spacing",4));
 
 	Color keyword_color= EDITOR_DEF("text_editor/keyword_color",Color(0.5,0.0,0.2));
@@ -190,11 +191,6 @@ void ScriptTextEditor::_load_theme_settings() {
 		String end = string.get_slice_count(" ")>1?string.get_slice(" ",1):String();
 		text_edit->add_color_region(beg,end,string_color,end=="");
 	}
-
-	//colorize symbols
-	Color symbol_color= EDITOR_DEF("text_editor/symbol_color",Color::hex(0x005291ff));
-	text_edit->set_symbol_color(symbol_color);
-
 }
 
 
@@ -249,17 +245,7 @@ void ScriptTextEditor::add_callback(const String& p_function,StringArray p_args)
 
 void ScriptTextEditor::update_settings() {
 
-	code_editor->get_text_edit()->set_auto_brace_completion(EditorSettings::get_singleton()->get("text_editor/auto_brace_complete"));
-	code_editor->get_text_edit()->set_scroll_pass_end_of_file(EditorSettings::get_singleton()->get("text_editor/scroll_past_end_of_file"));
-	code_editor->get_text_edit()->set_tab_size(EditorSettings::get_singleton()->get("text_editor/tab_size"));
-	code_editor->get_text_edit()->set_draw_tabs(EditorSettings::get_singleton()->get("text_editor/draw_tabs"));
-	code_editor->get_text_edit()->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/show_line_numbers"));
-	code_editor->get_text_edit()->set_syntax_coloring(EditorSettings::get_singleton()->get("text_editor/syntax_highlighting"));
-	code_editor->get_text_edit()->set_highlight_all_occurrences(EditorSettings::get_singleton()->get("text_editor/highlight_all_occurrences"));
-	code_editor->get_text_edit()->cursor_set_blink_enabled(EditorSettings::get_singleton()->get("text_editor/caret_blink"));
-	code_editor->get_text_edit()->cursor_set_blink_speed(EditorSettings::get_singleton()->get("text_editor/caret_blink_speed"));
-	code_editor->get_text_edit()->set_draw_breakpoint_gutter(EditorSettings::get_singleton()->get("text_editor/show_breakpoint_gutter"));
-	code_editor->get_text_edit()->cursor_set_block_mode(EditorSettings::get_singleton()->get("text_editor/block_caret"));
+	code_editor->update_editor_settings();
 }
 
 bool ScriptTextEditor::is_unsaved()  {
@@ -1275,18 +1261,8 @@ ScriptTextEditor::ScriptTextEditor() {
 	code_editor->get_text_edit()->connect("breakpoint_toggled", this, "_breakpoint_toggled");
 	code_editor->get_text_edit()->connect("symbol_lookup", this, "_lookup_symbol");
 
+	update_settings();
 
-	code_editor->get_text_edit()->set_scroll_pass_end_of_file(EditorSettings::get_singleton()->get("text_editor/scroll_past_end_of_file"));
-	code_editor->get_text_edit()->set_auto_brace_completion(EditorSettings::get_singleton()->get("text_editor/auto_brace_complete"));
-	code_editor->get_text_edit()->set_tab_size(EditorSettings::get_singleton()->get("text_editor/tab_size"));
-	code_editor->get_text_edit()->set_draw_tabs(EditorSettings::get_singleton()->get("text_editor/draw_tabs"));
-	code_editor->get_text_edit()->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/show_line_numbers"));
-	code_editor->get_text_edit()->set_syntax_coloring(EditorSettings::get_singleton()->get("text_editor/syntax_highlighting"));
-	code_editor->get_text_edit()->set_highlight_all_occurrences(EditorSettings::get_singleton()->get("text_editor/highlight_all_occurrences"));
-	code_editor->get_text_edit()->cursor_set_blink_enabled(EditorSettings::get_singleton()->get("text_editor/caret_blink"));
-	code_editor->get_text_edit()->cursor_set_blink_speed(EditorSettings::get_singleton()->get("text_editor/caret_blink_speed"));
-	code_editor->get_text_edit()->set_draw_breakpoint_gutter(EditorSettings::get_singleton()->get("text_editor/show_breakpoint_gutter"));
-	code_editor->get_text_edit()->cursor_set_block_mode(EditorSettings::get_singleton()->get("text_editor/block_caret"));
 	code_editor->get_text_edit()->set_callhint_settings(
 		EditorSettings::get_singleton()->get("text_editor/put_callhint_tooltip_below_current_line"),
 		EditorSettings::get_singleton()->get("text_editor/callhint_tooltip_offset"));
