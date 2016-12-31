@@ -105,7 +105,7 @@ void GDAPI godot_array_remove(godot_array p_array,int p_position);
 void GDAPI godot_array_clear(godot_array p_array);
 int GDAPI godot_array_get_size(godot_array p_array);
 int GDAPI godot_array_find(godot_array p_array,godot_variant p_value,int p_from_pos);
-// godot_array GDAPI godot_array_copy(godot_array p_array);
+godot_array GDAPI godot_array_copy(godot_array p_array);
 // ^ this isn't even in the "original" Array.
 void GDAPI godot_array_free(godot_array p_array);
 
@@ -209,12 +209,13 @@ void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array);
 
 typedef void* godot_byte_array_lock;
 
+/*
 godot_byte_array_lock GDAPI godot_byte_array_get_lock(godot_byte_array p_byte_array);
 unsigned char GDAPI *godot_byte_array_lock_get_pointer(godot_byte_array_lock p_byte_array_lock);
 void GDAPI godot_byte_array_lock_free(godot_byte_array_lock p_byte_array_lock);
+*/
 
-
-godot_image GDAPI godot_image_new_with_array(int p_width,int p_height,int p_format,int p_use_mipmaps,godot_array p_array);
+godot_image GDAPI godot_image_new_with_array(int p_width,int p_height,int p_use_mipmaps,int p_format,godot_array p_array);
 godot_byte_array GDAPI godot_image_get_data(godot_image p_image);
 
 
@@ -284,7 +285,6 @@ godot_vector2_array GDAPI godot_vector2_array_copy(godot_vector2_array p_vector2
 void GDAPI godot_vector2_array_free(godot_vector2_array p_vector2_array);
 
 int GDAPI godot_vector2_array_get_size(godot_vector2_array p_vector2_array);
-int GDAPI godot_vector2_array_get_stride(godot_vector2_array p_vector2_array);
 void GDAPI godot_vector2_array_get(godot_vector2_array p_vector2_array,int p_index,float* p_vector2);
 void GDAPI godot_vector2_array_set(godot_vector2_array p_vector2_array,int p_index,float *p_vector2);
 void GDAPI godot_vector2_array_remove(godot_vector2_array p_vector2_array,int p_index);
@@ -306,7 +306,6 @@ godot_vector3_array GDAPI godot_vector3_array_copy(godot_vector3_array p_vector3
 void GDAPI godot_vector3_array_free(godot_vector3_array p_vector3_array);
 
 int GDAPI godot_vector3_array_get_size(godot_vector3_array p_vector3_array);
-int GDAPI godot_vector3_array_get_stride(godot_vector3_array p_vector3_array);
 void GDAPI godot_vector3_array_get(godot_vector3_array p_vector3_array,int p_index,float* p_vector3);
 void GDAPI godot_vector3_array_set(godot_vector3_array p_vector3_array,int p_index,float *p_vector3);
 void GDAPI godot_vector3_array_remove(godot_vector3_array p_vector3_array,int p_index);
@@ -328,7 +327,6 @@ godot_color_array GDAPI godot_color_array_copy(godot_color_array p_color_array);
 void GDAPI godot_color_array_free(godot_color_array p_color_array);
 
 int GDAPI godot_color_array_get_size(godot_color_array p_color_array);
-int GDAPI godot_color_array_get_stride(godot_color_array p_color_array);
 void GDAPI godot_color_array_get(godot_color_array p_color_array,int p_index,float* p_color);
 void GDAPI godot_color_array_set(godot_color_array p_color_array,int p_index,float *p_color);
 void GDAPI godot_color_array_remove(godot_color_array p_color_array,int p_index);
