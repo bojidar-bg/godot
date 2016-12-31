@@ -199,149 +199,196 @@ void GDAPI godot_array_free(godot_array p_array) {
 // InputEvent
 
 godot_input_event GDAPI godot_input_event_new() {
-	return NULL;
+	InputEvent *ie = memnew(InputEvent());
+	return static_cast<godot_input_event>(ie);
 }
-godot_input_event GDAPI godot_input_event_copy(godot_input_event p_input_event) {
-	return NULL;
-}
-void GDAPI godot_input_event_free(godot_input_event p_input_event) {
 
+godot_input_event GDAPI godot_input_event_copy(godot_input_event p_input_event) {
+	InputEvent *ie = static_cast<InputEvent*>(p_input_event);
+	godot_input_event new_ie = godot_input_event_new();
+	*static_cast<InputEvent*>(new_ie) = *ie;
+	return new_ie;
+}
+
+void GDAPI godot_input_event_free(godot_input_event p_input_event) {
+	memdelete(static_cast<InputEvent*>(p_input_event));
 }
 
 int GDAPI godot_input_event_get_type(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->type;
 }
 int GDAPI godot_input_event_get_device(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->device;
 }
 
 godot_bool GDAPI godot_input_event_mod_has_alt(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.mod.alt;
 }
 godot_bool GDAPI godot_input_event_mod_has_ctrl(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.mod.control;
 }
 godot_bool GDAPI godot_input_event_mod_has_command(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.mod.command;
 }
 godot_bool GDAPI godot_input_event_mod_has_shift(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.mod.shift;
 }
 godot_bool GDAPI godot_input_event_mod_has_meta(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.mod.meta;
 }
 
 int GDAPI godot_input_event_key_get_scancode(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.scancode;
 }
 int GDAPI godot_input_event_key_get_unicode(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.unicode;
 }
 godot_bool GDAPI godot_input_event_key_is_pressed(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.pressed;
 }
 godot_bool GDAPI godot_input_event_key_is_echo(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->key.echo;
 }
 
 int GDAPI godot_input_event_mouse_get_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.x;
 }
 int GDAPI godot_input_event_mouse_get_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.y;
 }
 int GDAPI godot_input_event_mouse_get_global_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.global_x;
 }
 int GDAPI godot_input_event_mouse_get_global_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.global_y;
 }
 int GDAPI godot_input_event_mouse_get_button_mask(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.button_mask;
 }
 
 int GDAPI godot_input_event_mouse_button_get_button_index(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.button_index;
 }
 godot_bool GDAPI godot_input_event_mouse_button_is_pressed(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.pressed;
 }
 godot_bool GDAPI godot_input_event_mouse_button_is_doubleclick(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_button.doubleclick;
 }
 
 int GDAPI godot_input_event_mouse_motion_get_relative_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_motion.relative_x;
 }
 int GDAPI godot_input_event_mouse_motion_get_relative_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_motion.relative_y;
 }
 
 int GDAPI godot_input_event_mouse_motion_get_speed_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_motion.speed_x;
 }
 int GDAPI godot_input_event_mouse_motion_get_speed_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->mouse_motion.speed_y;
 }
 
 int GDAPI godot_input_event_joystick_motion_get_axis(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->joy_motion.axis;
 }
 float GDAPI godot_input_event_joystick_motion_get_axis_value(godot_input_event p_event) {
-	return 0.0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->joy_motion.axis_value;
 }
 
 int GDAPI godot_input_event_joystick_button_get_button_index(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->joy_button.button_index;
 }
 godot_bool GDAPI godot_input_event_joystick_button_is_pressed(godot_input_event p_event) {
-	return GODOT_FALSE;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->joy_button.pressed;
 }
 float GDAPI godot_input_event_joystick_button_get_pressure(godot_input_event p_event) {
-	return 0.0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->joy_button.pressure;
 }
 
 
 int GDAPI godot_input_event_screen_touch_get_index(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_touch.index;
 }
 int GDAPI godot_input_event_screen_touch_get_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_touch.x;
 }
 int GDAPI godot_input_event_screen_touch_get_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_touch.y;
 }
 int GDAPI godot_input_event_screen_touch_is_pressed(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_touch.pressed;
 }
 
 int GDAPI godot_input_event_screen_drag_get_index(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_touch.index;
 }
 int GDAPI godot_input_event_screen_drag_get_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.x;
 }
 int GDAPI godot_input_event_screen_drag_get_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.y;
 }
 int GDAPI godot_input_event_screen_drag_get_relative_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.relative_x;
 }
 int GDAPI godot_input_event_screen_drag_get_relative_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.relative_y;
 }
 int GDAPI godot_input_event_screen_drag_get_speed_x(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.speed_x;
 }
 int GDAPI godot_input_event_screen_drag_get_speed_y(godot_input_event p_event) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->screen_drag.speed_y;
 }
 
 int GDAPI godot_input_event_is_action(godot_input_event p_event,char *p_action) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->action.action;
 }
 int GDAPI godot_input_event_is_action_pressed(godot_input_event p_event,char *p_action) {
-	return 0;
+	InputEvent *ie = static_cast<InputEvent*>(p_event);
+	return ie->action.pressed;
 }
 
 
