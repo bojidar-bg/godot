@@ -416,6 +416,7 @@ typedef void *godot_instance;
 #define GODOT_VARIANT_MAX 29
 
 godot_variant godot_variant_new();
+godot_variant godot_variant_clone(godot_variant p_variant);
 
 int GDAPI godot_variant_get_type(godot_variant p_variant);
 

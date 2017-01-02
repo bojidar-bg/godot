@@ -994,6 +994,11 @@ godot_variant godot_variant_new() {
 	return (godot_variant) v;
 }
 
+godot_variant godot_variant_clone(godot_variant p_variant) {
+	Variant *v = memnew(Variant(*static_cast<Variant*>(p_variant)));
+	return (godot_variant) v;
+}
+
 int GDAPI godot_variant_get_type(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return v->get_type();
