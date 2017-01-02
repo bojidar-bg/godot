@@ -484,6 +484,11 @@ void GDAPI godot_byte_array_remove(godot_byte_array p_byte_array,int p_index) {
 	ba->remove(p_index);
 }
 
+int GDAPI godot_byte_array_resize(godot_byte_array p_byte_array, int p_size) {
+	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
+	return ba->resize(p_size);
+}
+
 void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	ba->resize(0);
@@ -491,20 +496,39 @@ void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array) {
 
 
 
-// read and write lock? there's no publicly available lock...
-/*
-godot_byte_array_lock GDAPI godot_byte_array_get_lock(godot_byte_array p_byte_array) {
+
+godot_byte_array_read_lock GDAPI godot_byte_array_get_read_lock(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
+	godot_byte_array_read_lock rl = memnew(ByteArray::Read());
+	*static_cast<ByteArray::Read*>(rl) = ba->read();
+	return rl;
 }
 
-unsigned char GDAPI *godot_byte_array_lock_get_pointer(godot_byte_array_lock p_byte_array_lock) {
-
+const unsigned char GDAPI *godot_byte_array_read_lock_get_pointer(godot_byte_array_read_lock p_byte_array_read_lock) {
+	ByteArray::Read *rl = static_cast<ByteArray::Read*>(p_byte_array_read_lock);
+	return rl->ptr();
 }
 
-void GDAPI godot_byte_array_lock_free(godot_byte_array_lock p_byte_array_lock) {
-	// ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
+void GDAPI godot_byte_array_read_lock_free(godot_byte_array_read_lock p_byte_array_read_lock) {
+	memdelete(static_cast<ByteArray::Read*>(p_byte_array_read_lock));
 }
-*/
+
+godot_byte_array_write_lock GDAPI godot_byte_array_get_write_lock(godot_byte_array p_byte_array) {
+	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
+	godot_byte_array_write_lock rl = memnew(ByteArray::Write());
+	*static_cast<ByteArray::Write*>(rl) = ba->write();
+	return rl;
+}
+
+unsigned char GDAPI *godot_byte_array_write_lock_get_pointer(godot_byte_array_write_lock p_byte_array_write_lock) {
+	ByteArray::Write *rl = static_cast<ByteArray::Write*>(p_byte_array_write_lock);
+	return rl->ptr();
+}
+
+void GDAPI godot_byte_array_write_lock_free(godot_byte_array_write_lock p_byte_array_write_lock) {
+	memdelete(static_cast<ByteArray::Write*>(p_byte_array_write_lock));
+}
+
 
 
 godot_image GDAPI godot_image_new_with_array(int p_width,int p_height,int p_use_mipmaps,int p_format,godot_byte_array p_array) {
@@ -563,24 +587,47 @@ void GDAPI godot_int_array_remove(godot_int_array p_int_array,int p_index) {
 	ba->remove(p_index);
 }
 
+int GDAPI godot_int_array_resize(godot_int_array p_int_array, int p_size) {
+	IntArray *ba = static_cast<IntArray*>(p_int_array);
+	return ba->resize(p_size);
+}
+
 void GDAPI godot_int_array_clear(godot_int_array p_int_array) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	ba->resize(0);
 }
 
-/*
-godot_int_array_lock GDAPI godot_int_array_get_lock(godot_int_array p_int_array) {
-	return NULL;
+godot_int_array_read_lock GDAPI godot_int_array_get_read_lock(godot_int_array p_int_array) {
+	IntArray *ba = static_cast<IntArray*>(p_int_array);
+	godot_int_array_read_lock rl = memnew(IntArray::Read());
+	*static_cast<IntArray::Read*>(rl) = ba->read();
+	return rl;
 }
 
-int GDAPI *godot_int_array_lock_get_pointer(godot_int_array_lock p_int_array_lock) {
-	return NULL;
+const int GDAPI *godot_int_array_read_lock_get_pointer(godot_int_array_read_lock p_int_array_read_lock) {
+	IntArray::Read* rl = static_cast<IntArray::Read*>(p_int_array_read_lock);
+	return rl->ptr();
 }
 
-void GDAPI godot_int_array_lock_free(godot_int_array_lock p_int_array_lock) {
-
+void GDAPI godot_int_array_read_lock_free(godot_int_array_read_lock p_int_array_read_lock) {
+	memdelete(static_cast<IntArray::Read*>(p_int_array_read_lock));
 }
-*/
+
+godot_int_array_write_lock GDAPI godot_int_array_get_write_lock(godot_int_array p_int_array) {
+	IntArray *ba = static_cast<IntArray*>(p_int_array);
+	godot_int_array_write_lock rl = memnew(IntArray::Write());
+	*static_cast<IntArray::Write*>(rl) = ba->write();
+	return rl;
+}
+
+const int GDAPI *godot_int_array_write_lock_get_pointer(godot_int_array_write_lock p_int_array_write_lock) {
+	IntArray::Write* rl = static_cast<IntArray::Write*>(p_int_array_write_lock);
+	return rl->ptr();
+}
+
+void GDAPI godot_int_array_write_lock_free(godot_int_array_write_lock p_int_array_write_lock) {
+	memdelete(static_cast<IntArray::Write*>(p_int_array_write_lock));
+}
 
 
 // RealArray
@@ -621,24 +668,47 @@ void GDAPI godot_real_array_remove(godot_real_array p_real_array,int p_index) {
 	ba->remove(p_index);
 }
 
+int GDAPI godot_real_array_resize(godot_real_array p_real_array, int p_size) {
+	RealArray *ba = static_cast<RealArray*>(p_real_array);
+	return ba->resize(p_size);
+}
+
 void GDAPI godot_real_array_clear(godot_real_array p_real_array) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	ba->resize(0);
 }
 
-/*
-godot_real_array_lock GDAPI godot_real_array_get_lock(godot_real_array p_real_array) {
-	return NULL;
+godot_real_array_read_lock GDAPI godot_real_array_get_read_lock(godot_real_array p_real_array) {
+	RealArray* ra = static_cast<RealArray*>(p_real_array);
+	godot_real_array_read_lock rl = memnew(RealArray::Read());
+	*static_cast<RealArray::Read*>(rl) = ra->read();
+	return rl;
 }
 
-float GDAPI *godot_real_array_lock_get_pointer(godot_real_array_lock p_real_array_lock) {
-	return NULL;
+const float GDAPI *godot_real_array_read_lock_get_pointer(godot_real_array_read_lock p_real_array_read_lock) {
+	RealArray::Read *rl = static_cast<RealArray::Read*>(p_real_array_read_lock);
+	return rl->ptr();
 }
 
-void GDAPI godot_real_array_lock_free(godot_real_array_lock p_real_array_lock) {
-
+void GDAPI godot_real_array_read_lock_free(godot_real_array_read_lock p_real_array_read_lock) {
+	memdelete(static_cast<RealArray::Read*>(p_real_array_read_lock));
 }
-*/
+
+godot_real_array_write_lock GDAPI godot_real_array_get_write_lock(godot_real_array p_real_array) {
+	RealArray* ra = static_cast<RealArray*>(p_real_array);
+	godot_real_array_write_lock rl = memnew(RealArray::Write());
+	*static_cast<RealArray::Write*>(rl) = ra->write();
+	return rl;
+}
+
+float GDAPI *godot_real_array_write_lock_get_pointer(godot_real_array_write_lock p_real_array_write_lock) {
+	RealArray::Write *rl = static_cast<RealArray::Write*>(p_real_array_write_lock);
+	return rl->ptr();
+}
+
+void GDAPI godot_real_array_write_lock_free(godot_real_array_write_lock p_real_array_write_lock) {
+	memdelete(static_cast<RealArray::Write*>(p_real_array_write_lock));
+}
 
 
 // StringArray
@@ -683,6 +753,11 @@ void GDAPI godot_string_array_set(godot_string_array p_string_array,int p_index,
 void GDAPI godot_string_array_remove(godot_string_array p_string_array,int p_index) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	ba->remove(p_index);
+}
+
+int GDAPI godot_string_array_resize(godot_string_array p_string_array, int p_size) {
+	StringArray *ba = static_cast<StringArray*>(p_string_array);
+	return ba->resize(p_size);
 }
 
 void GDAPI godot_string_array_clear(godot_string_array p_string_array) {
@@ -741,24 +816,17 @@ void GDAPI godot_vector2_array_remove(godot_vector2_array p_vector2_array,int p_
 	ba->remove(p_index);
 }
 
+int GDAPI godot_vector2_array_resize(godot_vector2_array p_vector2_array, int p_size) {
+	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
+	return ba->resize(p_size);
+}
+
 void GDAPI godot_vector2_array_clear(godot_vector2_array p_vector2_array) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	ba->resize(0);
 }
 
-/*
-godot_vector2_array_lock GDAPI godot_vector2_array_get_lock(godot_vector2_array p_vector2_array) {
-	return NULL;
-}
 
-float GDAPI *godot_vector2_array_lock_get_pointer(godot_vector2_array_lock p_vector2_array_lock) {
-	return NULL;
-}
-
-void GDAPI godot_vector2_array_lock_free(godot_vector2_array_lock p_vector2_array_lock) {
-
-}
-*/
 
 
 // Vector3Array
@@ -813,25 +881,15 @@ void GDAPI godot_vector3_array_remove(godot_vector3_array p_vector3_array,int p_
 	ba->remove(p_index);
 }
 
+int GDAPI godot_vector3_array_resize(godot_vector3_array p_vector3_array, int p_size) {
+	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
+	return ba->resize(p_size);
+}
+
 void GDAPI godot_vector3_array_clear(godot_vector3_array p_vector3_array) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	ba->resize(0);
 }
-
-/*
-godot_vector3_array_lock GDAPI godot_vector3_array_get_lock(godot_vector3_array p_vector3_array) {
-	return NULL;
-}
-
-float GDAPI *godot_vector3_array_lock_get_pointer(godot_vector3_array_lock p_vector3_array_lock) {
-	return NULL;
-}
-
-void GDAPI godot_vector3_array_lock_free(godot_vector3_array_lock p_vector3_array_lock) {
-
-}
-*/
-
 
 // ColorArray
 
@@ -888,24 +946,16 @@ void GDAPI godot_color_array_remove(godot_color_array p_color_array,int p_index)
 	ba->remove(p_index);
 }
 
+int GDAPI godot_color_array_resize(godot_color_array p_color_array, int p_size) {
+	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
+	return ba->resize(p_size);
+}
+
+
 void GDAPI godot_color_array_clear(godot_color_array p_color_array) {
 	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
 	ba->resize(0);
 }
-
-/*
-godot_color_array_lock GDAPI godot_color_array_get_lock(godot_color_array p_color_array) {
-	return NULL;
-}
-
-float GDAPI *godot_color_array_lock_get_pointer(godot_color_array_lock p_color_array_lock) {
-	return NULL;
-}
-
-void GDAPI godot_color_array_lock_free(godot_color_array_lock p_color_array_lock) {
-
-}
-*/
 
 
 // Variant
