@@ -33,6 +33,7 @@
 #include "io/resource_loader.h"
 #include "self_list.h"
 #include "resource.h"
+#include "os/thread_safe.h"
 
 class DLLibrary;
 
@@ -97,18 +98,62 @@ public:
 
 
 class DLLibrary : public Resource {
+	_THREAD_SAFE_CLASS_
 
 	OBJ_TYPE( DLLibrary, Resource );
 	OBJ_SAVE_TYPE( DLLibrary );
-	
+
 	Map<StringName,String> platform_files;
 	void* library_handle;
+	static DLLibrary* currently_initialized_library;
 
 protected:
 friend class DLScript;
 
+	typedef void* (InstanceFunc)(void* instance);
+	typedef void (FreeFunc)(void* instance,void* userdata);
+	typedef void* (MethodFunc)(void* instance,void* userdata,void** args,int arg_count);
+	typedef void (SetterFunc)(void* instance,void* userdata,void* value);
+	typedef void* (GetterFunc)(void* instance,void* userdata);
+	
+	struct _Script {
+		
+		struct Method {
+			MethodFunc* func;
+			Array default_arguments;
+			DVector<Variant::Type> agrument_types;
+			bool is_validated;
+			
+			Method() {is_validated = false; func = NULL;}
+			Method(MethodFunc p_func) {is_validated = false; func = p_func;}
+			Method(MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults) {
+				is_validated = true; func = p_func; agrument_types = p_types; default_arguments = p_defaults;
+			}
+		};
+		struct Property {
+			SetterFunc* setter;
+			GetterFunc* getter;
+			PropertyInfo info;
+			
+			Property() {setter = NULL; getter = NULL;}
+			Property(SetterFunc p_setter, GetterFunc p_getter) {setter = p_setter; getter = p_getter;}
+			Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info) {setter = p_setter; getter = p_getter; info = p_info;}
+		};
+		
+		Map<StringName, Method> methods;
+		Map<StringName, Property> properties;
+		StringName base;
+		InstanceFunc* instance_func;
+		FreeFunc* free_func;
+		
+		_Script() {base = StringName(); instance_func = NULL; free_func = NULL;}
+		_Script(StringName p_base, InstanceFunc p_instance, FreeFunc p_free) {base = p_base; instance_func = p_instance; free_func = p_free;}
+	};
+
+	Map<StringName,_Script> scripts;
+
 	Error _initialize_handle();
-	// bool _get_script(const StringName& p_name); // bool?
+	// _Script _get_script(const StringName& p_name);
 
 	bool _set(const StringName& p_name, const Variant& p_value);
 	bool _get(const StringName& p_name,Variant &r_ret) const;
@@ -118,6 +163,13 @@ friend class DLScript;
 
 public:
 
+	static DLLibrary* get_currently_initialized_library();
+	
+	void _register_script(const StringName p_base, const StringName p_name, InstanceFunc p_instance_func, FreeFunc p_free_func);
+	void _register_script_method(const StringName p_name, const StringName p_method, MethodFunc p_func);
+	void _register_script_validated_method(const StringName p_name, const StringName p_method, MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults);
+	void _register_script_property(const StringName p_name, const String p_path, SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info=PropertyInfo());
+	
 	void set_platform_file(StringName p_platform, String p_file);
 	String get_platform_file(StringName p_platform) const;
 

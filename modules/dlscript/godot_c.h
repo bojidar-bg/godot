@@ -578,13 +578,13 @@ typedef void* (godot_script_instance_func)(godot_instance); //passed an instance
 typedef void (godot_script_free_func)(godot_instance,void*); //passed an instance, please free your userdata
 
 void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_script_instance_func p_instance_func,godot_script_free_func p_free_func);
-void GDAPI godot_script_unregister(const char* p_name);
+
 
 typedef GDAPI godot_variant (godot_script_func)(godot_instance,void*,godot_variant*,int); //instance,userdata,arguments,argument count. Return something or NULL. Arguments must not be freed.
 
-
 void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_script_func p_func);
 void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant* p_default_args,int p_default_arg_count);
+
 
 typedef void (godot_set_property_func)(godot_instance,void*,godot_variant); //instance,userdata,value. Value must not be freed.
 typedef godot_variant (godot_get_property_func)(godot_instance,void*); //instance,userdata. Return a value or NULL.

@@ -55,7 +55,6 @@ StringName DLScript::get_instance_base_type() const {
 }
 
 ScriptInstance* DLScript::instance_create(Object *p_this) {
-	
 
 	#ifdef TOOLS_ENABLED
 
@@ -191,6 +190,13 @@ DLScript::~DLScript() {
 
 // Library
 
+
+DLLibrary* DLLibrary::currently_initialized_library=NULL;
+
+DLLibrary* DLLibrary::get_currently_initialized_library() {
+	return currently_initialized_library;
+}
+
 static const char* _dl_platforms_info[] = {
 	"|unix|so|Unix",
 		"unix|x11|so|X11",
@@ -224,12 +230,15 @@ String DLLibrary::get_platform_file(StringName p_platform) const {
 }
 
 Error DLLibrary::_initialize_handle() {
+	_THREAD_SAFE_METHOD_
+	
 	if (library_handle)
 		return OK; // Already initialized
 		
 	void* _library_handle;
 	
-	Error error;
+	// Get the file
+	
 	const String platform_name = OS::get_singleton()->get_name();
 	String platform_file("");
 	char** platform_info = (char**) _dl_platforms_info;
@@ -257,15 +266,21 @@ Error DLLibrary::_initialize_handle() {
 	}
 	ERR_FAIL_COND_V(platform_file == "", ERR_DOES_NOT_EXIST);
 	
+	// Open the file
+	
+	Error error;
 	error = OS::get_singleton()->open_dynamic_library(Globals::get_singleton()->globalize_path(platform_file), _library_handle);
 	if (error) return error;
 	ERR_FAIL_COND_V(!_library_handle, ERR_BUG);
 	
+	// Get the method
 	
 	void* library_init;
 	error = OS::get_singleton()->get_dynamic_library_symbol_handle(_library_handle, DLScriptLanguage::get_init_symbol_name(),  library_init);
 	if (error) return error;
 	ERR_FAIL_COND_V(!library_init, ERR_BUG);
+	
+	DLLibrary::currently_initialized_library = this;
 	
 	void (*library_init_fpointer)() = (void(*)()) library_init;
 	library_init_fpointer(); // Catch errors?
@@ -274,8 +289,38 @@ Error DLLibrary::_initialize_handle() {
 		ERR_FAIL_V(ERR_SCRIPT_FAILED);
 	}*/
 	
+	DLLibrary::currently_initialized_library = NULL;
+	
+	
 	library_handle = _library_handle;
 	return OK;
+}
+
+
+void DLLibrary::_register_script(const StringName p_base, const StringName p_name, InstanceFunc p_instance_func, FreeFunc p_free_func) {
+	ERR_FAIL_COND(scripts.has(p_name));
+	
+	scripts.insert(p_name, _Script(p_base, p_instance_func, p_free_func));
+}
+
+void DLLibrary::_register_script_method(const StringName p_name, const StringName p_method, MethodFunc p_func) {
+	ERR_FAIL_COND(!scripts.has(p_name));
+	
+	scripts[p_name].methods.insert(p_method, _Script::Method(p_func));
+}
+
+void DLLibrary::_register_script_validated_method(const StringName p_name, const StringName p_method, MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults) {
+	ERR_FAIL_COND(!scripts.has(p_name));
+	
+	scripts[p_name].methods.insert(p_method, _Script::Method(p_func, p_types, p_defaults));
+}
+
+void DLLibrary::_register_script_property(const StringName p_name, const String p_path, SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info) {
+	ERR_FAIL_COND(!scripts.has(p_name));
+	
+	p_info.name = p_path;
+	
+	scripts[p_name].properties.insert(p_path, _Script::Property(p_setter, p_getter, p_info));
 }
 
 
@@ -349,9 +394,13 @@ void DLLibrary::_bind_methods() {
 }
 
 DLLibrary::DLLibrary() {
+	library_handle = NULL;
 }
 
 DLLibrary::~DLLibrary() {
+	if (library_handle) {
+		OS::get_singleton()->close_dynamic_library(library_handle);
+	}
 }
 
 
