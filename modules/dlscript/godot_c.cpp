@@ -44,28 +44,34 @@ godot_image GDAPI godot_image_new_with_data(int p_width,int p_height,int p_use_m
 
 	return static_cast<godot_image>(i);
 }
+
 int GDAPI godot_image_get_width(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	return i->get_width();
 }
+
 int GDAPI godot_image_get_height(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	return i->get_height();
 }
+
 int GDAPI godot_image_get_format(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	return i->get_format();
 }
+
 int GDAPI godot_image_get_mipmap_count(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	return i->get_mipmaps();
 }
+
 godot_image GDAPI godot_image_copy(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	Image *new_i = memnew(Image());
 	*new_i = *i;
 	return static_cast<godot_image>(new_i);
 }
+
 void GDAPI godot_image_free(godot_image p_image) {
 	memdelete(static_cast<Image*>(p_image));
 }
@@ -76,11 +82,13 @@ godot_rid GDAPI godot_rid_new() {
 	RID *rid = memnew(RID());
 	return static_cast<godot_rid>(rid);
 }
+
 godot_rid GDAPI godot_rid_copy(godot_rid p_rid) {
 	RID *rid = memnew(RID());
 	*rid = *static_cast<RID*>(p_rid);
 	return rid;
 }
+
 void GDAPI godot_rid_free(godot_rid p_rid) {
 	memdelete(static_cast<RID*>(p_rid));
 }
@@ -93,11 +101,13 @@ godot_dictionary GDAPI godot_dictionary_new() {
 	Dictionary *d = memnew(Dictionary());
 	return static_cast<godot_dictionary>(d);
 }
+
 godot_bool GDAPI godot_dictionary_has(godot_dictionary p_dictionary,godot_variant p_key) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	Variant *key = static_cast<Variant*>(p_key);
 	return d->has(*key);
 }
+
 godot_variant GDAPI godot_dictionary_get(godot_dictionary p_dictionary,godot_variant p_key) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	Variant *key = static_cast<Variant*>(p_key);
@@ -105,36 +115,43 @@ godot_variant GDAPI godot_dictionary_get(godot_dictionary p_dictionary,godot_var
 	*static_cast<Variant*>(val) = (*d)[*key];
 	return val;
 }
+
 void GDAPI godot_dictionary_insert(godot_dictionary p_dictionary,godot_variant p_key,godot_variant p_value) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	Variant *key = static_cast<Variant*>(p_key);
 	Variant *val = static_cast<Variant*>(p_value);
 	(*d)[*key] = *val;
 }
+
 void GDAPI godot_dictionary_erase(godot_dictionary p_dictionary,godot_variant p_key) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	Variant *key = static_cast<Variant*>(p_key);
 	d->erase(*key);
 }
+
 void GDAPI godot_dictionary_clear(godot_dictionary p_dictionary) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	d->clear();
 }
+
 int GDAPI godot_dictionary_get_size(godot_dictionary p_dictionary) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	return d->size();
 }
+
 godot_array GDAPI godot_dictionary_get_keys(godot_dictionary p_dictionary) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	godot_array keys = godot_array_new();
 	*static_cast<Array*>(keys) = d->keys();
 	return keys;
 }
+
 godot_dictionary GDAPI godot_dictionary_copy(godot_dictionary p_dictionary) {
 	Dictionary *d = static_cast<Dictionary*>(p_dictionary);
 	Dictionary *copy = memnew(Dictionary(*d));
 	return static_cast<godot_dictionary>(copy);
 }
+
 void GDAPI godot_dictionary_free(godot_dictionary p_dictionary) {
 	memdelete(static_cast<Dictionary*>(p_dictionary));
 }
@@ -146,11 +163,13 @@ godot_array GDAPI godot_array_new() {
 	Array *a = memnew(Array());
 	return static_cast<godot_array>(a);
 }
+
 godot_variant GDAPI godot_array_get(godot_array p_array,int p_index) {
 	Array *a = static_cast<Array*>(p_array);
 	Variant *val = memnew(Variant(a->get(p_index)));
 	return static_cast<godot_variant>(val);
 }
+
 void GDAPI godot_array_set(godot_array p_array,int p_index,godot_variant p_value) {
 	Array *a = static_cast<Array*>(p_array);
 	Variant *val = static_cast<Variant*>(p_value);
@@ -161,23 +180,28 @@ void GDAPI godot_array_resize(godot_array p_array,int p_size) {
 	Array *a = static_cast<Array*>(p_array);
 	a->resize(p_size);
 }
+
 void GDAPI godot_array_insert(godot_array p_array,int p_position,godot_variant p_value) {
 	Array *a = static_cast<Array*>(p_array);
 	Variant *val = static_cast<Variant*>(p_value);
 	a->insert(p_position, *val);
 }
+
 void GDAPI godot_array_remove(godot_array p_array,int p_position) {
 	Array *a = static_cast<Array*>(p_array);
 	a->remove(p_position);
 }
+
 void GDAPI godot_array_clear(godot_array p_array) {
 	Array *a = static_cast<Array*>(p_array);
 	a->clear();
 }
+
 int GDAPI godot_array_get_size(godot_array p_array) {
 	Array *a = static_cast<Array*>(p_array);
 	return a->size();
 }
+
 int GDAPI godot_array_find(godot_array p_array,godot_variant p_value,int p_from_pos) {
 	Array *a = static_cast<Array*>(p_array);
 	Variant *val = static_cast<Variant*>(p_value);
@@ -219,6 +243,7 @@ int GDAPI godot_input_event_get_type(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->type;
 }
+
 int GDAPI godot_input_event_get_device(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->device;
@@ -228,18 +253,22 @@ godot_bool GDAPI godot_input_event_mod_has_alt(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.mod.alt;
 }
+
 godot_bool GDAPI godot_input_event_mod_has_ctrl(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.mod.control;
 }
+
 godot_bool GDAPI godot_input_event_mod_has_command(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.mod.command;
 }
+
 godot_bool GDAPI godot_input_event_mod_has_shift(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.mod.shift;
 }
+
 godot_bool GDAPI godot_input_event_mod_has_meta(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.mod.meta;
@@ -249,14 +278,17 @@ int GDAPI godot_input_event_key_get_scancode(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.scancode;
 }
+
 int GDAPI godot_input_event_key_get_unicode(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.unicode;
 }
+
 godot_bool GDAPI godot_input_event_key_is_pressed(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.pressed;
 }
+
 godot_bool GDAPI godot_input_event_key_is_echo(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->key.echo;
@@ -266,18 +298,22 @@ int GDAPI godot_input_event_mouse_get_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.x;
 }
+
 int GDAPI godot_input_event_mouse_get_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.y;
 }
+
 int GDAPI godot_input_event_mouse_get_global_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.global_x;
 }
+
 int GDAPI godot_input_event_mouse_get_global_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.global_y;
 }
+
 int GDAPI godot_input_event_mouse_get_button_mask(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.button_mask;
@@ -287,10 +323,12 @@ int GDAPI godot_input_event_mouse_button_get_button_index(godot_input_event p_ev
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.button_index;
 }
+
 godot_bool GDAPI godot_input_event_mouse_button_is_pressed(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.pressed;
 }
+
 godot_bool GDAPI godot_input_event_mouse_button_is_doubleclick(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_button.doubleclick;
@@ -300,6 +338,7 @@ int GDAPI godot_input_event_mouse_motion_get_relative_x(godot_input_event p_even
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_motion.relative_x;
 }
+
 int GDAPI godot_input_event_mouse_motion_get_relative_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_motion.relative_y;
@@ -309,6 +348,7 @@ int GDAPI godot_input_event_mouse_motion_get_speed_x(godot_input_event p_event) 
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_motion.speed_x;
 }
+
 int GDAPI godot_input_event_mouse_motion_get_speed_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->mouse_motion.speed_y;
@@ -318,6 +358,7 @@ int GDAPI godot_input_event_joystick_motion_get_axis(godot_input_event p_event) 
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->joy_motion.axis;
 }
+
 float GDAPI godot_input_event_joystick_motion_get_axis_value(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->joy_motion.axis_value;
@@ -327,10 +368,12 @@ int GDAPI godot_input_event_joystick_button_get_button_index(godot_input_event p
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->joy_button.button_index;
 }
+
 godot_bool GDAPI godot_input_event_joystick_button_is_pressed(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->joy_button.pressed;
 }
+
 float GDAPI godot_input_event_joystick_button_get_pressure(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->joy_button.pressure;
@@ -341,14 +384,17 @@ int GDAPI godot_input_event_screen_touch_get_index(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_touch.index;
 }
+
 int GDAPI godot_input_event_screen_touch_get_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_touch.x;
 }
+
 int GDAPI godot_input_event_screen_touch_get_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_touch.y;
 }
+
 int GDAPI godot_input_event_screen_touch_is_pressed(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_touch.pressed;
@@ -358,26 +404,32 @@ int GDAPI godot_input_event_screen_drag_get_index(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_touch.index;
 }
+
 int GDAPI godot_input_event_screen_drag_get_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.x;
 }
+
 int GDAPI godot_input_event_screen_drag_get_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.y;
 }
+
 int GDAPI godot_input_event_screen_drag_get_relative_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.relative_x;
 }
+
 int GDAPI godot_input_event_screen_drag_get_relative_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.relative_y;
 }
+
 int GDAPI godot_input_event_screen_drag_get_speed_x(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.speed_x;
 }
+
 int GDAPI godot_input_event_screen_drag_get_speed_y(godot_input_event p_event) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->screen_drag.speed_y;
@@ -387,6 +439,7 @@ int GDAPI godot_input_event_is_action(godot_input_event p_event,char *p_action) 
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->action.action;
 }
+
 int GDAPI godot_input_event_is_action_pressed(godot_input_event p_event,char *p_action) {
 	InputEvent *ie = static_cast<InputEvent*>(p_event);
 	return ie->action.pressed;
@@ -399,12 +452,14 @@ godot_byte_array GDAPI godot_byte_array_new() {
 	ByteArray *ba = memnew(ByteArray());
 	return static_cast<godot_byte_array>(ba);
 }
+
 godot_byte_array GDAPI godot_byte_array_copy(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	godot_byte_array new_ba = godot_byte_array_new();
 	*static_cast<ByteArray*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_byte_array_free(godot_byte_array p_byte_array) {
 	memdelete(static_cast<ByteArray*>(p_byte_array));
 }
@@ -413,18 +468,22 @@ int GDAPI godot_byte_array_get_size(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	return ba->size();
 }
+
 unsigned char GDAPI godot_byte_array_get(godot_byte_array p_byte_array,int p_index) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	return ba->get(p_index);
 }
+
 void GDAPI godot_byte_array_set(godot_byte_array p_byte_array,int p_index,unsigned char p_value) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	ba->set(p_index, p_value);
 }
+
 void GDAPI godot_byte_array_remove(godot_byte_array p_byte_array,int p_index) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 	ba->resize(0);
@@ -437,9 +496,11 @@ void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array) {
 godot_byte_array_lock GDAPI godot_byte_array_get_lock(godot_byte_array p_byte_array) {
 	ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 }
+
 unsigned char GDAPI *godot_byte_array_lock_get_pointer(godot_byte_array_lock p_byte_array_lock) {
 
 }
+
 void GDAPI godot_byte_array_lock_free(godot_byte_array_lock p_byte_array_lock) {
 	// ByteArray *ba = static_cast<ByteArray*>(p_byte_array);
 }
@@ -455,6 +516,7 @@ godot_image GDAPI godot_image_new_with_array(int p_width,int p_height,int p_use_
 	}
 	return img;
 }
+
 godot_byte_array GDAPI godot_image_get_data(godot_image p_image) {
 	Image *i = static_cast<Image*>(p_image);
 	godot_byte_array ba = godot_byte_array_new();
@@ -469,12 +531,14 @@ godot_int_array GDAPI godot_int_array_new() {
 	IntArray *ba = memnew(IntArray());
 	return static_cast<godot_int_array>(ba);
 }
+
 godot_int_array GDAPI godot_int_array_copy(godot_int_array p_int_array) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	godot_int_array new_ba = godot_int_array_new();
 	*static_cast<IntArray*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_int_array_free(godot_int_array p_int_array) {
 	memdelete(static_cast<IntArray*>(p_int_array));
 }
@@ -483,18 +547,22 @@ int GDAPI godot_int_array_get_size(godot_int_array p_int_array) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	return ba->size();
 }
+
 int GDAPI godot_int_array_get(godot_int_array p_int_array,int p_index) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	return ba->get(p_index);
 }
+
 void GDAPI godot_int_array_set(godot_int_array p_int_array,int p_index,int p_value) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	ba->set(p_index, p_value);
 }
+
 void GDAPI godot_int_array_remove(godot_int_array p_int_array,int p_index) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_int_array_clear(godot_int_array p_int_array) {
 	IntArray *ba = static_cast<IntArray*>(p_int_array);
 	ba->resize(0);
@@ -504,9 +572,11 @@ void GDAPI godot_int_array_clear(godot_int_array p_int_array) {
 godot_int_array_lock GDAPI godot_int_array_get_lock(godot_int_array p_int_array) {
 	return NULL;
 }
+
 int GDAPI *godot_int_array_lock_get_pointer(godot_int_array_lock p_int_array_lock) {
 	return NULL;
 }
+
 void GDAPI godot_int_array_lock_free(godot_int_array_lock p_int_array_lock) {
 
 }
@@ -519,12 +589,14 @@ godot_real_array GDAPI godot_real_array_new() {
 	RealArray *ba = memnew(RealArray());
 	return static_cast<godot_real_array>(ba);
 }
+
 godot_real_array GDAPI godot_real_array_copy(godot_real_array p_real_array) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	godot_real_array new_ba = godot_real_array_new();
 	*static_cast<RealArray*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_real_array_free(godot_real_array p_real_array) {
 	memdelete(static_cast<RealArray*>(p_real_array));
 }
@@ -533,18 +605,22 @@ int GDAPI godot_real_array_get_size(godot_real_array p_real_array) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	return ba->size();
 }
+
 float GDAPI godot_real_array_get(godot_real_array p_real_array,int p_index) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	return ba->get(p_index);
 }
+
 void GDAPI godot_real_array_set(godot_real_array p_real_array,int p_index,float p_value) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	ba->set(p_index, p_value);
 }
+
 void GDAPI godot_real_array_remove(godot_real_array p_real_array,int p_index) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_real_array_clear(godot_real_array p_real_array) {
 	RealArray *ba = static_cast<RealArray*>(p_real_array);
 	ba->resize(0);
@@ -554,9 +630,11 @@ void GDAPI godot_real_array_clear(godot_real_array p_real_array) {
 godot_real_array_lock GDAPI godot_real_array_get_lock(godot_real_array p_real_array) {
 	return NULL;
 }
+
 float GDAPI *godot_real_array_lock_get_pointer(godot_real_array_lock p_real_array_lock) {
 	return NULL;
 }
+
 void GDAPI godot_real_array_lock_free(godot_real_array_lock p_real_array_lock) {
 
 }
@@ -569,12 +647,14 @@ godot_string_array GDAPI godot_string_array_new() {
 	StringArray *ba = memnew(StringArray());
 	return static_cast<godot_string_array>(ba);
 }
+
 godot_string_array GDAPI godot_string_array_copy(godot_string_array p_string_array) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	godot_string_array new_ba = godot_string_array_new();
 	*static_cast<StringArray*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_string_array_free(godot_string_array p_string_array) {
 	memdelete(static_cast<StringArray*>(p_string_array));
 }
@@ -583,6 +663,7 @@ int GDAPI godot_string_array_get_size(godot_string_array p_string_array) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	return ba->size();
 }
+
 int GDAPI godot_string_array_get(godot_string_array p_string_array,int p_index,unsigned char* p_string,int p_max_len) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	String s = ba->get(p_index);
@@ -593,14 +674,17 @@ int GDAPI godot_string_array_get(godot_string_array p_string_array,int p_index,u
 
 	return s.utf8().size();
 }
+
 void GDAPI godot_string_array_set(godot_string_array p_string_array,int p_index,unsigned char *p_string) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	ba->set(p_index, String((char *) p_string));
 }
+
 void GDAPI godot_string_array_remove(godot_string_array p_string_array,int p_index) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_string_array_clear(godot_string_array p_string_array) {
 	StringArray *ba = static_cast<StringArray*>(p_string_array);
 	ba->resize(0);
@@ -613,12 +697,14 @@ godot_vector2_array GDAPI godot_vector2_array_new() {
 	Vector2Array *ba = memnew(Vector2Array());
 	return static_cast<godot_vector2_array>(ba);
 }
+
 godot_vector2_array GDAPI godot_vector2_array_copy(godot_vector2_array p_vector2_array) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	godot_vector2_array new_ba = godot_string_array_new();
 	*static_cast<Vector2Array*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_vector2_array_free(godot_vector2_array p_vector2_array) {
 	memdelete(static_cast<Vector2Array*>(p_vector2_array));
 }
@@ -627,6 +713,7 @@ int GDAPI godot_vector2_array_get_size(godot_vector2_array p_vector2_array) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	return ba->size();
 }
+
 void GDAPI godot_vector2_array_get(godot_vector2_array p_vector2_array,int p_index,float* p_vector2) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	Vector2 v = ba->get(p_index);
@@ -636,6 +723,7 @@ void GDAPI godot_vector2_array_get(godot_vector2_array p_vector2_array,int p_ind
 	p_vector2[0] = v[0];
 	p_vector2[1] = v[1];
 }
+
 void GDAPI godot_vector2_array_set(godot_vector2_array p_vector2_array,int p_index,float *p_vector2) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	Vector2 value;
@@ -647,10 +735,12 @@ void GDAPI godot_vector2_array_set(godot_vector2_array p_vector2_array,int p_ind
 
 	ba->set(p_index, value);
 }
+
 void GDAPI godot_vector2_array_remove(godot_vector2_array p_vector2_array,int p_index) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_vector2_array_clear(godot_vector2_array p_vector2_array) {
 	Vector2Array *ba = static_cast<Vector2Array*>(p_vector2_array);
 	ba->resize(0);
@@ -660,9 +750,11 @@ void GDAPI godot_vector2_array_clear(godot_vector2_array p_vector2_array) {
 godot_vector2_array_lock GDAPI godot_vector2_array_get_lock(godot_vector2_array p_vector2_array) {
 	return NULL;
 }
+
 float GDAPI *godot_vector2_array_lock_get_pointer(godot_vector2_array_lock p_vector2_array_lock) {
 	return NULL;
 }
+
 void GDAPI godot_vector2_array_lock_free(godot_vector2_array_lock p_vector2_array_lock) {
 
 }
@@ -675,12 +767,14 @@ godot_vector3_array GDAPI godot_vector3_array_new() {
 	Vector3Array *ba = memnew(Vector3Array());
 	return static_cast<godot_vector3_array>(ba);
 }
+
 godot_vector3_array GDAPI godot_vector3_array_copy(godot_vector3_array p_vector3_array) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	godot_vector3_array new_ba = godot_vector3_array_new();
 	*static_cast<Vector3Array*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_vector3_array_free(godot_vector3_array p_vector3_array) {
 	memdelete(static_cast<Vector3Array*>(p_vector3_array));
 }
@@ -689,6 +783,7 @@ int GDAPI godot_vector3_array_get_size(godot_vector3_array p_vector3_array) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	return ba->size();
 }
+
 void GDAPI godot_vector3_array_get(godot_vector3_array p_vector3_array,int p_index,float* p_vector3) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	Vector3 v = ba->get(p_index);
@@ -699,6 +794,7 @@ void GDAPI godot_vector3_array_get(godot_vector3_array p_vector3_array,int p_ind
 	p_vector3[1] = v[1];
 	p_vector3[2] = v[2];
 }
+
 void GDAPI godot_vector3_array_set(godot_vector3_array p_vector3_array,int p_index,float *p_vector3) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	Vector3 value;
@@ -711,10 +807,12 @@ void GDAPI godot_vector3_array_set(godot_vector3_array p_vector3_array,int p_ind
 
 	ba->set(p_index, value);
 }
+
 void GDAPI godot_vector3_array_remove(godot_vector3_array p_vector3_array,int p_index) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_vector3_array_clear(godot_vector3_array p_vector3_array) {
 	Vector3Array *ba = static_cast<Vector3Array*>(p_vector3_array);
 	ba->resize(0);
@@ -724,9 +822,11 @@ void GDAPI godot_vector3_array_clear(godot_vector3_array p_vector3_array) {
 godot_vector3_array_lock GDAPI godot_vector3_array_get_lock(godot_vector3_array p_vector3_array) {
 	return NULL;
 }
+
 float GDAPI *godot_vector3_array_lock_get_pointer(godot_vector3_array_lock p_vector3_array_lock) {
 	return NULL;
 }
+
 void GDAPI godot_vector3_array_lock_free(godot_vector3_array_lock p_vector3_array_lock) {
 
 }
@@ -740,12 +840,14 @@ godot_color_array GDAPI godot_color_array_new() {
 	ColorArray *ba = memnew(ColorArray());
 	return static_cast<godot_color_array>(ba);
 }
+
 godot_color_array GDAPI godot_color_array_copy(godot_color_array p_color_array) {
 	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
 	godot_color_array new_ba = godot_color_array_new();
 	*static_cast<ColorArray*>(new_ba) = *ba;
 	return new_ba;
 }
+
 void GDAPI godot_color_array_free(godot_color_array p_color_array) {
 	memdelete(static_cast<ColorArray*>(p_color_array));
 }
@@ -766,6 +868,7 @@ void GDAPI godot_color_array_get(godot_color_array p_color_array,int p_index,flo
 	p_color[2] = v[2];
 	p_color[3] = v[3];
 }
+
 void GDAPI godot_color_array_set(godot_color_array p_color_array,int p_index,float *p_color) {
 	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
 	Color value;
@@ -779,10 +882,12 @@ void GDAPI godot_color_array_set(godot_color_array p_color_array,int p_index,flo
 
 	ba->set(p_index, value);
 }
+
 void GDAPI godot_color_array_remove(godot_color_array p_color_array,int p_index) {
 	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
 	ba->remove(p_index);
 }
+
 void GDAPI godot_color_array_clear(godot_color_array p_color_array) {
 	ColorArray *ba = static_cast<ColorArray*>(p_color_array);
 	ba->resize(0);
@@ -792,9 +897,11 @@ void GDAPI godot_color_array_clear(godot_color_array p_color_array) {
 godot_color_array_lock GDAPI godot_color_array_get_lock(godot_color_array p_color_array) {
 	return NULL;
 }
+
 float GDAPI *godot_color_array_lock_get_pointer(godot_color_array_lock p_color_array_lock) {
 	return NULL;
 }
+
 void GDAPI godot_color_array_lock_free(godot_color_array_lock p_color_array_lock) {
 
 }
@@ -979,14 +1086,17 @@ godot_bool GDAPI godot_variant_get_bool(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (bool) *v;
 }
+
 int GDAPI godot_variant_get_int(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (int) *v;
 }
+
 float GDAPI godot_variant_get_float(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (float) *v;
 }
+
 int GDAPI godot_variant_get_string(godot_variant p_variant,char *p_string,int p_bufsize) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	String s = *v;
@@ -1008,6 +1118,7 @@ void GDAPI godot_variant_get_vector2(godot_variant p_variant,float *p_elems) {
 		p_elems[i] = v2[i];
 	}
 }
+
 void GDAPI godot_variant_get_rect2(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Rect2 r = *v;
@@ -1026,6 +1137,7 @@ void GDAPI godot_variant_get_rect2(godot_variant p_variant,float *p_elems) {
 	}
 
 }
+
 void GDAPI godot_variant_get_vector3(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Vector3 v3 = *v;
@@ -1036,6 +1148,7 @@ void GDAPI godot_variant_get_vector3(godot_variant p_variant,float *p_elems) {
 		p_elems[i] = v3[i];
 	}
 }
+
 void GDAPI godot_variant_get_matrix32(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Matrix32 m = *v;
@@ -1048,6 +1161,7 @@ void GDAPI godot_variant_get_matrix32(godot_variant p_variant,float *p_elems) {
 		}
 	}
 }
+
 void GDAPI godot_variant_get_plane(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Plane p = *v;
@@ -1061,6 +1175,7 @@ void GDAPI godot_variant_get_plane(godot_variant p_variant,float *p_elems) {
 	p_elems[3] = p.d;
 
 }
+
 void GDAPI godot_variant_get_aabb(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	AABB aabb = *v;
@@ -1075,6 +1190,7 @@ void GDAPI godot_variant_get_aabb(godot_variant p_variant,float *p_elems) {
 		p_elems[3 + i] = aabb.size[i];
 	}
 }
+
 void GDAPI godot_variant_get_matrix3(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Matrix3 m = *v;
@@ -1087,6 +1203,7 @@ void GDAPI godot_variant_get_matrix3(godot_variant p_variant,float *p_elems) {
 		}
 	}
 }
+
 void GDAPI godot_variant_get_transform(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Transform t = *v;
@@ -1103,6 +1220,7 @@ void GDAPI godot_variant_get_transform(godot_variant p_variant,float *p_elems) {
 		p_elems[9 + i] = t.origin[i];
 	}
 }
+
 void GDAPI godot_variant_get_color(godot_variant p_variant,float *p_elems) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	Color c = *v;
@@ -1113,10 +1231,12 @@ void GDAPI godot_variant_get_color(godot_variant p_variant,float *p_elems) {
 		p_elems[i] = c.components[i];
 	}
 }
+
 godot_image GDAPI godot_variant_get_image(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 int GDAPI godot_variant_get_node_path(godot_variant p_variant,char *p_path, int p_bufsize) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	NodePath np = *v;
@@ -1128,48 +1248,59 @@ int GDAPI godot_variant_get_node_path(godot_variant p_variant,char *p_path, int 
 
 	return s.utf8().length();
 }
+
 godot_rid GDAPI godot_variant_get_rid(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_instance GDAPI godot_variant_get_instance(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object*) *v;
 }
+
 void GDAPI godot_variant_get_input_event(godot_variant p_variant,godot_input_event p_event) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	assert(p_event != NULL);
 	*static_cast<InputEvent*>(p_event) = *v;
 }
+
 void GDAPI godot_variant_get_dictionary(godot_variant p_variant,godot_dictionary p_dictionary) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	assert(p_dictionary != NULL);
 	*static_cast<Dictionary*>(p_dictionary) = *v;
 }
+
 godot_array GDAPI godot_variant_get_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_byte_array GDAPI godot_variant_get_byte_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_byte_array GDAPI godot_variant_get_int_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_string_array GDAPI godot_variant_get_string_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_vector2_array GDAPI godot_variant_get_vector2_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_vector3_array GDAPI godot_variant_get_vector3_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
 }
+
 godot_color_array GDAPI godot_variant_get_color_array(godot_variant p_variant) {
 	Variant *v = static_cast<Variant*>(p_variant);
 	return (Object *) *v;
@@ -1234,6 +1365,7 @@ int GDAPI godot_class_method_get_argument_count(char* p_class,char *p_method) {
 
 	return method->get_argument_count();
 }
+
 int GDAPI godot_class_method_get_argument_type(char* p_class,char *p_method,int p_argument) {
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -1245,6 +1377,7 @@ int GDAPI godot_class_method_get_argument_type(char* p_class,char *p_method,int 
 	return GODOT_VARIANT_OBJECT;
 #endif
 }
+
 godot_variant GDAPI godot_class_method_get_argument_default_value(char* p_class,char *p_method,int p_argument) {
 	MethodBind *method = ObjectTypeDB::get_method(StringName(p_class), StringName(p_method));
 
@@ -1412,9 +1545,7 @@ void GDAPI godot_instance_free_property_list(godot_instance p_instance,godot_pro
 
 	for (unsigned int i = 0; p_list[i] != NULL; i++) {
 		godot_free(p_list[i]->name);
-
 		godot_free(p_list[i]->hint_string);
-
 		godot_free(p_list[i]);
 	}
 
@@ -1460,6 +1591,7 @@ void GDAPI godot_script_unregister(const char* p_name) {
 void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_script_func p_func) {
 
 }
+
 void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant* p_default_args,int p_default_arg_count) {
 
 }
@@ -1467,6 +1599,7 @@ void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_
 void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func) {
 
 }
+
 void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage) {
 
 }
@@ -1476,9 +1609,11 @@ void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godo
 void GDAPI *godot_alloc(int p_bytes) {
 	return memalloc(p_bytes);
 }
+
 void GDAPI *godot_realloc(void* p_ptr,int p_bytes) {
 	return memrealloc(p_ptr, p_bytes);
 }
+
 void GDAPI godot_free(void* p_ptr) {
 	memfree(p_ptr);
 }

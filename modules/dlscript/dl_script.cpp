@@ -194,6 +194,7 @@ DLScript::~DLScript() {
 static const char* _dl_platforms_info[] = {
 	"|unix|so|Unix",
 		"unix|x11|so|X11",
+		"unix|server|so|Server",
 		"unix|android|so|Android",
 		"unix|blackberry|so|Blackberry 10",
 		"unix|haiku|so|Haiku", // Right?
@@ -233,6 +234,10 @@ Error DLLibrary::_initialize_handle() {
 	String platform_file("");
 	char** platform_info = (char**) _dl_platforms_info;
 	
+	if (platform_files.has(platform_name.to_lower())) {
+		platform_file = platform_files[platform_name.to_lower()];
+	}
+
 	while (*platform_info) {
 		String platform_info_string(*platform_info);
 		
@@ -263,11 +268,11 @@ Error DLLibrary::_initialize_handle() {
 	ERR_FAIL_COND_V(!library_init, ERR_BUG);
 	
 	void (*library_init_fpointer)() = (void(*)()) library_init;
-	library_init_fpointer();
-	{
+	library_init_fpointer(); // Catch errors?
+	/*{
 		ERR_EXPLAIN("Couldn't initialize library");
 		ERR_FAIL_V(ERR_SCRIPT_FAILED);
-	}
+	}*/
 	
 	library_handle = _library_handle;
 	return OK;
@@ -295,11 +300,23 @@ bool DLLibrary::_get(const StringName& p_name,Variant &r_ret) const {
 void DLLibrary::_get_property_list( List<PropertyInfo> *p_list) const {
 	char** platform_info = (char**) _dl_platforms_info;
 	
+	Set<String> registered_platform_names;
+	{
+		List<StringName> ep;
+		EditorImportExport::get_singleton()->get_export_platforms(&ep);
+		for (List<StringName>::Element *E=ep.front();E;E=E->next()) {
+			registered_platform_names.insert(String(E->get()).to_lower());
+		}
+	}
+	
 	while (*platform_info) {
 		String platform_info_string(*platform_info);
 		String fallback_platform_key = platform_info_string.get_slicec('|', 0);
 		String platform_key = platform_info_string.get_slicec('|', 1);
 		String platform_extension = platform_info_string.get_slicec('|', 2);
+		String platform_name = platform_info_string.get_slicec('|', 3);
+		
+		registered_platform_names.erase(platform_name);
 		
 		if (fallback_platform_key.empty()) {
 			p_list->push_back(PropertyInfo(Variant::STRING, "platform/" + platform_key, PROPERTY_HINT_FILE, "*." + platform_extension));
@@ -312,6 +329,12 @@ void DLLibrary::_get_property_list( List<PropertyInfo> *p_list) const {
 			}
 		}
 		platform_info ++;
+	}
+	
+	while (registered_platform_names.size()) {
+		const String platform_name = registered_platform_names.front()->get();
+		registered_platform_names.erase(platform_name);
+		p_list->push_back(PropertyInfo(Variant::STRING, "platform/" + platform_name.to_lower(), PROPERTY_HINT_FILE, "*"));
 	}
 }
 
