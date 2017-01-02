@@ -35,6 +35,47 @@
 #include "resource.h"
 #include "os/thread_safe.h"
 
+
+
+struct DLScriptData {
+	typedef void* (InstanceFunc)(void* instance);
+	typedef void (FreeFunc)(void* instance,void* userdata);
+	typedef void* (MethodFunc)(void* instance,void* userdata,void** args,int arg_count);
+	typedef void (SetterFunc)(void* instance,void* userdata,void* value);
+	typedef void* (GetterFunc)(void* instance,void* userdata);
+	
+	struct Method {
+		MethodFunc* func;
+		MethodInfo info;
+		
+		Method() {func = NULL;}
+		Method(MethodFunc p_func, MethodInfo p_info) {func = p_func; info = p_info;}
+	};
+	struct Property {
+		SetterFunc* setter;
+		GetterFunc* getter;
+		PropertyInfo info;
+		Variant default_value;
+		
+		Property() {setter = NULL; getter = NULL;}
+		Property(SetterFunc p_setter, GetterFunc p_getter) {setter = p_setter; getter = p_getter;}
+		Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info, Variant p_default_value) {
+			setter = p_setter; getter = p_getter; info = p_info; default_value = p_default_value;
+		}
+	};
+	
+	Map<StringName, Method> methods;
+	Map<StringName, Property> properties;
+	StringName base;
+	StringName base_native_type;
+	DLScriptData* base_data;
+	InstanceFunc* instance_func;
+	FreeFunc* free_func;
+	
+	DLScriptData() {base = StringName(); base_data = NULL; instance_func = NULL; free_func = NULL;}
+	DLScriptData(StringName p_base, InstanceFunc p_instance, FreeFunc p_free) {base = p_base; base_data = NULL; instance_func = p_instance; free_func = p_free;}
+};
+
 class DLLibrary;
 
 class DLScript : public Script {
@@ -43,9 +84,9 @@ class DLScript : public Script {
 
 	Ref<DLLibrary> library;
 	StringName script_name;
-	Ref<DLScript> base;
 	StringName base_native_type;
 	Set<Object*> instances;
+	DLScriptData* script_data;
 
 friend class DLInstance;
 friend class DLScriptLanguage;
@@ -106,69 +147,31 @@ class DLLibrary : public Resource {
 	Map<StringName,String> platform_files;
 	void* library_handle;
 	static DLLibrary* currently_initialized_library;
+	Map<StringName,DLScriptData*> scripts;
 
 protected:
 friend class DLScript;
 
-	typedef void* (InstanceFunc)(void* instance);
-	typedef void (FreeFunc)(void* instance,void* userdata);
-	typedef void* (MethodFunc)(void* instance,void* userdata,void** args,int arg_count);
-	typedef void (SetterFunc)(void* instance,void* userdata,void* value);
-	typedef void* (GetterFunc)(void* instance,void* userdata);
-	
-	struct _Script {
-		
-		struct Method {
-			MethodFunc* func;
-			Array default_arguments;
-			DVector<Variant::Type> agrument_types;
-			bool is_validated;
-			
-			Method() {is_validated = false; func = NULL;}
-			Method(MethodFunc p_func) {is_validated = false; func = p_func;}
-			Method(MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults) {
-				is_validated = true; func = p_func; agrument_types = p_types; default_arguments = p_defaults;
-			}
-		};
-		struct Property {
-			SetterFunc* setter;
-			GetterFunc* getter;
-			PropertyInfo info;
-			
-			Property() {setter = NULL; getter = NULL;}
-			Property(SetterFunc p_setter, GetterFunc p_getter) {setter = p_setter; getter = p_getter;}
-			Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info) {setter = p_setter; getter = p_getter; info = p_info;}
-		};
-		
-		Map<StringName, Method> methods;
-		Map<StringName, Property> properties;
-		StringName base;
-		InstanceFunc* instance_func;
-		FreeFunc* free_func;
-		
-		_Script() {base = StringName(); instance_func = NULL; free_func = NULL;}
-		_Script(StringName p_base, InstanceFunc p_instance, FreeFunc p_free) {base = p_base; instance_func = p_instance; free_func = p_free;}
-	};
-
-	Map<StringName,_Script> scripts;
-
 	Error _initialize_handle();
-	// _Script _get_script(const StringName& p_name);
+
+	_FORCE_INLINE_ DLScriptData* get_script_data(const StringName p_name) const {
+		ERR_FAIL_COND_V(!scripts.has(p_name), NULL);
+		return scripts[p_name];
+	};
 
 	bool _set(const StringName& p_name, const Variant& p_value);
 	bool _get(const StringName& p_name,Variant &r_ret) const;
 	void _get_property_list( List<PropertyInfo> *p_list) const;
-	void _notification( int p_what);
+	void _notification(int p_what);
 	static void _bind_methods();
 
 public:
 
 	static DLLibrary* get_currently_initialized_library();
 	
-	void _register_script(const StringName p_base, const StringName p_name, InstanceFunc p_instance_func, FreeFunc p_free_func);
-	void _register_script_method(const StringName p_name, const StringName p_method, MethodFunc p_func);
-	void _register_script_validated_method(const StringName p_name, const StringName p_method, MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults);
-	void _register_script_property(const StringName p_name, const String p_path, SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info=PropertyInfo());
+	void _register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::FreeFunc p_free_func);
+	void _register_script_method(const StringName p_name, const StringName p_method, DLScriptData::MethodFunc p_func, MethodInfo p_info=MethodInfo());
+	void _register_script_property(const StringName p_name, const String p_path, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter, PropertyInfo p_info=PropertyInfo(), Variant default_value=Variant());
 	
 	void set_platform_file(StringName p_platform, String p_file);
 	String get_platform_file(StringName p_platform) const;
@@ -184,11 +187,10 @@ friend class DLScript;
 
 	Object *owner;
 	Ref<DLScript> script;
-	Vector<Variant> members;
-	bool base_ref;
+	void* userdata;
 
 
-	void _ml_call_reversed(DLScript *sptr,const StringName& p_method,const Variant** p_args,int p_argcount);
+	void _ml_call_reversed(DLScriptData *data_ptr,const StringName& p_method,const Variant** p_args,int p_argcount);
 
 public:
 
@@ -206,7 +208,7 @@ public:
 	virtual void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount);
 	virtual void call_multilevel_reversed(const StringName& p_method,const Variant** p_args,int p_argcount);
 
-	Variant debug_get_member_by_index(int p_idx) const { return members[p_idx]; }
+	Variant debug_get_member_by_index(int p_idx) const { return Variant(); }
 
 	virtual void notification(int p_notification);
 
@@ -247,7 +249,16 @@ class DLScriptLanguage : public ScriptLanguage {
 
 	bool profiling;
 	uint64_t script_frame_time;
+
+	struct {
+
+		StringName _notification;
+
+	} strings;
+
 public:
+	_FORCE_INLINE_ static DLScriptLanguage *get_singleton() { return singleton; }
+	
 	virtual String get_name() const;
 
 	/* LANGUAGE FUNCTIONS */

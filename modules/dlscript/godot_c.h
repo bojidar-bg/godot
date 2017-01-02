@@ -590,7 +590,7 @@ typedef void (godot_set_property_func)(godot_instance,void*,godot_variant); //in
 typedef godot_variant (godot_get_property_func)(godot_instance,void*); //instance,userdata. Return a value or NULL.
 
 void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func);
-void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage);
+void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage,godot_variant default_value);
 
 
 ////// System Functions

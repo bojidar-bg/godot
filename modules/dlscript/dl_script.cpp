@@ -43,15 +43,19 @@
 // Script
 
 bool DLScript::can_instance() const {
-	return true; // Always possible, since it has to be registered first anyway
+	return script_data;
 }
 
 Ref<Script> DLScript::get_base_script() const {
-	return base;
+	Ref<DLScript> base_script;
+	base_script->library = library;
+	base_script->script_data = script_data;
+	base_script->script_name = script_data->base;
+	return base_script;
 }
 
 StringName DLScript::get_instance_base_type() const {
-	return base_native_type;
+	return script_data->base_native_type;
 }
 
 ScriptInstance* DLScript::instance_create(Object *p_this) {
@@ -84,19 +88,18 @@ ScriptInstance* DLScript::instance_create(Object *p_this) {
 	}
 	#endif
 	
-	ERR_FAIL_COND_V(library->_initialize_handle() != OK, NULL);
-	
 	DLInstance* new_instance = memnew( DLInstance );
 	
 	new_instance->owner = p_this;
 	new_instance->script = Ref<DLScript>(this);
+	new_instance->userdata = script_data->instance_func(new_instance);
 	
 	instances.insert(p_this);
 	return new_instance;
 }
 
 bool DLScript::instance_has(const Object *p_this) const {
-	return instances.has((Object*)p_this); // TODO TODO TODO
+	return instances.has((Object*)p_this); // TODO
 }
 
 bool DLScript::has_source_code() const {
@@ -112,23 +115,37 @@ Error DLScript::reload(bool p_keep_state) {
 }
 
 bool DLScript::has_method(const StringName& p_method) const {
-	return false; // TODO TODO TODO
+	if(!script_data) return false;
+	return script_data->methods.has(p_method);
 }
 
 MethodInfo DLScript::get_method_info(const StringName& p_method) const {
-	return MethodInfo(); // TODO TODO TODO
+	if(!script_data) return MethodInfo();
+	ERR_FAIL_COND_V(!script_data->methods.has(p_method), MethodInfo());
+	return script_data->methods[p_method].info;
 }
 
 void DLScript::get_script_method_list(List<MethodInfo> *p_list) const {
-	// TODO TODO TODO
+	if(!script_data) return;
+	for(Map<StringName,DLScriptData::Method>::Element *E=script_data->methods.front();E;E=E->next()) {
+		p_list->push_back(E->get().info);
+	}
 }
 
 void DLScript::get_script_property_list(List<PropertyInfo> *p_list) const {
-	// TODO TODO TODO
+	if(!script_data) return;
+	for(Map<StringName,DLScriptData::Property>::Element *E=script_data->properties.front();E;E=E->next()) {
+		p_list->push_back(E->get().info);
+	}
 }
 
 bool DLScript::get_property_default_value(const StringName& p_property,Variant& r_value) const {
-	return false; // TODO TODO TODO
+	if(!script_data) return false;
+	if(script_data->properties.has(p_property)) {
+		r_value = script_data->properties[p_property].default_value;
+		return true;
+	}
+	return false;
 }
 
 bool DLScript::is_tool() const {
@@ -144,11 +161,11 @@ ScriptLanguage *DLScript::get_language() const {
 }
 
 bool DLScript::has_script_signal(const StringName& p_signal) const {
-	return false; // TODO TODO TODO
+	return false; // TODO: No signal registration yet
 }
 
 void DLScript::get_script_signal_list(List<MethodInfo> *r_signals) const {
-	// TODO TODO TODO
+	// TODO: No signal registration yet
 }
 
 Ref<DLLibrary> DLScript::get_library() const {
@@ -157,6 +174,17 @@ Ref<DLLibrary> DLScript::get_library() const {
 
 void DLScript::set_library(Ref<DLLibrary> p_library) {
 	library = p_library;
+	#ifdef TOOLS_ENABLED
+	if (!ScriptServer::is_scripting_enabled())
+		return;
+	#endif
+	if(library.is_valid()) {
+		ERR_FAIL_COND(library->_initialize_handle() != OK);
+		if(script_name) {
+			script_data = library->get_script_data(script_name);
+			ERR_FAIL_COND(!script_data);
+		}
+	}
 }
 
 StringName DLScript::get_script_name() const {
@@ -165,6 +193,14 @@ StringName DLScript::get_script_name() const {
 
 void DLScript::set_script_name(StringName p_script_name) {
 	script_name = p_script_name;
+	#ifdef TOOLS_ENABLED
+	if (!ScriptServer::is_scripting_enabled())
+		return;
+	#endif
+	if(library.is_valid()) {
+		script_data = library->get_script_data(script_name);
+		ERR_FAIL_COND(!script_data);
+	}
 }
 
 void DLScript::_bind_methods() {
@@ -178,7 +214,7 @@ void DLScript::_bind_methods() {
 }
 
 DLScript::DLScript() {
-	//hmm
+	script_data = NULL;
 }
 
 DLScript::~DLScript() {
@@ -290,37 +326,50 @@ Error DLLibrary::_initialize_handle() {
 	}*/
 	
 	DLLibrary::currently_initialized_library = NULL;
-	
-	
 	library_handle = _library_handle;
+	
+	
 	return OK;
 }
 
 
-void DLLibrary::_register_script(const StringName p_base, const StringName p_name, InstanceFunc p_instance_func, FreeFunc p_free_func) {
+void DLLibrary::_register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::FreeFunc p_free_func) {
 	ERR_FAIL_COND(scripts.has(p_name));
 	
-	scripts.insert(p_name, _Script(p_base, p_instance_func, p_free_func));
+	DLScriptData* s = memnew( DLScriptData );
+	s->base = p_base;
+	s->instance_func = p_instance_func;
+	s->free_func = p_free_func;
+	Map<StringName,DLScriptData*>::Element* E = scripts.find(p_base);
+	if(E) {
+		s->base_data = E->get();
+		s->base_native_type = s->base_data->base_native_type;
+	} else {
+		if(!ObjectTypeDB::type_exists(p_base)) {
+			memdelete(s);
+			ERR_EXPLAIN("Invalid base for registered type '" + p_name + "'");
+			ERR_FAIL();
+		}
+		s->base_native_type = p_base;
+	}
+	
+	scripts.insert(p_name, s);
 }
 
-void DLLibrary::_register_script_method(const StringName p_name, const StringName p_method, MethodFunc p_func) {
+void DLLibrary::_register_script_method(const StringName p_name, const StringName p_method, DLScriptData::MethodFunc p_func, MethodInfo p_info) {
 	ERR_FAIL_COND(!scripts.has(p_name));
 	
-	scripts[p_name].methods.insert(p_method, _Script::Method(p_func));
-}
-
-void DLLibrary::_register_script_validated_method(const StringName p_name, const StringName p_method, MethodFunc p_func, DVector<Variant::Type> p_types, Array p_defaults) {
-	ERR_FAIL_COND(!scripts.has(p_name));
+	p_info.name = p_method;
 	
-	scripts[p_name].methods.insert(p_method, _Script::Method(p_func, p_types, p_defaults));
+	scripts[p_name]->methods.insert(p_method, DLScriptData::Method(p_func, p_info));
 }
 
-void DLLibrary::_register_script_property(const StringName p_name, const String p_path, SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info) {
+void DLLibrary::_register_script_property(const StringName p_name, const String p_path, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter, PropertyInfo p_info, Variant default_value) {
 	ERR_FAIL_COND(!scripts.has(p_name));
 	
 	p_info.name = p_path;
 	
-	scripts[p_name].properties.insert(p_path, _Script::Property(p_setter, p_getter, p_info));
+	scripts[p_name]->properties.insert(p_path, DLScriptData::Property(p_setter, p_getter, p_info, default_value));
 }
 
 
@@ -401,49 +450,110 @@ DLLibrary::~DLLibrary() {
 	if (library_handle) {
 		OS::get_singleton()->close_dynamic_library(library_handle);
 	}
+	for (Map<StringName,DLScriptData*>::Element *E=scripts.front();E;E=E->next()) {
+		memdelete( E->get() );
+	}
 }
 
 
 // Instance
 
 bool DLInstance::set(const StringName& p_name, const Variant& p_value) {
-	return false; // TODO
+	if(script->script_data->properties.has(p_name)) {
+		script->script_data->properties[p_name].setter(owner, userdata, (void*) &p_value);
+		return true;
+	}
+	return false;
 }
 
 bool DLInstance::get(const StringName& p_name, Variant &r_ret) const {
-	return false; // TODO
+	if(script->script_data->properties.has(p_name)) {
+		r_ret = script->script_data->properties[p_name].getter(owner, userdata);
+		return true;
+	}
+	return false;
 }
 
 void DLInstance::get_property_list(List<PropertyInfo> *p_properties) const {
-	// TODO
+	script->get_script_property_list(p_properties);
+	// TODO: dynamic properties
 }
 
 Variant::Type DLInstance::get_property_type(const StringName& p_name,bool *r_is_valid) const {
-	return Variant::NIL; // TODO
+	if(script->script_data->properties.has(p_name)) {
+		*r_is_valid = true;
+		return script->script_data->properties[p_name].info.type;
+	}
+	*r_is_valid = false;
+	return Variant::NIL;
 }
 
 void DLInstance::get_method_list(List<MethodInfo> *p_list) const {
-	// TODO
+	script->get_script_method_list(p_list);
 }
 
 bool DLInstance::has_method(const StringName& p_method) const {
-	return false; // TODO
+	return script->has_method(p_method);
 }
 
 Variant DLInstance::call(const StringName& p_method,const Variant** p_args,int p_argcount,Variant::CallError &r_error) {
-	return Variant(); // TODO
+	// TODO: validated methods & errors
+
+	DLScriptData *data_ptr = script->script_data;
+	while(data_ptr) {
+		Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
+		if (E) {
+			void* result = E->get().func(this, userdata, (void**) p_args, p_argcount);
+			if(result) {
+				return *(Variant*) result;
+			} else {
+				return Variant();
+			}
+		}
+		data_ptr = data_ptr->base_data;
+	}
+	r_error.error=Variant::CallError::CALL_ERROR_INVALID_METHOD;
+	return Variant();
 }
 
 void DLInstance::call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount) {
-	// TODO
+	// TODO: validated methods & errors
+
+	DLScriptData *data_ptr = script->script_data;
+	while(data_ptr) {
+		Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
+		if (E) {
+			E->get().func(this, userdata, (void**) p_args, p_argcount);
+		}
+		data_ptr = data_ptr->base_data;
+	}
+}
+
+void DLInstance::_ml_call_reversed(DLScriptData *data_ptr,const StringName& p_method,const Variant** p_args,int p_argcount) {
+	// TODO: validated methods & errors
+
+	if (data_ptr->base_data)
+		_ml_call_reversed(data_ptr->base_data,p_method,p_args,p_argcount);
+
+	// Variant::CallError ce;
+
+	Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
+	if (E) {
+		E->get().func(this, userdata, (void**) p_args, p_argcount);
+	}
+
 }
 
 void DLInstance::call_multilevel_reversed(const StringName& p_method,const Variant** p_args,int p_argcount) {
-	// TODO
+	if (script.ptr() && script->script_data) {
+		_ml_call_reversed(script->script_data,p_method,p_args,p_argcount);
+	}
 }
 
 void DLInstance::notification(int p_notification) {
-	// TODO
+	Variant value = p_notification;
+	const Variant *args[1] = {&value};
+	call_multilevel(DLScriptLanguage::singleton->strings._notification, args, 1);
 }
 
 Ref<Script> DLInstance::get_script() const {
@@ -455,20 +565,24 @@ ScriptLanguage* DLInstance::get_language() {
 }
 
 ScriptInstance::RPCMode DLInstance::get_rpc_mode(const StringName& p_method) const {
-	return RPC_MODE_DISABLED; // TODO
+	return RPC_MODE_DISABLED; // TODO: rpc modes?
 }
 
 ScriptInstance::RPCMode DLInstance::get_rset_mode(const StringName& p_variable) const {
-	return RPC_MODE_DISABLED; // TODO
+	return RPC_MODE_DISABLED; // TODO: rpc modes?
 }
 
 DLInstance::DLInstance() {
 	owner = NULL;
+	userdata = NULL;
 }
 
 DLInstance::~DLInstance() {
-	if (script.is_valid() && owner) {
-		script->instances.erase(owner);
+	if (script.is_valid()) {
+		if (owner) {
+			script->instances.erase(owner);
+		}
+		script->script_data->free_func(this, userdata);
 	}
 }
 
@@ -615,6 +729,7 @@ String DLScriptLanguage::get_init_symbol_name() {
 
 DLScriptLanguage::DLScriptLanguage() {
 	ERR_FAIL_COND(singleton);
+	strings._notification = StringName("_notification");
 	singleton = this;
 }
 

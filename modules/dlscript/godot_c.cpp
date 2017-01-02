@@ -1684,17 +1684,17 @@ void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_
 		ERR_FAIL();
 	}
 	
-	DVector<Variant::Type> types;
+	MethodInfo mi(p_function_name);
+	
 	for (int i = 0; i < p_arg_count; i++) {
-		types.append((Variant::Type) p_arg_types[i]);
+		mi.arguments.push_back(PropertyInfo((Variant::Type) p_arg_types[i], String("arg")+itos(i)));
 	}
 	
-	Array default_arguments;
 	for (int i = 0; i < p_default_arg_count; i++) {
-		default_arguments.append(static_cast<Variant*>(p_default_args[i]));
+		mi.default_arguments.insert(i, static_cast<Variant*>(p_default_args[i]));
 	}
 	
-	library->_register_script_validated_method(p_name, p_function_name, p_func, types, default_arguments);
+	library->_register_script_method(p_name, p_function_name, p_func, mi);
 }
 
 void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func) {
@@ -1707,16 +1707,16 @@ void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot
 	library->_register_script_property(p_name, p_path, p_set_func, p_get_func);
 }
 
-void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage) {
+void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage,godot_variant default_value) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
 		ERR_FAIL();
 	}
 
-	PropertyInfo p((Variant::Type) p_type, p_path, (PropertyHint) p_hint, p_hint_string, p_usage);
+	PropertyInfo pi((Variant::Type) p_type, p_path, (PropertyHint) p_hint, p_hint_string, p_usage);
 
-	library->_register_script_property(p_name, p_path, p_set_func, p_get_func, p);
+	library->_register_script_property(p_name, p_path, p_set_func, p_get_func, pi, static_cast<Variant*>(default_value));
 }
 
 
