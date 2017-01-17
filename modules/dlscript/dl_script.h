@@ -80,7 +80,7 @@ class DLLibrary;
 
 class DLScript : public Script {
 
-	OBJ_TYPE(DLScript,Script);
+	GDCLASS(DLScript,Script);
 
 	Ref<DLLibrary> library;
 	StringName script_name;
@@ -141,7 +141,7 @@ public:
 class DLLibrary : public Resource {
 	_THREAD_SAFE_CLASS_
 
-	OBJ_TYPE( DLLibrary, Resource );
+	GDCLASS( DLLibrary, Resource );
 	OBJ_SAVE_TYPE( DLLibrary );
 
 	Map<StringName,String> platform_files;
@@ -278,7 +278,7 @@ public:
 	virtual Script *create_script() const;
 	virtual bool has_named_classes() const;
 	virtual int find_function(const String& p_function,const String& p_code) const;
-	virtual String make_function(const String& p_class,const String& p_name,const StringArray& p_args) const;
+	virtual String make_function(const String& p_class,const String& p_name,const PoolStringArray& p_args) const;
 
 	virtual Error complete_code(const String& p_code, const String& p_base_path, Object*p_owner,List<String>* r_options,String& r_call_hint) { return ERR_UNAVAILABLE; }
 

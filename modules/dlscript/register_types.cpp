@@ -36,8 +36,8 @@ DLScriptLanguage *script_language_dl=NULL;
 
 void register_dlscript_types() {
 
-	ObjectTypeDB::register_type<DLLibrary>();
-	ObjectTypeDB::register_type<DLScript>();
+	ClassDB::register_class<DLLibrary>();
+	ClassDB::register_class<DLScript>();
 
 	script_language_dl=memnew( DLScriptLanguage );
 	//script_language_gd->init();

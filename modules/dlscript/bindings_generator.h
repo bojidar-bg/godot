@@ -1,7 +1,7 @@
 #ifndef DLSCRIPT_BINDINGS_GENERATOR_H
 #define DLSCRIPT_BINDINGS_GENERATOR_H
 
-#include "core/object_type_db.h"
+#include "core/class_db.h"
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 

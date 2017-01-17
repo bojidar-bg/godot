@@ -209,10 +209,10 @@ void DLScript::set_script_name(StringName p_script_name) {
 }
 
 void DLScript::_bind_methods() {
-	ObjectTypeDB::bind_method(_MD("get_library"),&DLScript::get_library);
-	ObjectTypeDB::bind_method(_MD("set_library", "library"),&DLScript::set_library);
-	ObjectTypeDB::bind_method(_MD("get_script_name"),&DLScript::get_script_name);
-	ObjectTypeDB::bind_method(_MD("set_script_name", "script_name"),&DLScript::set_script_name);
+	ClassDB::bind_method(_MD("get_library"),&DLScript::get_library);
+	ClassDB::bind_method(_MD("set_library", "library"),&DLScript::set_library);
+	ClassDB::bind_method(_MD("get_script_name"),&DLScript::get_script_name);
+	ClassDB::bind_method(_MD("set_script_name", "script_name"),&DLScript::set_script_name);
 	
 	ADD_PROPERTYNZ( PropertyInfo( Variant::OBJECT, "library", PROPERTY_HINT_RESOURCE_TYPE,"DLLibrary"), _SCS("set_library"),_SCS("get_library"));
 	ADD_PROPERTYNZ( PropertyInfo( Variant::STRING, "script_name"), _SCS("set_script_name"),_SCS("get_script_name"));
@@ -310,7 +310,7 @@ Error DLLibrary::_initialize_handle() {
 	// Open the file
 	
 	Error error;
-	error = OS::get_singleton()->open_dynamic_library(Globals::get_singleton()->globalize_path(platform_file), _library_handle);
+	error = OS::get_singleton()->open_dynamic_library(GlobalConfig::get_singleton()->globalize_path(platform_file), _library_handle);
 	if (error) return error;
 	ERR_FAIL_COND_V(!_library_handle, ERR_BUG);
 	
@@ -350,7 +350,7 @@ void DLLibrary::_register_script(const StringName p_base, const StringName p_nam
 		s->base_data = E->get();
 		s->base_native_type = s->base_data->base_native_type;
 	} else {
-		if(!ObjectTypeDB::type_exists(p_base)) {
+		if(!ClassDB::class_exists(p_base)) {
 			memdelete(s);
 			ERR_EXPLAIN("Invalid base for registered type '" + p_name + "'");
 			ERR_FAIL();
@@ -443,8 +443,8 @@ void DLLibrary::_notification(int what) {
 }
 
 void DLLibrary::_bind_methods() {
-	ObjectTypeDB::bind_method(_MD("set_platform_file", "platform", "file"),&DLLibrary::set_platform_file);
-	ObjectTypeDB::bind_method(_MD("get_platform_file", "platform"),&DLLibrary::get_platform_file);
+	ClassDB::bind_method(_MD("set_platform_file", "platform", "file"),&DLLibrary::set_platform_file);
+	ClassDB::bind_method(_MD("get_platform_file", "platform"),&DLLibrary::get_platform_file);
 }
 
 DLLibrary::DLLibrary() {
@@ -673,7 +673,7 @@ int DLScriptLanguage::find_function(const String& p_function,const String& p_cod
 	return -1; // No source code!
 }
 
-String DLScriptLanguage::make_function(const String& p_class,const String& p_name,const StringArray& p_args) const {
+String DLScriptLanguage::make_function(const String& p_class,const String& p_name,const PoolStringArray& p_args) const {
 	return ""; // No source code!
 }
 

@@ -938,26 +938,26 @@ void BindingsGenerator::generate_obj_types()
 	obj_types.clear();
 
 	List<StringName> type_list;
-	ObjectTypeDB::get_type_list(&type_list);
+	ClassDB::get_class_list(&type_list);
 	type_list.sort_custom<StringName::AlphCompare>();
 
 	while (type_list.size()) {
 		StringName type_cname = type_list.front()->get();
 
-		ObjectTypeDB::APIType api_type = ObjectTypeDB::get_api_type(type_cname);
+		ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
 
-		if (api_type == ObjectTypeDB::API_NONE || (!editor_api && api_type == ObjectTypeDB::API_EDITOR)) {
+		if (api_type == ClassDB::API_NONE || (!editor_api && api_type == ClassDB::API_EDITOR)) {
 			type_list.pop_front();
 			continue;
 		}
 
 		TypeInterface itype = TypeInterface::create_object_type(type_cname);
 
-		itype.base_name = ObjectTypeDB::type_inherits_from(type_cname);
-		itype.is_singleton = Globals::get_singleton()->has_singleton(itype.proxy_name);
-		itype.is_instantiable = ObjectTypeDB::can_instance(type_cname) && !itype.is_singleton;
+		itype.base_name = ClassDB::classes.get(type_cname).inherits;
+		itype.is_singleton = GlobalConfig::get_singleton()->has_singleton(itype.proxy_name);
+		itype.is_instantiable = ClassDB::can_instance(type_cname) && !itype.is_singleton;
 		itype.is_creatable = itype.is_instantiable && is_creatable_type(itype.name);
-		itype.is_reference = ObjectTypeDB::is_type(type_cname, "Reference");
+		itype.is_reference = ClassDB::is_parent_class(type_cname, "Reference");
 		itype.memory_own = itype.is_reference && !itype.is_singleton;
 
 		itype.out = "\treturn static_cast<godot_instance>(%1);\n";
@@ -982,7 +982,7 @@ void BindingsGenerator::generate_obj_types()
 		itype.im_type_out = itype.proxy_name;
 
 		List<MethodInfo> method_list;
-		ObjectTypeDB::get_method_list(type_cname, &method_list, true);
+		ClassDB::get_method_list(type_cname, &method_list, true);
 		method_list.sort();
 
 		for(List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
@@ -993,7 +993,7 @@ void BindingsGenerator::generate_obj_types()
 			if (method_info.name.empty() || method_info.name[0] == '_' || (method_info.flags & METHOD_FLAG_VIRTUAL))
 				continue;
 
-			MethodBind *m = ObjectTypeDB::get_method(type_cname, method_info.name);
+			MethodBind *m = ClassDB::get_method(type_cname, method_info.name);
 
 			MethodInterface imethod;
 			imethod.name = method_info.name;
@@ -1063,7 +1063,7 @@ void BindingsGenerator::default_argument_from_variant(const Variant& p_val, Argu
 
 	switch(p_val.get_type()) {
 		case Variant::NIL:
-			if (ObjectTypeDB::type_exists(r_iarg.type)) {
+			if (ClassDB::class_exists(r_iarg.type)) {
 				// Object type
 				r_iarg.default_argument = "null";
 			} else {
@@ -1093,7 +1093,7 @@ void BindingsGenerator::default_argument_from_variant(const Variant& p_val, Argu
 			r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
 			break;
 		case Variant::PLANE:
-		case Variant::_AABB: // 10
+		case Variant::RECT3: // 10
 		case Variant::COLOR:
 			r_iarg.default_argument = "new Color(1, 1, 1, 1)";
 			r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
@@ -1114,18 +1114,18 @@ void BindingsGenerator::default_argument_from_variant(const Variant& p_val, Argu
 		case Variant::ARRAY:
 		case Variant::_RID:
 		case Variant::IMAGE:
-		case Variant::RAW_ARRAY:
-		case Variant::INT_ARRAY:
-		case Variant::REAL_ARRAY:
-		case Variant::STRING_ARRAY:	// 25
-		case Variant::VECTOR2_ARRAY:
-		case Variant::VECTOR3_ARRAY:
-		case Variant::COLOR_ARRAY:
+		// case Variant::ARRAY:
+		case Variant::POOL_INT_ARRAY:
+		case Variant::POOL_REAL_ARRAY:
+		case Variant::POOL_STRING_ARRAY:	// 25
+		case Variant::POOL_VECTOR2_ARRAY:
+		case Variant::POOL_VECTOR3_ARRAY:
+		case Variant::POOL_COLOR_ARRAY:
 			r_iarg.default_argument = "new %s()";
 			r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
 			break;
-		case Variant::MATRIX32:
-		case Variant::MATRIX3:
+		case Variant::TRANSFORM2D:
+		case Variant::BASIS:
 		case Variant::QUAT:
 			r_iarg.default_argument = Variant::get_type_name(p_val.get_type()) + ".Identity";
 			r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
