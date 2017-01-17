@@ -38,6 +38,11 @@
 #include "editor/editor_import_export.h"
 #endif
 
+#if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
+#include "bindings_generator.h"
+#endif
+
+
 
 
 // Script
@@ -599,6 +604,24 @@ String DLScriptLanguage::get_name() const {
 
 void DLScriptLanguage::init() {
 	// TODO: Expose globals
+
+	// generate bindings
+#if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
+	List<String> args = OS::get_singleton()->get_cmdline_args();
+
+	List<String>::Element *E = args.find("--dlscript-generate-glue");
+
+	if (E) {
+		BindingsGenerator bindings(args.find("--tools"));
+
+		if (E->next()) {
+			Error error = bindings.generate_glue(E->next()->get());
+			if (error != OK)
+				ERR_PRINT("Failed to generate glue.");
+		}
+	}
+#endif
+
 }
 
 String DLScriptLanguage::get_type() const {
