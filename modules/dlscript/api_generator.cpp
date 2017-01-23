@@ -4,6 +4,7 @@
 #include "class_db.h"
 #include "os/file_access.h"
 #include "path_utils.h"
+#include "core/globals.h"
 
 
 
@@ -56,56 +57,17 @@ struct MethodAPI {
 
 struct ClassAPI {
 	String class_name;
+	String super_class_name;
 
 	bool is_singleton;
+	bool is_instanciable;
+	bool is_creatable;
+	bool memory_own;
 
 	List<MethodAPI> methods;
 
 	// constants
 };
-
-
-//
-
-String cpp_to_c_type(const PropertyInfo& p_return)
-{
-	switch (p_return.type) {
-	case Variant::ARRAY:
-	case Variant::BASIS:
-	case Variant::BOOL:
-	case Variant::COLOR:
-	case Variant::DICTIONARY:
-	case Variant::IMAGE:
-	case Variant::INPUT_EVENT:
-	case Variant::INT:
-	case Variant::NIL:
-	case Variant::NODE_PATH:
-		return "void *";
-	case Variant::OBJECT:
-		return DATATYPE_PREFIX + p_return.hint_string.to_lower();
-	case Variant::PLANE:
-	case Variant::POOL_BYTE_ARRAY:
-	case Variant::POOL_COLOR_ARRAY:
-	case Variant::POOL_INT_ARRAY:
-	case Variant::POOL_REAL_ARRAY:
-	case Variant::POOL_STRING_ARRAY:
-	case Variant::POOL_VECTOR2_ARRAY:
-	case Variant::POOL_VECTOR3_ARRAY:
-	case Variant::QUAT:
-	case Variant::REAL:
-	case Variant::RECT2:
-	case Variant::RECT3:
-	case Variant::STRING:
-	case Variant::TRANSFORM:
-	case Variant::TRANSFORM2D:
-	case Variant::VECTOR2:
-	case Variant::VECTOR3:
-	case Variant::_RID:
-		return "void *";
-	default:
-		return "godot_wat????";
-	}
-}
 
 
 String cpp_string_to_c_type(const String& p_type) {
@@ -134,7 +96,17 @@ List<ClassAPI> generate_c_api_classes(const APIGenConfig& p_config) {
 		StringName class_name = e->get();
 
 		ClassAPI class_api;
-		class_api.class_name = class_name;
+		class_api.class_name       = class_name;
+		class_api.super_class_name = ClassDB::get_parent_class(class_name);
+		class_api.is_singleton = GlobalConfig::get_singleton()->has_singleton(class_name);
+		{
+			bool is_reference = false;
+			List<StringName> inheriters;
+			ClassDB::get_inheriters_from_class("Reference", &inheriters);
+			is_reference = inheriters.find(class_name) < 0;
+			class_api.memory_own = !class_api.is_singleton && is_reference;
+		}
+
 
 		List<MethodInfo> methods;
 		ClassDB::get_method_list(class_name, &methods, true);
