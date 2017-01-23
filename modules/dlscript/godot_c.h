@@ -118,7 +118,7 @@ void GDAPI godot_dictionary_clear(godot_dictionary p_dictionary);
 int GDAPI godot_dictionary_get_size(godot_dictionary p_dictionary);
 godot_array GDAPI godot_dictionary_get_keys(godot_dictionary p_dictionary);
 godot_dictionary GDAPI godot_dictionary_copy(godot_dictionary p_dictionary);
-void GDAPI godot_dictionary_free(godot_dictionary p_dictionary);
+void GDAPI godot_dictionary_destroy(godot_dictionary p_dictionary);
 
 ////// Array
 
@@ -135,7 +135,7 @@ int GDAPI godot_array_get_size(godot_array p_array);
 int GDAPI godot_array_find(godot_array p_array,godot_variant p_value,int p_from_pos);
 godot_array GDAPI godot_array_copy(godot_array p_array);
 // ^ this isn't even in the "original" Array.
-void GDAPI godot_array_free(godot_array p_array);
+void GDAPI godot_array_destroy(godot_array p_array);
 
 ////// InputEvent
 
@@ -223,159 +223,159 @@ int GDAPI godot_input_event_is_action_pressed(godot_input_event p_event,char *p_
 
 ////// ByteArray
 
-typedef void* godot_byte_array;
+typedef void* godot_pool_byte_array;
 
-godot_byte_array GDAPI godot_byte_array_new();
-godot_byte_array GDAPI godot_byte_array_copy(godot_byte_array p_byte_array);
-void GDAPI godot_byte_array_free(godot_byte_array p_byte_array);
+godot_pool_byte_array GDAPI godot_pool_byte_array_new();
+godot_pool_byte_array GDAPI godot_pool_byte_array_copy(godot_pool_byte_array p_pool_byte_array);
+void GDAPI godot_pool_byte_array_free(godot_pool_byte_array p_pool_byte_array);
 
-int GDAPI godot_byte_array_get_size(godot_byte_array p_byte_array);
-unsigned char GDAPI godot_byte_array_get(godot_byte_array p_byte_array,int p_index);
-void GDAPI godot_byte_array_set(godot_byte_array p_byte_array,int p_index,unsigned char p_value);
-void GDAPI godot_byte_array_remove(godot_byte_array p_byte_array,int p_index);
-int GDAPI godot_byte_array_resize(godot_byte_array p_byte_array, int p_size);
-void GDAPI godot_byte_array_clear(godot_byte_array p_byte_array);
+int GDAPI godot_pool_byte_array_get_size(godot_pool_byte_array p_pool_byte_array);
+unsigned char GDAPI godot_pool_byte_array_get(godot_pool_byte_array p_pool_byte_array,int p_index);
+void GDAPI godot_pool_byte_array_set(godot_pool_byte_array p_pool_byte_array,int p_index,unsigned char p_value);
+void GDAPI godot_pool_byte_array_remove(godot_pool_byte_array p_pool_byte_array,int p_index);
+int GDAPI godot_pool_byte_array_resize(godot_pool_byte_array p_pool_byte_array, int p_size);
+void GDAPI godot_pool_byte_array_clear(godot_pool_byte_array p_pool_byte_array);
 
-typedef void* godot_byte_array_read_lock;
-typedef void* godot_byte_array_write_lock;
+typedef void* godot_pool_byte_array_read_lock;
+typedef void* godot_pool_byte_array_write_lock;
 
 
-godot_byte_array_read_lock GDAPI godot_byte_array_get_read_lock(godot_byte_array p_byte_array);
-const unsigned char GDAPI *godot_byte_array_read_lock_get_pointer(godot_byte_array_read_lock p_byte_array_read_lock);
-void GDAPI godot_byte_array_read_lock_free(godot_byte_array_read_lock p_byte_array_read_lock);
+godot_pool_byte_array_read_lock GDAPI godot_pool_byte_array_get_read_lock(godot_pool_byte_array p_pool_byte_array);
+const unsigned char GDAPI *godot_pool_byte_array_read_lock_get_pointer(godot_pool_byte_array_read_lock p_pool_byte_array_read_lock);
+void GDAPI godot_pool_byte_array_read_lock_free(godot_pool_byte_array_read_lock p_pool_byte_array_read_lock);
 
-godot_byte_array_write_lock GDAPI godot_byte_array_get_write_lock(godot_byte_array p_byte_array);
-unsigned char GDAPI *godot_byte_array_write_lock_get_pointer(godot_byte_array_write_lock p_byte_array_write_lock);
-void GDAPI godot_byte_array_write_lock_free(godot_byte_array_write_lock p_byte_array_write_lock);
+godot_pool_byte_array_write_lock GDAPI godot_pool_byte_array_get_write_lock(godot_pool_byte_array p_pool_byte_array);
+unsigned char GDAPI *godot_pool_byte_array_write_lock_get_pointer(godot_pool_byte_array_write_lock p_pool_byte_array_write_lock);
+void GDAPI godot_pool_byte_array_write_lock_free(godot_pool_byte_array_write_lock p_pool_byte_array_write_lock);
 
 
 godot_image GDAPI godot_image_new_with_array(int p_width,int p_height,int p_use_mipmaps,int p_format,godot_array p_array);
-godot_byte_array GDAPI godot_image_get_data(godot_image p_image);
+godot_pool_byte_array GDAPI godot_image_get_data(godot_image p_image);
 
 
 ////// IntArray
 
-typedef void* godot_int_array;
+typedef void* godot_pool_int_array;
 
-godot_int_array GDAPI godot_int_array_new();
-godot_int_array GDAPI godot_int_array_copy(godot_int_array p_int_array);
-void GDAPI godot_int_array_free(godot_int_array p_int_array);
+godot_pool_int_array GDAPI godot_pool_int_array_new();
+godot_pool_int_array GDAPI godot_pool_int_array_copy(godot_pool_int_array p_pool_int_array);
+void GDAPI godot_pool_int_array_free(godot_pool_int_array p_pool_int_array);
 
-int GDAPI godot_int_array_get_size(godot_int_array p_int_array);
-int GDAPI godot_int_array_get(godot_int_array p_int_array,int p_index);
-void GDAPI godot_int_array_set(godot_int_array p_int_array,int p_index,int p_value);
-void GDAPI godot_int_array_remove(godot_int_array p_int_array,int p_index);
-int GDAPI godot_int_array_resize(godot_int_array p_int_array, int p_size);
-void GDAPI godot_int_array_clear(godot_int_array p_int_array);
+int GDAPI godot_pool_int_array_get_size(godot_pool_int_array p_pool_int_array);
+int GDAPI godot_pool_int_array_get(godot_pool_int_array p_pool_int_array,int p_index);
+void GDAPI godot_pool_int_array_set(godot_pool_int_array p_pool_int_array,int p_index,int p_value);
+void GDAPI godot_pool_int_array_remove(godot_pool_int_array p_pool_int_array,int p_index);
+int GDAPI godot_pool_int_array_resize(godot_pool_int_array p_pool_int_array, int p_size);
+void GDAPI godot_pool_int_array_clear(godot_pool_int_array p_pool_int_array);
 
-typedef void* godot_int_array_read_lock;
-typedef void* godot_int_array_write_lock;
+typedef void* godot_pool_int_array_read_lock;
+typedef void* godot_pool_int_array_write_lock;
 
 
-godot_int_array_read_lock GDAPI godot_int_array_get_read_lock(godot_int_array p_int_array);
-const int GDAPI *godot_int_array_read_lock_get_pointer(godot_int_array_read_lock p_int_array_read_lock);
-void GDAPI godot_int_array_read_lock_free(godot_int_array_read_lock p_int_array_read_lock);
+godot_pool_int_array_read_lock GDAPI godot_pool_int_array_get_read_lock(godot_pool_int_array p_pool_int_array);
+const int GDAPI *godot_pool_int_array_read_lock_get_pointer(godot_pool_int_array_read_lock p_pool_int_array_read_lock);
+void GDAPI godot_pool_int_array_read_lock_free(godot_pool_int_array_read_lock p_pool_int_array_read_lock);
 
-godot_int_array_write_lock GDAPI godot_int_array_get_write_lock(godot_int_array p_int_array);
-const int GDAPI *godot_int_array_write_lock_get_pointer(godot_int_array_write_lock p_int_array_write_lock);
-void GDAPI godot_int_array_write_lock_free(godot_int_array_write_lock p_int_array_write_lock);
+godot_pool_int_array_write_lock GDAPI godot_pool_int_array_get_write_lock(godot_pool_int_array p_pool_int_array);
+const int GDAPI *godot_pool_int_array_write_lock_get_pointer(godot_pool_int_array_write_lock p_pool_int_array_write_lock);
+void GDAPI godot_pool_int_array_write_lock_free(godot_pool_int_array_write_lock p_pool_int_array_write_lock);
 
 ////// RealArray
 
-typedef void* godot_real_array;
+typedef void* godot_pool_real_array;
 
 
-godot_real_array GDAPI godot_real_array_new();
-godot_real_array GDAPI godot_real_array_copy(godot_real_array p_real_array);
-void GDAPI godot_real_array_free(godot_real_array p_real_array);
+godot_pool_real_array GDAPI godot_pool_real_array_new();
+godot_pool_real_array GDAPI godot_pool_real_array_copy(godot_pool_real_array p_pool_real_array);
+void GDAPI godot_pool_real_array_free(godot_pool_real_array p_pool_real_array);
 
-int GDAPI godot_real_array_get_size(godot_real_array p_real_array);
-float GDAPI godot_real_array_get(godot_real_array p_real_array,int p_index);
-void GDAPI godot_real_array_set(godot_real_array p_real_array,int p_index,float p_value);
-void GDAPI godot_real_array_remove(godot_real_array p_real_array,int p_index);
-int GDAPI godot_real_array_resize(godot_real_array p_real_array, int p_size);
-void GDAPI godot_real_array_clear(godot_real_array p_real_array);
+int GDAPI godot_pool_real_array_get_size(godot_pool_real_array p_pool_real_array);
+float GDAPI godot_pool_real_array_get(godot_pool_real_array p_pool_real_array,int p_index);
+void GDAPI godot_pool_real_array_set(godot_pool_real_array p_pool_real_array,int p_index,float p_value);
+void GDAPI godot_pool_real_array_remove(godot_pool_real_array p_pool_real_array,int p_index);
+int GDAPI godot_pool_real_array_resize(godot_pool_real_array p_pool_real_array, int p_size);
+void GDAPI godot_pool_real_array_clear(godot_pool_real_array p_pool_real_array);
 
-typedef void* godot_real_array_read_lock;
-typedef void *godot_real_array_write_lock;
+typedef void* godot_pool_real_array_read_lock;
+typedef void *godot_pool_real_array_write_lock;
 
-godot_real_array_read_lock GDAPI godot_real_array_get_read_lock(godot_real_array p_real_array);
-const float GDAPI *godot_real_array_read_lock_get_pointer(godot_real_array_read_lock p_real_array_read_lock);
-void GDAPI godot_real_array_read_lock_free(godot_real_array_read_lock p_real_array_read_lock);
+godot_pool_real_array_read_lock GDAPI godot_pool_real_array_get_read_lock(godot_pool_real_array p_pool_real_array);
+const float GDAPI *godot_pool_real_array_read_lock_get_pointer(godot_pool_real_array_read_lock p_pool_real_array_read_lock);
+void GDAPI godot_pool_real_array_read_lock_free(godot_pool_real_array_read_lock p_pool_real_array_read_lock);
 
-godot_real_array_write_lock GDAPI godot_real_array_get_write_lock(godot_real_array p_real_array);
-float GDAPI *godot_real_array_write_lock_get_pointer(godot_real_array_write_lock p_real_array_write_lock);
-void GDAPI godot_real_array_write_lock_free(godot_real_array_write_lock p_real_array_write_lock);
+godot_pool_real_array_write_lock GDAPI godot_pool_real_array_get_write_lock(godot_pool_real_array p_pool_real_array);
+float GDAPI *godot_pool_real_array_write_lock_get_pointer(godot_pool_real_array_write_lock p_pool_real_array_write_lock);
+void GDAPI godot_pool_real_array_write_lock_free(godot_pool_real_array_write_lock p_pool_real_array_write_lock);
 
 
 ////// StringArray
 
-typedef void* godot_string_array;
+typedef void* godot_pool_string_array;
 
 
-godot_string_array GDAPI godot_string_array_new();
-godot_string_array GDAPI godot_string_array_copy(godot_string_array p_string_array);
-void GDAPI godot_string_array_free(godot_string_array p_string_array);
+godot_pool_string_array GDAPI godot_pool_string_array_new();
+godot_pool_string_array GDAPI godot_pool_string_array_copy(godot_pool_string_array p_pool_string_array);
+void GDAPI godot_pool_string_array_free(godot_pool_string_array p_pool_string_array);
 
-int GDAPI godot_string_array_get_size(godot_string_array p_string_array);
-int GDAPI godot_string_array_get(godot_string_array p_string_array,int p_index,unsigned char* p_string,int p_max_len);
-void GDAPI godot_string_array_set(godot_string_array p_string_array,int p_index,unsigned char *p_string);
-void GDAPI godot_string_array_remove(godot_string_array p_string_array,int p_index);
-int GDAPI godot_string_array_resize(godot_string_array p_string_array, int p_size);
-void GDAPI godot_string_array_clear(godot_string_array p_string_array);
+int GDAPI godot_pool_string_array_get_size(godot_pool_string_array p_pool_string_array);
+int GDAPI godot_pool_string_array_get(godot_pool_string_array p_pool_string_array,int p_index,unsigned char* p_string,int p_max_len);
+void GDAPI godot_pool_string_array_set(godot_pool_string_array p_pool_string_array,int p_index,unsigned char *p_string);
+void GDAPI godot_pool_string_array_remove(godot_pool_string_array p_pool_string_array,int p_index);
+int GDAPI godot_pool_string_array_resize(godot_pool_string_array p_pool_string_array, int p_size);
+void GDAPI godot_pool_string_array_clear(godot_pool_string_array p_pool_string_array);
 
 ////// Vector2Array
 
-typedef void* godot_vector2_array;
+typedef void* godot_pool_vector2_array;
 
-godot_vector2_array GDAPI godot_vector2_array_new();
-godot_vector2_array GDAPI godot_vector2_array_copy(godot_vector2_array p_vector2_array);
-void GDAPI godot_vector2_array_free(godot_vector2_array p_vector2_array);
+godot_pool_vector2_array GDAPI godot_pool_vector2_array_new();
+godot_pool_vector2_array GDAPI godot_pool_vector2_array_copy(godot_pool_vector2_array p_pool_vector2_array);
+void GDAPI godot_pool_vector2_array_free(godot_pool_vector2_array p_pool_vector2_array);
 
-int GDAPI godot_vector2_array_get_size(godot_vector2_array p_vector2_array);
-void GDAPI godot_vector2_array_get(godot_vector2_array p_vector2_array,int p_index,float* p_vector2);
-void GDAPI godot_vector2_array_set(godot_vector2_array p_vector2_array,int p_index,float *p_vector2);
-void GDAPI godot_vector2_array_remove(godot_vector2_array p_vector2_array,int p_index);
-int GDAPI godot_vector2_array_resize(godot_vector2_array p_vector2_array, int p_size);
-void GDAPI godot_vector2_array_clear(godot_vector2_array p_vector2_array);
+int GDAPI godot_pool_vector2_array_get_size(godot_pool_vector2_array p_pool_vector2_array);
+void GDAPI godot_pool_vector2_array_get(godot_pool_vector2_array p_pool_vector2_array,int p_index,float* p_vector2);
+void GDAPI godot_pool_vector2_array_set(godot_pool_vector2_array p_pool_vector2_array,int p_index,float *p_vector2);
+void GDAPI godot_pool_vector2_array_remove(godot_pool_vector2_array p_pool_vector2_array,int p_index);
+int GDAPI godot_pool_vector2_array_resize(godot_pool_vector2_array p_pool_vector2_array, int p_size);
+void GDAPI godot_pool_vector2_array_clear(godot_pool_vector2_array p_pool_vector2_array);
 
 
 ////// Vector3Array
 
-typedef void* godot_vector3_array;
+typedef void* godot_pool_vector3_array;
 
-godot_vector3_array GDAPI godot_vector3_array_new();
-godot_vector3_array GDAPI godot_vector3_array_copy(godot_vector3_array p_vector3_array);
-void GDAPI godot_vector3_array_free(godot_vector3_array p_vector3_array);
+godot_pool_vector3_array GDAPI godot_pool_vector3_array_new();
+godot_pool_vector3_array GDAPI godot_pool_vector3_array_copy(godot_pool_vector3_array p_pool_vector3_array);
+void GDAPI godot_pool_vector3_array_free(godot_pool_vector3_array p_pool_vector3_array);
 
-int GDAPI godot_vector3_array_get_size(godot_vector3_array p_vector3_array);
-void GDAPI godot_vector3_array_get(godot_vector3_array p_vector3_array,int p_index,float* p_vector3);
-void GDAPI godot_vector3_array_set(godot_vector3_array p_vector3_array,int p_index,float *p_vector3);
-void GDAPI godot_vector3_array_remove(godot_vector3_array p_vector3_array,int p_index);
-int GDAPI godot_vector2_array_resize(godot_vector2_array p_vector2_array, int p_size);
-void GDAPI godot_vector3_array_clear(godot_vector3_array p_vector3_array);
+int GDAPI godot_pool_vector3_array_get_size(godot_pool_vector3_array p_pool_vector3_array);
+void GDAPI godot_pool_vector3_array_get(godot_pool_vector3_array p_pool_vector3_array,int p_index,float* p_vector3);
+void GDAPI godot_pool_vector3_array_set(godot_pool_vector3_array p_pool_vector3_array,int p_index,float *p_vector3);
+void GDAPI godot_pool_vector3_array_remove(godot_pool_vector3_array p_pool_vector3_array,int p_index);
+int GDAPI godot_pool_vector2_array_resize(godot_pool_vector2_array p_pool_vector2_array, int p_size);
+void GDAPI godot_pool_vector3_array_clear(godot_pool_vector3_array p_pool_vector3_array);
 
 ////// ColorArray
 
-typedef void* godot_color_array;
+typedef void* godot_pool_color_array;
 
-godot_color_array GDAPI godot_color_array_new();
-godot_color_array GDAPI godot_color_array_copy(godot_color_array p_color_array);
-void GDAPI godot_color_array_free(godot_color_array p_color_array);
+godot_pool_color_array GDAPI godot_pool_color_array_new();
+godot_pool_color_array GDAPI godot_pool_color_array_copy(godot_pool_color_array p_pool_color_array);
+void GDAPI godot_pool_color_array_free(godot_pool_color_array p_pool_color_array);
 
-int GDAPI godot_color_array_get_size(godot_color_array p_color_array);
-void GDAPI godot_color_array_get(godot_color_array p_color_array,int p_index,float* p_color);
-void GDAPI godot_color_array_set(godot_color_array p_color_array,int p_index,float *p_color);
-void GDAPI godot_color_array_remove(godot_color_array p_color_array,int p_index);
-int GDAPI godot_color_array_resize(godot_color_array p_color_array, int p_size);
-void GDAPI godot_color_array_clear(godot_color_array p_color_array);
+int GDAPI godot_pool_color_array_get_size(godot_pool_color_array p_pool_color_array);
+void GDAPI godot_pool_color_array_get(godot_pool_color_array p_pool_color_array,int p_index,float* p_color);
+void GDAPI godot_pool_color_array_set(godot_pool_color_array p_pool_color_array,int p_index,float *p_color);
+void GDAPI godot_pool_color_array_remove(godot_pool_color_array p_pool_color_array,int p_index);
+int GDAPI godot_pool_color_array_resize(godot_pool_color_array p_pool_color_array, int p_size);
+void GDAPI godot_pool_color_array_clear(godot_pool_color_array p_pool_color_array);
 
 
-typedef void* godot_color_array_lock;
+typedef void* godot_pool_color_array_lock;
 
-godot_color_array_lock GDAPI godot_color_array_get_lock(godot_color_array p_color_array);
-float GDAPI *godot_color_array_lock_get_pointer(godot_color_array_lock p_color_array_lock);
-void GDAPI godot_color_array_lock_free(godot_color_array_lock p_color_array_lock);
+godot_pool_color_array_lock GDAPI godot_pool_color_array_get_lock(godot_pool_color_array p_pool_color_array);
+float GDAPI *godot_pool_color_array_lock_get_pointer(godot_pool_color_array_lock p_pool_color_array_lock);
+void GDAPI godot_pool_color_array_lock_free(godot_pool_color_array_lock p_pool_color_array_lock);
 
 
 ////// Instance (forward declared)
@@ -428,10 +428,10 @@ void GDAPI godot_variant_set_string(godot_variant p_variant,char *p_string);
 void GDAPI godot_variant_set_vector2(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_rect2(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_vector3(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_set_matrix32(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_set_transform2d(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_plane(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_set_aabb(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_set_matrix3(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_set_rect3(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_set_basis(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_transform(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_color(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_set_image(godot_variant p_variant,godot_image p_image);
@@ -441,12 +441,12 @@ void GDAPI godot_variant_set_instance(godot_variant p_variant,godot_instance p_i
 void GDAPI godot_variant_set_input_event(godot_variant p_variant,godot_input_event p_instance);
 void GDAPI godot_variant_set_dictionary(godot_variant p_variant,godot_dictionary p_dictionary);
 void GDAPI godot_variant_set_array(godot_variant p_variant,godot_array p_array);
-void GDAPI godot_variant_set_byte_array(godot_variant p_variant,godot_byte_array p_array);
-void GDAPI godot_variant_set_int_array(godot_variant p_variant,godot_byte_array p_array);
-void GDAPI godot_variant_set_string_array(godot_variant p_variant,godot_string_array p_array);
-void GDAPI godot_variant_set_vector2_array(godot_variant p_variant,godot_vector2_array p_array);
-void GDAPI godot_variant_set_vector3_array(godot_variant p_variant,godot_vector3_array p_array);
-void GDAPI godot_variant_set_color_array(godot_variant p_variant,godot_color_array p_array);
+void GDAPI godot_variant_set_pool_byte_array(godot_variant p_variant,godot_pool_byte_array p_array);
+void GDAPI godot_variant_set_pool_int_array(godot_variant p_variant,godot_pool_byte_array p_array);
+void GDAPI godot_variant_set_pool_string_array(godot_variant p_variant,godot_pool_string_array p_array);
+void GDAPI godot_variant_set_pool_vector2_array(godot_variant p_variant,godot_pool_vector2_array p_array);
+void GDAPI godot_variant_set_pool_vector3_array(godot_variant p_variant,godot_pool_vector3_array p_array);
+void GDAPI godot_variant_set_pool_color_array(godot_variant p_variant,godot_pool_color_array p_array);
 
 godot_bool GDAPI godot_variant_get_bool(godot_variant p_variant);
 int GDAPI godot_variant_get_int(godot_variant p_variant);
@@ -455,10 +455,10 @@ int GDAPI godot_variant_get_string(godot_variant p_variant,char *p_string,int p_
 void GDAPI godot_variant_get_vector2(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_get_rect2(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_get_vector3(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_get_matrix32(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_get_transform2d(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_get_plane(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_get_aabb(godot_variant p_variant,float *p_elems);
-void GDAPI godot_variant_get_matrix3(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_get_rect3(godot_variant p_variant,float *p_elems);
+void GDAPI godot_variant_get_basis(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_get_transform(godot_variant p_variant,float *p_elems);
 void GDAPI godot_variant_get_color(godot_variant p_variant,float *p_elems);
 godot_image GDAPI godot_variant_get_image(godot_variant p_variant);
@@ -468,12 +468,12 @@ godot_instance GDAPI godot_variant_get_instance(godot_variant p_variant);
 void GDAPI godot_variant_get_input_event(godot_variant p_variant,godot_input_event);
 void GDAPI godot_variant_get_dictionary(godot_variant p_variant,godot_dictionary);
 godot_array GDAPI godot_variant_get_array(godot_variant p_variant);
-godot_byte_array GDAPI godot_variant_get_byte_array(godot_variant p_variant);
-godot_byte_array GDAPI godot_variant_get_int_array(godot_variant p_variant);
-godot_string_array GDAPI godot_variant_get_string_array(godot_variant p_variant);
-godot_vector2_array GDAPI godot_variant_get_vector2_array(godot_variant p_variant);
-godot_vector3_array GDAPI godot_variant_get_vector3_array(godot_variant p_variant);
-godot_color_array GDAPI godot_variant_get_color_array(godot_variant p_variant);
+godot_pool_byte_array GDAPI godot_variant_get_pool_byte_array(godot_variant p_variant);
+godot_pool_byte_array GDAPI godot_variant_get_pool_int_array(godot_variant p_variant);
+godot_pool_string_array GDAPI godot_variant_get_pool_string_array(godot_variant p_variant);
+godot_pool_vector2_array GDAPI godot_variant_get_pool_vector2_array(godot_variant p_variant);
+godot_pool_vector3_array GDAPI godot_variant_get_pool_vector3_array(godot_variant p_variant);
+godot_pool_color_array GDAPI godot_variant_get_pool_color_array(godot_variant p_variant);
 
 
 void GDAPI godot_variant_free(godot_variant p_variant);
@@ -572,6 +572,13 @@ void GDAPI godot_list_free(char **p_name); //helper to free all the class list
 ////// Singleton API
 
 godot_instance GDAPI godot_global_get_singleton(char* p_name); // result shouldn't be freed
+
+////// MethodBind API
+
+typedef void *godot_method_bind;
+
+godot_method_bind GDAPI godot_method_bind_get_method(const char *p_classname, const char *p_methodname);
+void GDAPI godot_method_bind_ptrcall(godot_method_bind p_method_bind, godot_instance p_instance, const void **p_args, void *p_ret);
 
 ////// Script API
 

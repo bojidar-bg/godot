@@ -39,7 +39,7 @@
 #endif
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
-#include "bindings_generator.h"
+#include "api_generator.h"
 #endif
 
 
@@ -609,15 +609,16 @@ void DLScriptLanguage::init() {
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 	List<String> args = OS::get_singleton()->get_cmdline_args();
 
-	List<String>::Element *E = args.find("--dlscript-generate-glue");
+	List<String>::Element *E = args.find("--dlscript-generate-json-api");
 
-	if (E) {
-		BindingsGenerator bindings(args.find("--tools"));
+	if (E && E->next()) {
+		APIGenConfig config;
+		config.tools_enabled = args.find("--dlscript-generate-tools-api") != NULL;
+		config.save_path     = E->next()->get();
+		config.generate_json = true;
 
-		if (E->next()) {
-			Error error = bindings.generate_glue(E->next()->get());
-			if (error != OK)
-				ERR_PRINT("Failed to generate glue.");
+		if (generate_c_api(config) != OK) {
+			ERR_PRINT("Failed to generate C API\n");
 		}
 	}
 #endif
