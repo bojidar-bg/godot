@@ -54,33 +54,65 @@ void _api_anchor() {
 }
 
 
+// ugly, but hey
+extern "C++" {
+template<class a, class b>
+_FORCE_INLINE_ a memcast(b v) {
+	return *((a *) &v);
+}
+}
+
+
+
 // String
 
 godot_string GDAPI godot_string_new_with_c_data(const char *p_contents, const int p_size) {
 
-	String *s = memnew(String());
-	if (p_size > 0) {
-		s->resize(p_size);
-		for (uint32_t i = 0; i < p_size; i++) {
-			s->set(i, p_contents[i]);
-		}
-	} else if (p_contents != NULL) {
-		*s = String(p_contents);
-	}
-
-	return s;
+	return memcast<godot_string, String>(String::utf8(p_contents, p_size));
 }
 
-void GDAPI godot_string_get_c_data(godot_string p_str, char *p_contents, int *p_size) {
-	String *s = static_cast<String*>(p_str);
+void GDAPI godot_string_get_c_data(godot_string *p_str, char *p_contents, int *p_size) {
+	String *s = (String *) p_str;
 	CharString cs = s->utf8();
-	if (p_size != NULL) {
-		*p_size = cs.size();
-	}
-	if (p_contents != NULL) {
+
+	if (p_contents != NULL && p_size != NULL) {
 		memcpy(p_contents, cs.get_data(), *p_size);
+	} else if (p_size != NULL) {
+		*p_size = cs.length();
 	}
 }
+
+void GDAPI godot_string_free(godot_string *p_str) {
+	String *s = (String *) p_str;
+	s->~String();
+}
+
+
+
+// StringName
+
+godot_string_name GDAPI godot_string_name_new_with_string(const godot_string * const p_str) {
+	godot_string_name gsn;
+	StringName *ptr = (StringName *) &gsn;
+	memnew_placement(ptr, StringName);
+	StringName sn = ((String*) p_str)->utf8().get_data(); // Appearantly using String produces weird results
+	*ptr = sn;
+	return gsn;
+}
+
+
+godot_string GDAPI godot_string_name_get_string(godot_string_name *p_string_name) {
+	StringName *s = (StringName *) p_string_name;
+	String gs = (String) *s;
+	return memcast<godot_string, String>(gs);
+}
+
+
+void GDAPI godot_string_name_free(godot_string_name *p_str) {
+	StringName *s = (StringName *) p_str;
+	s->~StringName();
+}
+
 
 
 
@@ -311,9 +343,9 @@ int GDAPI godot_input_event_is_action_pressed(godot_input_event p_event,char *p_
 
 // Variant
 
+
 godot_variant godot_variant_new() {
-	Variant *v = memnew(Variant());
-	return (godot_variant) v;
+	return memcast<godot_variant, Variant>(Variant());
 }
 
 godot_variant godot_variant_clone(godot_variant p_variant) {
@@ -348,7 +380,7 @@ void GDAPI godot_variant_set_float(godot_variant p_variant, int p_float) {
 
 void GDAPI godot_variant_set_string(godot_variant p_variant, char *p_string, const int p_size) {
 	Variant *v = static_cast<Variant*>(p_variant);
-	*v = *static_cast<String*>(godot_string_new_with_c_data(p_string, p_size));
+	*v = memcast<String, godot_string>(godot_string_new_with_c_data(p_string, p_size));
 }
 
 void GDAPI godot_variant_set_vector2(godot_variant p_variant, float *p_elems) {
@@ -827,6 +859,17 @@ godot_object GDAPI godot_global_get_singleton(char* p_name) {
 
 
 
+// Object API
+godot_object godot_object_instance(char *p_class_name) {
+	return ClassDB::instance(StringName(p_class_name));
+}
+
+void godot_object_free(godot_object p_object) {
+	memdelete(static_cast<Object*>(p_object));
+}
+
+
+
 // MethodBind API
 
 godot_method_bind GDAPI godot_method_bind_get_method(const char *p_classname, const char *p_methodname) {
@@ -840,6 +883,13 @@ void GDAPI godot_method_bind_ptrcall(godot_method_bind p_method_bind, godot_obje
 
 	MethodBind *mb = static_cast<MethodBind*>(p_method_bind);
 	mb->ptrcall(static_cast<Object*>(p_instance), p_args, p_ret);
+}
+
+
+void GDAPI godot_method_bind_varcall(godot_method_bind p_method_bind)
+{
+	MethodBind *mb = static_cast<MethodBind*>(p_method_bind);
+
 }
 
 

@@ -605,6 +605,14 @@ String DLScriptLanguage::get_name() const {
 void DLScriptLanguage::init() {
 	// TODO: Expose globals
 
+	print_line("sizeof(Variant) = " + String::num_int64(sizeof(Variant)));
+	print_line("sizeof(String) = " + String::num_int64(sizeof(String)));
+	print_line("sizeof(StringName) = " + String::num_int64(sizeof(StringName)));
+	print_line("sizeof(Vector2) = " + String::num_int64(sizeof(Vector2)));
+	print_line("sizeof(Vector3) = " + String::num_int64(sizeof(Vector3)));
+	print_line("sizeof(Object) = " + String::num_int64(sizeof(Object)));
+
+
 	// generate bindings
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 	List<String> args = OS::get_singleton()->get_cmdline_args();

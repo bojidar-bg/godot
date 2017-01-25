@@ -56,17 +56,37 @@ typedef int godot_bool;
 
 ////// Variant (forward declared)
 
-typedef void* godot_variant;
+/*
+typedef struct godot_variant {
+	uint8_t _data[24];
+} godot_variant;
+*/
+
+typedef void *godot_variant;
 
 ////// Array (forward declared)
 typedef void *godot_array;
 
 ////// String
 
-typedef void *godot_string;
+typedef struct godot_string {
+	uint8_t _dont_touch_this[8];
+} godot_string;
 
 godot_string GDAPI godot_string_new_with_c_data(const char *p_contents, const int p_size);
-void GDAPI godot_string_get_c_data(godot_string p_str, char *p_contents, int *p_size);
+void GDAPI godot_string_get_c_data(godot_string *p_str, char *p_contents, int *p_size);
+void GDAPI godot_string_free(godot_string *p_str);
+
+
+////// StringName
+
+typedef struct godot_string_name {
+	uint8_t _dont_touch_this[8];
+} godot_string_name;
+
+godot_string_name GDAPI godot_string_name_new_with_string(const godot_string *p_str);
+godot_string GDAPI godot_string_name_get_string(godot_string_name *p_string_name);
+void GDAPI godot_string_name_free(godot_string_name *p_str);
 
 ////// InputEvent
 
@@ -273,6 +293,11 @@ int GDAPI godot_class_constant_get_value(char* p_class,char *p_constant);
 ////// Singleton API
 
 godot_object GDAPI godot_global_get_singleton(char* p_name); // result shouldn't be freed
+
+////// Object API (minimalistic)
+
+godot_object GDAPI godot_object_instance(char *p_class_name);
+void GDAPI godot_object_free(godot_object p_object);
 
 ////// MethodBind API
 
