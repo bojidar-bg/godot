@@ -48,9 +48,10 @@
 extern "C" {
 #endif
 
+extern "C" void _string_api_anchor();
 
 void _api_anchor() {
-	MethodInfo;
+	_string_api_anchor();
 }
 
 extern "C++" {
@@ -260,7 +261,7 @@ void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_scr
 	library->_register_script(p_base, p_name, p_instance_func, p_free_func);
 }
 
-void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func) {
+void GDAPI godot_script_add_method(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
@@ -269,7 +270,7 @@ void GDAPI godot_script_add_function(const char* p_name,const char* p_function_n
 	library->_register_script_method(p_name, p_function_name, p_attr, p_func);
 }
 
-void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant** p_default_args,int p_default_arg_count) {
+void GDAPI godot_script_add_validated_method(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant** p_default_args,int p_default_arg_count) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");

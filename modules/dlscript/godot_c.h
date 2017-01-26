@@ -48,20 +48,31 @@ extern "C" {
 #define GODOT_API_VERSION 1
 
 
+////// bool
+
 typedef bool godot_bool;
+
+#define GODOT_TRUE 1
+#define GODOT_FALSE 0
+
+/////// int
+
 typedef int godot_int;
 
+/////// real
 
-////// String
+typedef float godot_real;
+
+typedef double godot_real64; // for Variant in 3.0
+
+/////// String
+
 
 typedef struct godot_string {
-	uint8_t _dont_touch_this[8];
+	uint8_t _dont_touch_that[8];
 } godot_string;
 
-godot_string GDAPI godot_string_new_with_c_data(const char *p_contents, const int p_size);
-void GDAPI godot_string_get_c_data(godot_string *p_str, char *p_contents, int *p_size);
-void GDAPI godot_string_free(godot_string *p_str);
-
+#include "core_api/godot_string.h"
 
 ////// StringName
 
@@ -69,9 +80,6 @@ typedef struct godot_string_name {
 	uint8_t _dont_touch_this[8];
 } godot_string_name;
 
-godot_string_name GDAPI godot_string_name_new_with_string(const godot_string *p_str);
-godot_string GDAPI godot_string_name_get_string(godot_string_name *p_string_name);
-void GDAPI godot_string_name_free(godot_string_name *p_str);
 
 ////// InputEvent
 
@@ -237,8 +245,8 @@ void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_scr
 
 typedef GDAPI godot_variant (godot_script_func)(godot_object*,void*,godot_variant**,int); //instance,userdata,arguments,argument count. Return something or NULL. Arguments must not be freed.
 
-void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr, godot_script_func p_func);
-void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr, godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant** p_default_args,int p_default_arg_count);
+void GDAPI godot_script_add_method(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr, godot_script_func p_func);
+void GDAPI godot_script_add_validated_method(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr, godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant** p_default_args,int p_default_arg_count);
 
 
 typedef void (godot_set_property_func)(godot_object*,void*,godot_variant*); //instance,userdata,value. Value must not be freed.
