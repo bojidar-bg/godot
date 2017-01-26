@@ -97,7 +97,7 @@ ScriptInstance* DLScript::instance_create(Object *p_this) {
 	
 	new_instance->owner = p_this;
 	new_instance->script = Ref<DLScript>(this);
-	new_instance->userdata = script_data->instance_func(new_instance);
+	new_instance->userdata = script_data->instance_func((godot_object*) new_instance);
 	
 	instances.insert(p_this);
 	return new_instance;
@@ -338,13 +338,13 @@ Error DLLibrary::_initialize_handle() {
 }
 
 
-void DLLibrary::_register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::FreeFunc p_free_func) {
+void DLLibrary::_register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_free_func) {
 	ERR_FAIL_COND(scripts.has(p_name));
 	
 	DLScriptData* s = memnew( DLScriptData );
 	s->base = p_base;
 	s->instance_func = p_instance_func;
-	s->free_func = p_free_func;
+	s->destroy_func = p_free_func;
 	Map<StringName,DLScriptData*>::Element* E = scripts.find(p_base);
 	if(E) {
 		s->base_data = E->get();
@@ -361,20 +361,39 @@ void DLLibrary::_register_script(const StringName p_base, const StringName p_nam
 	scripts.insert(p_name, s);
 }
 
-void DLLibrary::_register_script_method(const StringName p_name, const StringName p_method, DLScriptData::MethodFunc p_func, MethodInfo p_info) {
+void DLLibrary::_register_script_method(const StringName p_name, const StringName p_method, godot_method_attributes *p_attr, DLScriptData::MethodFunc p_func, MethodInfo p_info) {
 	ERR_FAIL_COND(!scripts.has(p_name));
 	
 	p_info.name = p_method;
+	DLScriptData::Method method;
+
+	if (p_attr) {
+		method = DLScriptData::Method(p_func, p_info, p_attr->rpc_type);
+	} else {
+		method = DLScriptData::Method(p_func, p_info, ScriptInstance::RPC_MODE_DISABLED);
+	}
 	
-	scripts[p_name]->methods.insert(p_method, DLScriptData::Method(p_func, p_info));
+	scripts[p_name]->methods.insert(p_method, method);
 }
 
-void DLLibrary::_register_script_property(const StringName p_name, const String p_path, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter, PropertyInfo p_info, Variant default_value) {
+void DLLibrary::_register_script_property(const StringName p_name, const String p_path, godot_property_attributes *p_attr, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter) {
 	ERR_FAIL_COND(!scripts.has(p_name));
 	
-	p_info.name = p_path;
-	
-	scripts[p_name]->properties.insert(p_path, DLScriptData::Property(p_setter, p_getter, p_info, default_value));
+	DLScriptData::Property p;
+
+	PropertyInfo pi;
+	pi.name = p_path;
+
+	if (p_attr != NULL) {
+		if (p_attr->listed)
+			pi = PropertyInfo((Variant::Type) p_attr->type, p_path, (PropertyHint) p_attr->hint, *(String*) &p_attr->hint_string, p_attr->usage);
+
+		p = DLScriptData::Property(p_setter, p_getter, pi, *(Variant*) &p_attr->default_value, p_attr->rset_type, p_attr->exported);
+	}
+
+
+
+	scripts[p_name]->properties.insert(p_path, p);
 }
 
 
@@ -465,7 +484,7 @@ DLLibrary::~DLLibrary() {
 
 bool DLInstance::set(const StringName& p_name, const Variant& p_value) {
 	if(script->script_data->properties.has(p_name)) {
-		script->script_data->properties[p_name].setter(owner, userdata, (void*) &p_value);
+		script->script_data->properties[p_name].setter((godot_object*) owner, userdata, (godot_variant*) &p_value);
 		return true;
 	}
 	return false;
@@ -473,7 +492,8 @@ bool DLInstance::set(const StringName& p_name, const Variant& p_value) {
 
 bool DLInstance::get(const StringName& p_name, Variant &r_ret) const {
 	if(script->script_data->properties.has(p_name)) {
-		r_ret = script->script_data->properties[p_name].getter(owner, userdata);
+		godot_variant value = script->script_data->properties[p_name].getter((godot_object*) owner, userdata);
+		r_ret = *(Variant*) &value;
 		return true;
 	}
 	return false;
@@ -508,12 +528,9 @@ Variant DLInstance::call(const StringName& p_method,const Variant** p_args,int p
 	while(data_ptr) {
 		Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
 		if (E) {
-			void* result = E->get().func(this, userdata, (void**) p_args, p_argcount);
-			if(result) {
-				return *(Variant*) result;
-			} else {
-				return Variant();
-			}
+			godot_variant result = E->get().func((godot_object*) this, userdata, (godot_variant**) p_args, p_argcount);
+			return *(Variant*) &result;
+
 		}
 		data_ptr = data_ptr->base_data;
 	}
@@ -528,7 +545,7 @@ void DLInstance::call_multilevel(const StringName& p_method,const Variant** p_ar
 	while(data_ptr) {
 		Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
 		if (E) {
-			E->get().func(this, userdata, (void**) p_args, p_argcount);
+			E->get().func((godot_object*) this, userdata, (godot_variant**) p_args, p_argcount);
 		}
 		data_ptr = data_ptr->base_data;
 	}
@@ -544,7 +561,7 @@ void DLInstance::_ml_call_reversed(DLScriptData *data_ptr,const StringName& p_me
 
 	Map<StringName,DLScriptData::Method>::Element *E = data_ptr->methods.find(p_method);
 	if (E) {
-		E->get().func(this, userdata, (void**) p_args, p_argcount);
+		E->get().func((godot_object*) this, userdata, (godot_variant**) p_args, p_argcount);
 	}
 
 }
@@ -570,11 +587,39 @@ ScriptLanguage* DLInstance::get_language() {
 }
 
 ScriptInstance::RPCMode DLInstance::get_rpc_mode(const StringName& p_method) const {
-	return RPC_MODE_DISABLED; // TODO: rpc modes?
+	DLScriptData::Method m = script->script_data->methods[p_method];
+	switch (m.rpc_mode) {
+	case GODOT_METHOD_RPC_MODE_DISABLED:
+		return RPC_MODE_DISABLED;
+	case GODOT_METHOD_RPC_MODE_REMOTE:
+		return RPC_MODE_REMOTE;
+	case GODOT_METHOD_RPC_MODE_SYNC:
+		return RPC_MODE_SYNC;
+	case GODOT_METHOD_RPC_MODE_MASTER:
+		return RPC_MODE_MASTER;
+	case GODOT_METHOD_RPC_MODE_SLAVE:
+		return RPC_MODE_SLAVE;
+	default:
+		return RPC_MODE_DISABLED;
+	}
 }
 
 ScriptInstance::RPCMode DLInstance::get_rset_mode(const StringName& p_variable) const {
-	return RPC_MODE_DISABLED; // TODO: rpc modes?
+	DLScriptData::Property p = script->script_data->properties[p_variable];
+	switch (p.rset_mode) {
+	case GODOT_METHOD_RPC_MODE_DISABLED:
+		return RPC_MODE_DISABLED;
+	case GODOT_METHOD_RPC_MODE_REMOTE:
+		return RPC_MODE_REMOTE;
+	case GODOT_METHOD_RPC_MODE_SYNC:
+		return RPC_MODE_SYNC;
+	case GODOT_METHOD_RPC_MODE_MASTER:
+		return RPC_MODE_MASTER;
+	case GODOT_METHOD_RPC_MODE_SLAVE:
+		return RPC_MODE_SLAVE;
+	default:
+		return RPC_MODE_DISABLED;
+	}
 }
 
 DLInstance::DLInstance() {
@@ -587,7 +632,7 @@ DLInstance::~DLInstance() {
 		if (owner) {
 			script->instances.erase(owner);
 		}
-		script->script_data->free_func(this, userdata);
+		script->script_data->destroy_func((godot_object*) this, userdata);
 	}
 }
 

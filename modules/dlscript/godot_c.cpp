@@ -50,18 +50,15 @@ extern "C" {
 
 
 void _api_anchor() {
-
+	MethodInfo;
 }
 
-
-// ugly, but hey
 extern "C++" {
 template<class a, class b>
 _FORCE_INLINE_ a memcast(b v) {
 	return *((a *) &v);
 }
 }
-
 
 
 // String
@@ -114,640 +111,6 @@ void GDAPI godot_string_name_free(godot_string_name *p_str) {
 }
 
 
-
-
-// InputEvent
-
-godot_input_event GDAPI godot_input_event_new() {
-	InputEvent *ie = memnew(InputEvent());
-	return static_cast<godot_input_event>(ie);
-}
-
-godot_input_event GDAPI godot_input_event_copy(godot_input_event p_input_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_input_event);
-	godot_input_event new_ie = godot_input_event_new();
-	*static_cast<InputEvent*>(new_ie) = *ie;
-	return new_ie;
-}
-
-void GDAPI godot_input_event_free(godot_input_event p_input_event) {
-	memdelete(static_cast<InputEvent*>(p_input_event));
-}
-
-int GDAPI godot_input_event_get_type(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->type;
-}
-
-int GDAPI godot_input_event_get_device(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->device;
-}
-
-godot_bool GDAPI godot_input_event_mod_has_alt(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.mod.alt;
-}
-
-godot_bool GDAPI godot_input_event_mod_has_ctrl(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.mod.control;
-}
-
-godot_bool GDAPI godot_input_event_mod_has_command(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.mod.command;
-}
-
-godot_bool GDAPI godot_input_event_mod_has_shift(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.mod.shift;
-}
-
-godot_bool GDAPI godot_input_event_mod_has_meta(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.mod.meta;
-}
-
-int GDAPI godot_input_event_key_get_scancode(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.scancode;
-}
-
-int GDAPI godot_input_event_key_get_unicode(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.unicode;
-}
-
-godot_bool GDAPI godot_input_event_key_is_pressed(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.pressed;
-}
-
-godot_bool GDAPI godot_input_event_key_is_echo(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->key.echo;
-}
-
-int GDAPI godot_input_event_mouse_get_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.x;
-}
-
-int GDAPI godot_input_event_mouse_get_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.y;
-}
-
-int GDAPI godot_input_event_mouse_get_global_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.global_x;
-}
-
-int GDAPI godot_input_event_mouse_get_global_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.global_y;
-}
-
-int GDAPI godot_input_event_mouse_get_button_mask(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.button_mask;
-}
-
-int GDAPI godot_input_event_mouse_button_get_button_index(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.button_index;
-}
-
-godot_bool GDAPI godot_input_event_mouse_button_is_pressed(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.pressed;
-}
-
-godot_bool GDAPI godot_input_event_mouse_button_is_doubleclick(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_button.doubleclick;
-}
-
-int GDAPI godot_input_event_mouse_motion_get_relative_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_motion.relative_x;
-}
-
-int GDAPI godot_input_event_mouse_motion_get_relative_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_motion.relative_y;
-}
-
-int GDAPI godot_input_event_mouse_motion_get_speed_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_motion.speed_x;
-}
-
-int GDAPI godot_input_event_mouse_motion_get_speed_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->mouse_motion.speed_y;
-}
-
-int GDAPI godot_input_event_joystick_motion_get_axis(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->joy_motion.axis;
-}
-
-float GDAPI godot_input_event_joystick_motion_get_axis_value(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->joy_motion.axis_value;
-}
-
-int GDAPI godot_input_event_joystick_button_get_button_index(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->joy_button.button_index;
-}
-
-godot_bool GDAPI godot_input_event_joystick_button_is_pressed(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->joy_button.pressed;
-}
-
-float GDAPI godot_input_event_joystick_button_get_pressure(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->joy_button.pressure;
-}
-
-
-int GDAPI godot_input_event_screen_touch_get_index(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_touch.index;
-}
-
-int GDAPI godot_input_event_screen_touch_get_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_touch.x;
-}
-
-int GDAPI godot_input_event_screen_touch_get_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_touch.y;
-}
-
-int GDAPI godot_input_event_screen_touch_is_pressed(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_touch.pressed;
-}
-
-int GDAPI godot_input_event_screen_drag_get_index(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_touch.index;
-}
-
-int GDAPI godot_input_event_screen_drag_get_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.x;
-}
-
-int GDAPI godot_input_event_screen_drag_get_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.y;
-}
-
-int GDAPI godot_input_event_screen_drag_get_relative_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.relative_x;
-}
-
-int GDAPI godot_input_event_screen_drag_get_relative_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.relative_y;
-}
-
-int GDAPI godot_input_event_screen_drag_get_speed_x(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.speed_x;
-}
-
-int GDAPI godot_input_event_screen_drag_get_speed_y(godot_input_event p_event) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->screen_drag.speed_y;
-}
-
-int GDAPI godot_input_event_is_action(godot_input_event p_event,char *p_action) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->action.action;
-}
-
-int GDAPI godot_input_event_is_action_pressed(godot_input_event p_event,char *p_action) {
-	InputEvent *ie = static_cast<InputEvent*>(p_event);
-	return ie->action.pressed;
-}
-
-
-// Variant
-
-
-godot_variant godot_variant_new() {
-	return memcast<godot_variant, Variant>(Variant());
-}
-
-godot_variant godot_variant_clone(godot_variant p_variant) {
-	Variant *v = memnew(Variant(*static_cast<Variant*>(p_variant)));
-	return (godot_variant) v;
-}
-
-int GDAPI godot_variant_get_type(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return v->get_type();
-}
-
-void GDAPI godot_variant_set_null(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	*v = Variant();
-}
-
-void GDAPI godot_variant_set_bool(godot_variant p_variant, godot_bool p_bool) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	*v = p_bool;
-}
-
-void GDAPI godot_variant_set_int(godot_variant p_variant, int p_int) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	*v = p_int;
-}
-
-void GDAPI godot_variant_set_float(godot_variant p_variant, int p_float) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	*v = p_float;
-}
-
-void GDAPI godot_variant_set_string(godot_variant p_variant, char *p_string, const int p_size) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	*v = memcast<String, godot_string>(godot_string_new_with_c_data(p_string, p_size));
-}
-
-void GDAPI godot_variant_set_vector2(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Vector2(p_elems[0], p_elems[1]);
-}
-
-void GDAPI godot_variant_set_rect2(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Rect2(p_elems[0], p_elems[1], p_elems[2], p_elems[3]);
-}
-
-void GDAPI godot_variant_set_vector3(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Vector3(p_elems[0], p_elems[1], p_elems[2]);
-}
-
-void GDAPI godot_variant_set_transform2d(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Transform2D(p_elems[0], p_elems[1], p_elems[2], p_elems[3], p_elems[4], p_elems[5]);
-}
-
-void GDAPI godot_variant_set_plane(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Plane(p_elems[0], p_elems[1], p_elems[2], p_elems[3]);
-}
-
-void GDAPI godot_variant_set_rect3(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	Vector3 pos = Vector3(p_elems[0], p_elems[1], p_elems[2]);
-	Vector3 size = Vector3(p_elems[3], p_elems[4], p_elems[5]);
-	*v = Rect3(pos, size);
-}
-
-void GDAPI godot_variant_set_basis(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Basis(p_elems[0], p_elems[1], p_elems[2], p_elems[3], p_elems[4], p_elems[5], p_elems[6], p_elems[7], p_elems[8]);
-}
-
-void GDAPI godot_variant_set_transform(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	Basis basis = Basis(p_elems[0], p_elems[1], p_elems[2], p_elems[3], p_elems[4], p_elems[5], p_elems[6], p_elems[7], p_elems[8]);
-	*v = Transform(basis, Vector3(p_elems[9], p_elems[10], p_elems[11]));
-}
-
-void GDAPI godot_variant_set_color(godot_variant p_variant, float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_elems != NULL);
-	*v = Color(p_elems[0], p_elems[1], p_elems[2], p_elems[3]);
-}
-
-void GDAPI godot_variant_set_image(godot_variant p_variant, godot_object p_image) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_image != NULL);
-	*v = *static_cast<Image*>(p_image);
-}
-
-void GDAPI godot_variant_set_node_path(godot_variant p_variant, char *p_path) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_path != NULL);
-	*v = NodePath(String(p_path));
-}
-
-void GDAPI godot_variant_set_rid(godot_variant p_variant, godot_object p_rid) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_rid != NULL);
-	*v = *static_cast<RID*>(p_rid);
-}
-
-void GDAPI godot_variant_set_instance(godot_variant p_variant, godot_object p_instance) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_instance != NULL);
-	*v = static_cast<Object*>(p_instance);
-}
-
-void GDAPI godot_variant_set_input_event(godot_variant p_variant, godot_input_event p_input_event) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_input_event != NULL);
-	*v = *static_cast<InputEvent*>(p_input_event);
-}
-
-void GDAPI godot_variant_set_dictionary(godot_variant p_variant, godot_object p_dictionary) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_dictionary != NULL);
-	*v = *static_cast<Dictionary*>(p_dictionary);
-}
-
-void GDAPI godot_variant_set_array(godot_variant p_variant,godot_array p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<Array*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_byte_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolByteArray*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_int_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolIntArray*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_string_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolStringArray*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_vector2_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolVector2Array*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_vector3_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolVector3Array*>(p_array);
-}
-
-void GDAPI godot_variant_set_pool_color_array(godot_variant p_variant, godot_object p_array) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_array != NULL);
-	*v = *static_cast<PoolColorArray*>(p_array);
-}
-
-
-
-godot_bool GDAPI godot_variant_get_bool(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (bool) *v;
-}
-
-int64_t GDAPI godot_variant_get_int(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (int) *v;
-}
-
-double GDAPI godot_variant_get_float(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (float) *v;
-}
-
-int GDAPI godot_variant_get_string(godot_variant p_variant,char *p_string,int p_bufsize) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	String s = *v;
-
-	if (p_string != NULL) {
-		memcpy(p_string, s.utf8().get_data(), min(p_bufsize, s.utf8().size()));
-	}
-
-	return s.utf8().length();
-}
-
-void GDAPI godot_variant_get_vector2(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Vector2 v2 = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 2; i++) {
-		p_elems[i] = v2[i];
-	}
-}
-
-void GDAPI godot_variant_get_rect2(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Rect2 r = *v;
-
-	assert(p_elems != NULL);
-
-	Vector2 pos = r.get_pos();
-	Vector2 size = r.get_size();
-
-	for (unsigned int i = 0; i < 2; i++) {
-		p_elems[i] = pos[i];
-	}
-
-	for (unsigned int i = 0; i < 2; i++) {
-		p_elems[2 + i] = size[i];
-	}
-
-}
-
-void GDAPI godot_variant_get_vector3(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Vector3 v3 = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		p_elems[i] = v3[i];
-	}
-}
-
-void GDAPI godot_variant_get_transform2d(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Transform2D m = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		for (unsigned int j = 0; j < 2; j++) {
-			p_elems[i * 2 + j] = m.elements[i][j];
-		}
-	}
-}
-
-void GDAPI godot_variant_get_plane(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Plane p = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		p_elems[i] = p.normal[i];
-	}
-
-	p_elems[3] = p.d;
-
-}
-
-void GDAPI godot_variant_get_rect3(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Rect3 aabb = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		p_elems[i] = aabb.pos[i];
-	}
-
-	for (unsigned int i = 0; i < 3; i++) {
-		p_elems[3 + i] = aabb.size[i];
-	}
-}
-
-void GDAPI godot_variant_get_basis(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Basis m = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		for (unsigned int j = 0; j < 3; j++) {
-			p_elems[i * 2 + j] = m.elements[i][j];
-		}
-	}
-}
-
-void GDAPI godot_variant_get_transform(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Transform t = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 3; i++) {
-		for (unsigned int j = 0; j < 3; j++) {
-			p_elems[i * 2 + j] = t.basis.elements[i][j];
-		}
-	}
-
-	for (unsigned int i = 0; i < 3; i++) {
-		p_elems[9 + i] = t.origin[i];
-	}
-}
-
-void GDAPI godot_variant_get_color(godot_variant p_variant,float *p_elems) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	Color c = *v;
-
-	assert(p_elems != NULL);
-
-	for (unsigned int i = 0; i < 4; i++) {
-		p_elems[i] = c.components[i];
-	}
-}
-
-godot_object GDAPI godot_variant_get_image(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-int GDAPI godot_variant_get_node_path(godot_variant p_variant,char *p_path, int p_bufsize) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	NodePath np = *v;
-	String s = np;
-
-	if (p_path != NULL) {
-		memcpy(p_path, s.utf8().get_data(), min(p_bufsize, s.utf8().size()));
-	}
-
-	return s.utf8().length();
-}
-
-godot_object GDAPI godot_variant_get_rid(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_instance(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object*) *v;
-}
-
-void GDAPI godot_variant_get_input_event(godot_variant p_variant,godot_input_event p_event) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_event != NULL);
-	*static_cast<InputEvent*>(p_event) = *v;
-}
-
-void GDAPI godot_variant_get_dictionary(godot_variant p_variant, godot_object p_dictionary) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	assert(p_dictionary != NULL);
-	*static_cast<Dictionary*>(p_dictionary) = *v;
-}
-
-godot_array GDAPI godot_variant_get_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_byte_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_int_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_string_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_vector2_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_vector3_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-godot_object GDAPI godot_variant_get_pool_color_array(godot_variant p_variant) {
-	Variant *v = static_cast<Variant*>(p_variant);
-	return (Object *) *v;
-}
-
-void GDAPI godot_variant_free(godot_variant p_variant) {
-	if (p_variant != NULL)
-		memdelete(static_cast<Variant*>(p_variant));
-}
 
 
 // Class
@@ -821,8 +184,8 @@ godot_variant GDAPI godot_class_method_get_argument_default_value(char* p_class,
 
 	Variant v = method->get_default_argument(p_argument);
 
-	godot_variant variant = godot_variant_new();
-	*static_cast<Variant*>(variant) = v;
+	godot_variant variant; // = godot_variant_new();
+	//*static_cast<Variant*>(variant) = v;
 
 	return variant;
 }
@@ -853,42 +216,32 @@ int GDAPI godot_class_constant_get_value(char* p_class,char *p_constant) {
 
 // Singleton API
 
-godot_object GDAPI godot_global_get_singleton(char* p_name) {
-	return GlobalConfig::get_singleton()->get_singleton_object(String(p_name));
+godot_object *GDAPI godot_global_get_singleton(char* p_name) {
+	return (godot_object *) GlobalConfig::get_singleton()->get_singleton_object(String(p_name));
 } // result shouldn't be freed
 
 
-
-// Object API
-godot_object godot_object_instance(char *p_class_name) {
-	return ClassDB::instance(StringName(p_class_name));
-}
-
-void godot_object_free(godot_object p_object) {
-	memdelete(static_cast<Object*>(p_object));
-}
 
 
 
 // MethodBind API
 
-godot_method_bind GDAPI godot_method_bind_get_method(const char *p_classname, const char *p_methodname) {
+godot_method_bind *GDAPI godot_method_bind_get_method(const char *p_classname, const char *p_methodname) {
 
 	MethodBind *mb = ClassDB::get_method(StringName(p_classname), StringName(p_methodname));
 	// MethodBind *mb = ClassDB::get_method("Node", "get_name");
-	return static_cast<godot_method_bind>(mb);
+	return (godot_method_bind *) mb;
 }
 
-void GDAPI godot_method_bind_ptrcall(godot_method_bind p_method_bind, godot_object p_instance, const void **p_args, void *p_ret) {
+void GDAPI godot_method_bind_ptrcall(godot_method_bind *p_method_bind, godot_object *p_instance, const void **p_args, void *p_ret) {
 
-	MethodBind *mb = static_cast<MethodBind*>(p_method_bind);
-	mb->ptrcall(static_cast<Object*>(p_instance), p_args, p_ret);
+	MethodBind *mb = (MethodBind*)p_method_bind;
+	mb->ptrcall((Object*)p_instance, p_args, p_ret);
 }
 
 
-void GDAPI godot_method_bind_varcall(godot_method_bind p_method_bind)
+void GDAPI godot_method_bind_varcall(godot_method_bind *p_method_bind)
 {
-	MethodBind *mb = static_cast<MethodBind*>(p_method_bind);
 
 }
 
@@ -898,7 +251,7 @@ void GDAPI godot_method_bind_varcall(godot_method_bind p_method_bind)
 
 // Script API
 
-void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_script_instance_func p_instance_func,godot_script_free_func p_free_func) {
+void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_script_instance_func p_instance_func,godot_script_destroy_func p_free_func) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
@@ -907,16 +260,16 @@ void GDAPI godot_script_register(const char* p_base,const char* p_name,godot_scr
 	library->_register_script(p_base, p_name, p_instance_func, p_free_func);
 }
 
-void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_script_func p_func) {
+void GDAPI godot_script_add_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
 		ERR_FAIL();
 	}
-	library->_register_script_method(p_name, p_function_name, p_func);
+	library->_register_script_method(p_name, p_function_name, p_attr, p_func);
 }
 
-void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant* p_default_args,int p_default_arg_count) {
+void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_function_name,godot_method_attributes *p_attr,godot_script_func p_func,int* p_arg_types,int p_arg_count,godot_variant** p_default_args,int p_default_arg_count) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
@@ -930,33 +283,22 @@ void GDAPI godot_script_add_validated_function(const char* p_name,const char* p_
 	}
 	
 	for (int i = 0; i < p_default_arg_count; i++) {
-		mi.default_arguments.insert(i, static_cast<Variant*>(p_default_args[i]));
+		mi.default_arguments.insert(i, (Variant*) p_default_args[i]);
 	}
 	
-	library->_register_script_method(p_name, p_function_name, p_func, mi);
+	library->_register_script_method(p_name, p_function_name, p_attr, p_func, mi);
 }
 
-void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func) {
-	DLLibrary* library = DLLibrary::get_currently_initialized_library();
-	if(!library) {
-		ERR_EXPLAIN("Attempt to register script after initializing library!");
-		ERR_FAIL();
-	}
-	
-	library->_register_script_property(p_name, p_path, p_set_func, p_get_func);
-}
-
-void GDAPI godot_script_add_listed_property(const char* p_name,char* p_path,godot_set_property_func p_set_func,godot_get_property_func p_get_func,int p_type,int p_hint,char* p_hint_string,int p_usage,godot_variant default_value) {
+void GDAPI godot_script_add_property(const char* p_name,const char* p_path,godot_property_attributes *p_attr, godot_set_property_func p_set_func,godot_get_property_func p_get_func) {
 	DLLibrary* library = DLLibrary::get_currently_initialized_library();
 	if(!library) {
 		ERR_EXPLAIN("Attempt to register script after initializing library!");
 		ERR_FAIL();
 	}
 
-	PropertyInfo pi((Variant::Type) p_type, p_path, (PropertyHint) p_hint, p_hint_string, p_usage);
-
-	library->_register_script_property(p_name, p_path, p_set_func, p_get_func, pi, static_cast<Variant*>(default_value));
+	library->_register_script_property(p_name, p_path, p_attr, p_set_func, p_get_func);
 }
+
 
 
 // System functions

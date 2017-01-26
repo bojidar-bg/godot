@@ -36,31 +36,35 @@
 #include "os/thread_safe.h"
 
 
+#include "godot_c.h"
 
 struct DLScriptData {
-	typedef void* (InstanceFunc)(void* instance);
-	typedef void (FreeFunc)(void* instance,void* userdata);
-	typedef void* (MethodFunc)(void* instance,void* userdata,void** args,int arg_count);
-	typedef void (SetterFunc)(void* instance,void* userdata,void* value);
-	typedef void* (GetterFunc)(void* instance,void* userdata);
+	typedef void* (InstanceFunc)(godot_object* instance);
+	typedef void (DestroyFunc)(godot_object* instance,void* userdata);
+	typedef godot_variant (MethodFunc)(godot_object* instance,void* userdata,godot_variant** args,int arg_count);
+	typedef void (SetterFunc)(godot_object* instance,void* userdata,godot_variant* value);
+	typedef godot_variant (GetterFunc)(godot_object* instance,void* userdata);
 	
 	struct Method {
 		MethodFunc* func;
 		MethodInfo info;
+		int rpc_mode;
 		
 		Method() {func = NULL;}
-		Method(MethodFunc p_func, MethodInfo p_info) {func = p_func; info = p_info;}
+		Method(MethodFunc p_func, MethodInfo p_info, int p_rpc_mode) {func = p_func; info = p_info; rpc_mode = p_rpc_mode;}
 	};
 	struct Property {
 		SetterFunc* setter;
 		GetterFunc* getter;
 		PropertyInfo info;
 		Variant default_value;
+		int rset_mode;
+		bool exported;
 		
 		Property() {setter = NULL; getter = NULL;}
 		Property(SetterFunc p_setter, GetterFunc p_getter) {setter = p_setter; getter = p_getter;}
-		Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info, Variant p_default_value) {
-			setter = p_setter; getter = p_getter; info = p_info; default_value = p_default_value;
+		Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info, Variant p_default_value, int p_rset_mode, bool p_exported) {
+			setter = p_setter; getter = p_getter; info = p_info; default_value = p_default_value; rset_mode = p_rset_mode; exported = p_exported;
 		}
 	};
 	
@@ -70,10 +74,10 @@ struct DLScriptData {
 	StringName base_native_type;
 	DLScriptData* base_data;
 	InstanceFunc* instance_func;
-	FreeFunc* free_func;
+	DestroyFunc* destroy_func;
 	
-	DLScriptData() {base = StringName(); base_data = NULL; instance_func = NULL; free_func = NULL;}
-	DLScriptData(StringName p_base, InstanceFunc p_instance, FreeFunc p_free) {base = p_base; base_data = NULL; instance_func = p_instance; free_func = p_free;}
+	DLScriptData() {base = StringName(); base_data = NULL; instance_func = NULL; destroy_func = NULL;}
+	DLScriptData(StringName p_base, InstanceFunc p_instance, DestroyFunc p_free) {base = p_base; base_data = NULL; instance_func = p_instance; destroy_func = p_free;}
 };
 
 class DLLibrary;
@@ -169,9 +173,9 @@ public:
 
 	static DLLibrary* get_currently_initialized_library();
 	
-	void _register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::FreeFunc p_free_func);
-	void _register_script_method(const StringName p_name, const StringName p_method, DLScriptData::MethodFunc p_func, MethodInfo p_info=MethodInfo());
-	void _register_script_property(const StringName p_name, const String p_path, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter, PropertyInfo p_info=PropertyInfo(), Variant default_value=Variant());
+	void _register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_free_func);
+	void _register_script_method(const StringName p_name, const StringName p_method, godot_method_attributes *p_attr, DLScriptData::MethodFunc p_func, MethodInfo p_info=MethodInfo());
+	void _register_script_property(const StringName p_name, const String p_path, godot_property_attributes *p_attr, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter);
 	
 	void set_platform_file(StringName p_platform, String p_file);
 	String get_platform_file(StringName p_platform) const;
@@ -345,5 +349,9 @@ public:
 	virtual String get_resource_type(const String &p_path) const;
 
 };
+
+
+// ugly, but hey
+
 
 #endif // DL_SCRIPT_H
