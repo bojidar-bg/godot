@@ -1,6 +1,7 @@
 #include "godot_string.h"
 
 #include "core/ustring.h"
+#include "core/string_db.h"
 
 #include <memory.h> // why is there no <cmemory> btw?
 
@@ -12,11 +13,8 @@ void _string_api_anchor() {
 
 }
 
-#define NULLCHECK(x) if (x == NULL) return
-#define NULLCHECK_V(x, v) if (x == NULL) return v
 
 void GDAPI godot_string_new(godot_string *p_str) {
-	NULLCHECK(p_str);
 	String *p = (String *) p_str;
 	memnew_placement(p, String);
 	// *p = String(); // useless here
@@ -24,7 +22,6 @@ void GDAPI godot_string_new(godot_string *p_str) {
 
 
 void GDAPI godot_string_new_data(godot_string *p_str, const char *p_contents, const int p_size) {
-	NULLCHECK(p_str);
 	String *p = (String *) p_str;
 	memnew_placement(p, String);
 	*p = String::utf8(p_contents, p_size);
@@ -32,7 +29,6 @@ void GDAPI godot_string_new_data(godot_string *p_str, const char *p_contents, co
 
 
 void GDAPI godot_string_get_data(const godot_string *p_str, char *p_dest, int *p_size) {
-	NULLCHECK(p_str);
 	String *p = (String *) p_str;
 	if (p_size != NULL) {
 		*p_size = p->utf8().length();
@@ -43,9 +39,6 @@ void GDAPI godot_string_get_data(const godot_string *p_str, char *p_dest, int *p
 }
 
 void GDAPI godot_string_copy_string(const godot_string *p_dest, const godot_string *p_src) {
-	NULLCHECK(p_dest);
-	NULLCHECK(p_src);
-
 	String *dest = (String *) p_dest;
 	String *src  = (String *) p_src;
 
@@ -55,28 +48,18 @@ void GDAPI godot_string_copy_string(const godot_string *p_dest, const godot_stri
 
 
 godot_bool GDAPI godot_string_operator_equal(const godot_string *p_a, const godot_string *p_b) {
-	NULLCHECK_V(p_a, GODOT_FALSE);
-	NULLCHECK_V(p_b, GODOT_FALSE);
-
 	String *a = (String *) p_a;
 	String *b = (String *) p_b;
 	return *a == *b;
 }
 
 godot_bool GDAPI godot_string_operator_less(const godot_string *p_a, const godot_string *p_b) {
-	NULLCHECK_V(p_a, GODOT_FALSE);
-	NULLCHECK_V(p_b, GODOT_FALSE);
-
 	String *a = (String *) p_a;
 	String *b = (String *) p_b;
 	return *a < *b;
 }
 
 void GDAPI godot_string_operator_plus(godot_string *p_dest, const godot_string *p_a, const godot_string *p_b) {
-	NULLCHECK(p_dest);
-	NULLCHECK(p_a);
-	NULLCHECK(p_b);
-
 	String *dest = (String *) p_dest;
 	const String *a = (String *) p_a;
 	const String *b = (String *) p_b;
@@ -93,6 +76,38 @@ void GDAPI godot_string_destroy(godot_string *p_str) {
 	String *p = (String *) p_str;
 	p->~String();
 }
+
+
+// StringName
+
+
+void GDAPI godot_string_name_new(godot_string_name *p_sn) {
+	StringName *p = (StringName *) p_sn;
+	memnew_placement(p, StringName);
+	*p = StringName();
+}
+
+void GDAPI godot_string_name_new_data(godot_string_name *p_sn, const godot_string *p_s) {
+	StringName *p = (StringName *) p_sn;
+	String *s = (String *) p_s;
+	memnew_placement(p, StringName);
+	*p = *s;
+}
+
+void GDAPI godot_string_name_get_data(const godot_string_name *p_sn, godot_string *p_s) {
+	StringName *p = (StringName *) p_sn;
+	String *s = (String *) p_s;
+	godot_string_new(p_s);
+	*s = p->operator String();
+}
+
+void GDAPI godot_string_name_destroy(godot_string_name *p_sn) {
+	StringName *p = (StringName *) p_sn;
+	p->~StringName();
+}
+
+
+
 
 
 #ifdef __cplusplus

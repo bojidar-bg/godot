@@ -26,7 +26,7 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#include "godot_c.h"
+#include "godot_core_api.h"
 
 #include <cstdlib>
 #include <cassert>
@@ -49,9 +49,12 @@ extern "C" {
 #endif
 
 extern "C" void _string_api_anchor();
+extern "C" void _vector2_api_anchor();
 
 void _api_anchor() {
+
 	_string_api_anchor();
+	_vector2_api_anchor();
 }
 
 extern "C++" {

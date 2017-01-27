@@ -67,19 +67,30 @@ typedef double godot_real64; // for Variant in 3.0
 
 /////// String
 
-
+#ifndef GODOT_CORE_API_GODOT_STRING_TYPE_DEFINED
 typedef struct godot_string {
 	uint8_t _dont_touch_that[8];
 } godot_string;
+#endif
+
+#ifndef GODOT_CORE_API_GODOT_STRING_NAME_TYPE_DEFINED
+typedef struct godot_string_name {
+	uint8_t _dont_touch_that[8];
+} godot_string_name;
+#endif
 
 #include "core_api/godot_string.h"
 
-////// StringName
 
-typedef struct godot_string_name {
-	uint8_t _dont_touch_this[8];
-} godot_string_name;
+////// Vector2
 
+#ifndef GODOT_CORE_API_GODOT_VECTOR2_TYPE_DEFINED
+typedef struct godot_vector2 {
+	uint8_t _dont_touch_that[8];
+} godot_vector2;
+#endif
+
+#include "core_api/godot_vector2.h"
 
 ////// InputEvent
 
@@ -230,7 +241,6 @@ typedef struct godot_property_attributes {
 
 	godot_bool listed;
 	godot_int type;
-	godot_bool exported;
 	godot_int hint;
 	godot_string hint_string;
 	godot_int usage;

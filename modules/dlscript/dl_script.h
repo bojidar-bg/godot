@@ -36,7 +36,7 @@
 #include "os/thread_safe.h"
 
 
-#include "godot_c.h"
+#include "godot_core_api.h"
 
 struct DLScriptData {
 	typedef void* (InstanceFunc)(godot_object* instance);
@@ -59,12 +59,11 @@ struct DLScriptData {
 		PropertyInfo info;
 		Variant default_value;
 		int rset_mode;
-		bool exported;
 		
 		Property() {setter = NULL; getter = NULL;}
 		Property(SetterFunc p_setter, GetterFunc p_getter) {setter = p_setter; getter = p_getter;}
-		Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info, Variant p_default_value, int p_rset_mode, bool p_exported) {
-			setter = p_setter; getter = p_getter; info = p_info; default_value = p_default_value; rset_mode = p_rset_mode; exported = p_exported;
+		Property(SetterFunc p_setter, GetterFunc p_getter, PropertyInfo p_info, Variant p_default_value, int p_rset_mode) {
+			setter = p_setter; getter = p_getter; info = p_info; default_value = p_default_value; rset_mode = p_rset_mode;
 		}
 	};
 	
@@ -173,7 +172,7 @@ public:
 
 	static DLLibrary* get_currently_initialized_library();
 	
-	void _register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_free_func);
+	void _register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_destroy_func);
 	void _register_script_method(const StringName p_name, const StringName p_method, godot_method_attributes *p_attr, DLScriptData::MethodFunc p_func, MethodInfo p_info=MethodInfo());
 	void _register_script_property(const StringName p_name, const String p_path, godot_property_attributes *p_attr, DLScriptData::SetterFunc p_setter, DLScriptData::GetterFunc p_getter);
 	

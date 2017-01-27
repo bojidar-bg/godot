@@ -338,13 +338,13 @@ Error DLLibrary::_initialize_handle() {
 }
 
 
-void DLLibrary::_register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_free_func) {
+void DLLibrary::_register_script(const StringName p_base, const StringName p_name, DLScriptData::InstanceFunc p_instance_func, DLScriptData::DestroyFunc p_destroy_func) {
 	ERR_FAIL_COND(scripts.has(p_name));
 	
 	DLScriptData* s = memnew( DLScriptData );
 	s->base = p_base;
 	s->instance_func = p_instance_func;
-	s->destroy_func = p_free_func;
+	s->destroy_func = p_destroy_func;
 	Map<StringName,DLScriptData*>::Element* E = scripts.find(p_base);
 	if(E) {
 		s->base_data = E->get();
@@ -388,7 +388,7 @@ void DLLibrary::_register_script_property(const StringName p_name, const String 
 		if (p_attr->listed)
 			pi = PropertyInfo((Variant::Type) p_attr->type, p_path, (PropertyHint) p_attr->hint, *(String*) &p_attr->hint_string, p_attr->usage);
 
-		p = DLScriptData::Property(p_setter, p_getter, pi, *(Variant*) &p_attr->default_value, p_attr->rset_type, p_attr->exported);
+		p = DLScriptData::Property(p_setter, p_getter, pi, *(Variant*) &p_attr->default_value, p_attr->rset_type);
 	}
 
 
@@ -647,15 +647,37 @@ String DLScriptLanguage::get_name() const {
 	return "DLScript";
 }
 
+#define PRINT_SIZE(x) print_line("sizeof(" #x ") = " + String::num_int64(sizeof(x)))
+
 void DLScriptLanguage::init() {
 	// TODO: Expose globals
 
-	print_line("sizeof(Variant) = " + String::num_int64(sizeof(Variant)));
-	print_line("sizeof(String) = " + String::num_int64(sizeof(String)));
-	print_line("sizeof(StringName) = " + String::num_int64(sizeof(StringName)));
-	print_line("sizeof(Vector2) = " + String::num_int64(sizeof(Vector2)));
-	print_line("sizeof(Vector3) = " + String::num_int64(sizeof(Vector3)));
-	print_line("sizeof(Object) = " + String::num_int64(sizeof(Object)));
+	PRINT_SIZE(Variant);
+	PRINT_SIZE(String);
+	PRINT_SIZE(StringName);
+	PRINT_SIZE(Vector2);
+	PRINT_SIZE(Vector3);
+	PRINT_SIZE(Transform2D);
+	PRINT_SIZE(Plane);
+	PRINT_SIZE(Quat);
+	PRINT_SIZE(Rect3);
+	PRINT_SIZE(Basis);
+	PRINT_SIZE(Transform);
+	PRINT_SIZE(Color);
+	PRINT_SIZE(Image);
+	PRINT_SIZE(NodePath);
+	PRINT_SIZE(RID);
+	PRINT_SIZE(Object);
+	PRINT_SIZE(InputEvent);
+	PRINT_SIZE(Dictionary);
+	PRINT_SIZE(Array);
+	PRINT_SIZE(PoolByteArray);
+	PRINT_SIZE(PoolIntArray);
+	PRINT_SIZE(PoolRealArray);
+	PRINT_SIZE(PoolStringArray);
+	PRINT_SIZE(PoolVector2Array);
+	PRINT_SIZE(PoolVector3Array);
+	PRINT_SIZE(PoolColorArray);
 
 
 	// generate bindings
