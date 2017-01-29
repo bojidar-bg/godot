@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -205,7 +205,7 @@ ClockDirection Face3::get_clock_dir() const {
 }
 
 
-bool Face3::intersects_aabb(const AABB& p_aabb) const {
+bool Face3::intersects_aabb(const Rect3& p_aabb) const {
 
 	/** TEST PLANE **/
 	if (!p_aabb.intersects_plane( get_plane() ))

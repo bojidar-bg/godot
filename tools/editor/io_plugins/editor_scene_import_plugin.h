@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -51,7 +51,7 @@ class EditorSceneImportDialog;
 
 class EditorSceneImporter : public Reference {
 
-	OBJ_TYPE(EditorSceneImporter,Reference );
+	GDCLASS(EditorSceneImporter,Reference );
 public:
 
 	enum ImportFlags {
@@ -60,6 +60,7 @@ public:
 		IMPORT_ANIMATION_DETECT_LOOP=4,
 		IMPORT_ANIMATION_OPTIMIZE=8,
 		IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS=16,
+		IMPORT_ANIMATION_KEEP_VALUE_TRACKS=32,
 		IMPORT_GENERATE_TANGENT_ARRAYS=256,
 		IMPORT_FAIL_ON_MISSING_DEPENDENCIES=512
 
@@ -82,7 +83,7 @@ public:
 
 class EditorScenePostImport : public Reference {
 
-	OBJ_TYPE(EditorScenePostImport,Reference );
+	GDCLASS(EditorScenePostImport,Reference );
 protected:
 
 	static void _bind_methods();
@@ -95,7 +96,7 @@ public:
 
 class EditorSceneImportPlugin : public EditorImportPlugin {
 
-	OBJ_TYPE(EditorSceneImportPlugin,EditorImportPlugin);
+	GDCLASS(EditorSceneImportPlugin,EditorImportPlugin);
 
 	EditorSceneImportDialog *dialog;
 
@@ -173,7 +174,7 @@ public:
 
 class EditorSceneAnimationImportPlugin : public EditorImportPlugin {
 
-	OBJ_TYPE(EditorSceneAnimationImportPlugin,EditorImportPlugin);
+	GDCLASS(EditorSceneAnimationImportPlugin,EditorImportPlugin);
 public:
 
 

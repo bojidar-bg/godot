@@ -1,6 +1,6 @@
 #include "visual_script_builtin_funcs.h"
 #include "math_funcs.h"
-#include "object_type_db.h"
+#include "class_db.h"
 #include "reference.h"
 #include "func_ref.h"
 #include "os/os.h"
@@ -55,6 +55,7 @@ const char* VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX
 	"convert",
 	"typeof",
 	"type_exists",
+	"char",
 	"str",
 	"print",
 	"printerr",
@@ -63,6 +64,7 @@ const char* VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX
 	"str2var",
 	"var2bytes",
 	"bytes2var",
+	"color_named",
 };
 
 VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(const String& p_string) {
@@ -141,6 +143,7 @@ int VisualScriptBuiltinFunc::get_func_argument_count(BuiltinFunc p_func) {
 		case LOGIC_NEAREST_PO2:
 		case OBJ_WEAKREF:
 		case TYPE_OF:
+		case TEXT_CHAR:
 		case TEXT_STR:
 		case TEXT_PRINT:
 		case TEXT_PRINTERR:
@@ -162,6 +165,7 @@ int VisualScriptBuiltinFunc::get_func_argument_count(BuiltinFunc p_func) {
 		case LOGIC_MIN:
 		case FUNC_FUNCREF:
 		case TYPE_CONVERT:
+		case COLORN:
 			return 2;
 		case MATH_LERP:
 		case MATH_DECTIME:
@@ -362,10 +366,14 @@ PropertyInfo VisualScriptBuiltinFunc::get_input_value_port_info(int p_idx) const
 			return PropertyInfo(Variant::STRING,"type");
 
 		} break;
+		case TEXT_CHAR: {
+
+			return PropertyInfo(Variant::INT,"ascii");
+
+		} break;
 		case TEXT_STR: {
 
 			return PropertyInfo(Variant::NIL,"value");
-
 
 		} break;
 		case TEXT_PRINT: {
@@ -396,7 +404,15 @@ PropertyInfo VisualScriptBuiltinFunc::get_input_value_port_info(int p_idx) const
 		} break;
 		case BYTES_TO_VAR: {
 
-			return PropertyInfo(Variant::RAW_ARRAY,"bytes");
+			return PropertyInfo(Variant::POOL_BYTE_ARRAY,"bytes");
+		} break;
+		case COLORN: {
+
+			if (p_idx==0)
+				return PropertyInfo(Variant::STRING,"name");
+			else
+				return PropertyInfo(Variant::REAL,"alpha");
+
 		} break;
 		case FUNC_MAX:{}
 	}
@@ -517,6 +533,7 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
 			t=Variant::BOOL;
 
 		} break;
+		case TEXT_CHAR:
 		case TEXT_STR: {
 
 			t=Variant::STRING;
@@ -539,12 +556,15 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
 
 		} break;
 		case VAR_TO_BYTES: {
-			t=Variant::RAW_ARRAY;
+			t=Variant::POOL_BYTE_ARRAY;
 
 		} break;
 		case BYTES_TO_VAR: {
 
 
+		} break;
+		case COLORN: {
+			t=Variant::COLOR;
 		} break;
 		case FUNC_MAX:{}
 	}
@@ -782,14 +802,14 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func,const Variant** p_inp
 		case VisualScriptBuiltinFunc::MATH_SEED: {
 
 			VALIDATE_ARG_NUM(0);
-			uint32_t seed=*p_inputs[0];
+			uint64_t seed=*p_inputs[0];
 			Math::seed(seed);
 
 		} break;
 		case VisualScriptBuiltinFunc::MATH_RANDSEED: {
 
 			VALIDATE_ARG_NUM(0);
-			uint32_t seed=*p_inputs[0];
+			uint64_t seed=*p_inputs[0];
 			int ret = Math::rand_from_seed(&seed);
 			Array reta;
 			reta.push_back(ret);
@@ -972,7 +992,14 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func,const Variant** p_inp
 		case VisualScriptBuiltinFunc::TYPE_EXISTS: {
 
 
-			*r_return = ObjectTypeDB::type_exists(*p_inputs[0]);
+			*r_return = ClassDB::class_exists(*p_inputs[0]);
+
+		} break;
+		case VisualScriptBuiltinFunc::TEXT_CHAR: {
+
+			CharType result[2] = {*p_inputs[0], 0};
+			
+			*r_return=String(result);
 
 		} break;
 		case VisualScriptBuiltinFunc::TEXT_STR: {
@@ -1042,7 +1069,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func,const Variant** p_inp
 		case VisualScriptBuiltinFunc::VAR_TO_BYTES: {
 
 
-			ByteArray barr;
+			PoolByteArray barr;
 			int len;
 			Error err = encode_variant(*p_inputs[0],NULL,len);
 			if (err) {
@@ -1055,7 +1082,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func,const Variant** p_inp
 
 			barr.resize(len);
 			{
-				ByteArray::Write w = barr.write();
+				PoolByteArray::Write w = barr.write();
 				encode_variant(*p_inputs[0],w.ptr(),len);
 
 			}
@@ -1063,30 +1090,40 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func,const Variant** p_inp
 		} break;
 		case VisualScriptBuiltinFunc::BYTES_TO_VAR: {
 
-			if (p_inputs[0]->get_type()!=Variant::RAW_ARRAY) {
+			if (p_inputs[0]->get_type()!=Variant::POOL_BYTE_ARRAY) {
 				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 				r_error.argument=0;
-				r_error.expected=Variant::RAW_ARRAY;
+				r_error.expected=Variant::POOL_BYTE_ARRAY;
 
 				return;
 			}
 
-			ByteArray varr=*p_inputs[0];
+			PoolByteArray varr=*p_inputs[0];
 			Variant ret;
 			{
-				ByteArray::Read r=varr.read();
+				PoolByteArray::Read r=varr.read();
 				Error err = decode_variant(ret,r.ptr(),varr.size(),NULL);
 				if (err!=OK) {
 					r_error_str=RTR("Not enough bytes for decoding bytes, or invalid format.");
 					r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 					r_error.argument=0;
-					r_error.expected=Variant::RAW_ARRAY;
+					r_error.expected=Variant::POOL_BYTE_ARRAY;
 					return;
 				}
 
 			}
 
 			*r_return=ret;
+
+		} break;
+		case VisualScriptBuiltinFunc::COLORN: {
+
+			VALIDATE_ARG_NUM(1);
+
+			Color color = Color::named(*p_inputs[0]);
+			color.a=*p_inputs[1];
+			
+			*r_return=String(color);
 
 		} break;
 		default: {}
@@ -1129,8 +1166,8 @@ VisualScriptNodeInstance* VisualScriptBuiltinFunc::instance(VisualScriptInstance
 
 void VisualScriptBuiltinFunc::_bind_methods() {
 
-	ObjectTypeDB::bind_method(_MD("set_func","which"),&VisualScriptBuiltinFunc::set_func);
-	ObjectTypeDB::bind_method(_MD("get_func"),&VisualScriptBuiltinFunc::get_func);
+	ClassDB::bind_method(_MD("set_func","which"),&VisualScriptBuiltinFunc::set_func);
+	ClassDB::bind_method(_MD("get_func"),&VisualScriptBuiltinFunc::get_func);
 
 	String cc;
 
@@ -1213,6 +1250,7 @@ void register_visual_script_builtin_func_node() {
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/convert",create_builtin_func_node<VisualScriptBuiltinFunc::TYPE_CONVERT>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/typeof",create_builtin_func_node<VisualScriptBuiltinFunc::TYPE_OF>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/type_exists",create_builtin_func_node<VisualScriptBuiltinFunc::TYPE_EXISTS>);
+	VisualScriptLanguage::singleton->add_register_func("functions/built_in/char",create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_CHAR>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/str",create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_STR>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/print",create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_PRINT>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/printerr",create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_PRINTERR>);
@@ -1221,5 +1259,6 @@ void register_visual_script_builtin_func_node() {
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/str2var",create_builtin_func_node<VisualScriptBuiltinFunc::STR_TO_VAR>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/var2bytes",create_builtin_func_node<VisualScriptBuiltinFunc::VAR_TO_BYTES>);
 	VisualScriptLanguage::singleton->add_register_func("functions/built_in/bytes2var",create_builtin_func_node<VisualScriptBuiltinFunc::BYTES_TO_VAR>);
+	VisualScriptLanguage::singleton->add_register_func("functions/built_in/color_named",create_builtin_func_node<VisualScriptBuiltinFunc::COLORN>);
 
 }

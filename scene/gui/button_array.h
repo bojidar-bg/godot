@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -33,7 +33,7 @@
 
 class ButtonArray : public Control {
 
-	OBJ_TYPE(ButtonArray, Control);
+	GDCLASS(ButtonArray, Control);
 public:
 	enum Align {
 		ALIGN_BEGIN,
@@ -50,6 +50,7 @@ private:
 	struct Button {
 
 		String text;
+		String tooltip;
 		Ref<Texture> icon;
 		mutable int _ms_cache;
 		mutable int _pos_cache;
@@ -58,6 +59,7 @@ private:
 
 	int selected;
 	int hover;
+	bool flat;
 	double min_button_size;
 
 	Vector<Button> buttons;
@@ -72,20 +74,25 @@ protected:
 
 public:
 
-	void _input_event(const InputEvent& p_event);
+	void _gui_input(const InputEvent& p_event);
 
 
 	void set_align(Align p_align);
 	Align get_align() const;
 
-	void add_button(const String& p_button);
-	void add_icon_button(const Ref<Texture>& p_icon,const String& p_button="");
+	void set_flat(bool p_flat);
+	bool is_flat() const;
+
+	void add_button(const String& p_button,const String& p_tooltip="");
+	void add_icon_button(const Ref<Texture>& p_icon,const String& p_button="",const String& p_tooltip="");
 
 	void set_button_text(int p_button, const String& p_text);
+	void set_button_tooltip(int p_button, const String& p_text);
 	void set_button_icon(int p_button, const Ref<Texture>& p_icon);
 
 
 	String get_button_text(int p_button) const;
+	String get_button_tooltip(int p_button) const;
 	Ref<Texture> get_button_icon(int p_button) const;
 
 	int get_selected() const;
@@ -100,20 +107,21 @@ public:
 	virtual Size2 get_minimum_size() const;
 
 	virtual void get_translatable_strings(List<String> *p_strings) const;
+	virtual String get_tooltip(const Point2& p_pos) const;
 
 
 	ButtonArray(Orientation p_orientation=HORIZONTAL);
 };
 
 class HButtonArray : public ButtonArray {
-	OBJ_TYPE(HButtonArray,ButtonArray);
+	GDCLASS(HButtonArray,ButtonArray);
 public:
 
 	HButtonArray() : ButtonArray(HORIZONTAL) {};
 };
 
 class VButtonArray : public ButtonArray {
-	OBJ_TYPE(VButtonArray,ButtonArray);
+	GDCLASS(VButtonArray,ButtonArray);
 public:
 
 	VButtonArray() : ButtonArray(VERTICAL) {};

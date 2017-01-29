@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,7 +38,7 @@ Error QuickHull::build(const Vector<Vector3>& p_points, Geometry::MeshData &r_me
 
 	/* CREATE AABB VOLUME */
 
-	AABB aabb;
+	Rect3 aabb;
 	for(int i=0;i<p_points.size();i++) {
 
 		if (i==0) {
@@ -483,7 +483,7 @@ Error QuickHull::build(const Vector<Vector3>& p_points, Geometry::MeshData &r_me
 	//fill mesh
 	r_mesh.faces.clear();
 	r_mesh.faces.resize(ret_faces.size());
-//	print_line("FACECOUNT: "+itos(r_mesh.faces.size()));
+	//print_line("FACECOUNT: "+itos(r_mesh.faces.size()));
 
 	int idx=0;
 	for (List<Geometry::MeshData::Face>::Element *E=ret_faces.front();E;E=E->next()) {

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -190,7 +190,7 @@ NULL};
 
 class EditorExportPlatformAndroid : public EditorExportPlatform {
 
-	OBJ_TYPE( EditorExportPlatformAndroid,EditorExportPlatform );
+	GDCLASS( EditorExportPlatformAndroid,EditorExportPlatform );
 
 
 	enum {
@@ -531,9 +531,9 @@ void EditorExportPlatformAndroid::_fix_resources(Vector<uint8_t>& p_manifest) {
 
 	Vector<String> string_table;
 
-	printf("stirng block len: %i\n",string_block_len);
-	printf("stirng count: %i\n",string_count);
-	printf("flags: %x\n",string_flags);
+	//printf("stirng block len: %i\n",string_block_len);
+	//printf("stirng count: %i\n",string_count);
+	//printf("flags: %x\n",string_flags);
 
 	for(uint32_t i=0;i<string_count;i++) {
 
@@ -553,8 +553,8 @@ void EditorExportPlatformAndroid::_fix_resources(Vector<uint8_t>& p_manifest) {
 
 				String lang = str.substr(str.find_last("-")+1,str.length()).replace("-","_");
 				String prop = "application/name_"+lang;
-				if (Globals::get_singleton()->has(prop)) {
-					str = Globals::get_singleton()->get(prop);
+				if (GlobalConfig::get_singleton()->has(prop)) {
+					str = GlobalConfig::get_singleton()->get(prop);
 				} else {
 					str = get_project_name();
 				}
@@ -617,7 +617,7 @@ void EditorExportPlatformAndroid::_fix_resources(Vector<uint8_t>& p_manifest) {
 
 
 	p_manifest=ret;
-	printf("end\n");
+	//printf("end\n");
 }
 
 String EditorExportPlatformAndroid::get_project_name() const {
@@ -626,7 +626,7 @@ String EditorExportPlatformAndroid::get_project_name() const {
 	if (this->name!="") {
 		aname=this->name;
 	} else {
-		aname = Globals::get_singleton()->get("application/name");
+		aname = GlobalConfig::get_singleton()->get("application/name");
 
 	}
 
@@ -729,17 +729,17 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 					}
 
 
-//					print_line("String "+itos(i)+": "+string_table[i]);
+					//print_line("String "+itos(i)+": "+string_table[i]);
 				}
 
 				for(uint32_t i=string_end;i<(ofs+size);i++) {
 					stable_extra.push_back(p_manifest[i]);
 				}
 
-//				printf("stable extra: %i\n",int(stable_extra.size()));
+				//printf("stable extra: %i\n",int(stable_extra.size()));
 				string_table_ends=ofs+size;
 
-//				print_line("STABLE SIZE: "+itos(size)+" ACTUAL: "+itos(string_table_ends));
+				//print_line("STABLE SIZE: "+itos(size)+" ACTUAL: "+itos(string_table_ends));
 
 			} break;
 			case CHUNK_XML_START_TAG: {
@@ -752,7 +752,7 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 
 				String tname=string_table[name];
 
-//				printf("NSPACE: %i\n",nspace);
+				//printf("NSPACE: %i\n",nspace);
 				//printf("NAME: %i (%s)\n",name,tname.utf8().get_data());
 				//printf("CHECK: %x\n",check);
 				uint32_t attrcount=decode_uint32(&p_manifest[iofs+20]);
@@ -778,16 +778,16 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 					else
 						nspace="";
 
-					printf("ATTR %i NSPACE: %i\n",i,attr_nspace);
-					printf("ATTR %i NAME: %i (%s)\n",i,attr_name,attrname.utf8().get_data());
-					printf("ATTR %i VALUE: %i (%s)\n",i,attr_value,value.utf8().get_data());
-					printf("ATTR %i FLAGS: %x\n",i,attr_flags);
-					printf("ATTR %i RESID: %x\n",i,attr_resid);
+					//printf("ATTR %i NSPACE: %i\n",i,attr_nspace);
+					//printf("ATTR %i NAME: %i (%s)\n",i,attr_name,attrname.utf8().get_data());
+					//printf("ATTR %i VALUE: %i (%s)\n",i,attr_value,value.utf8().get_data());
+					//printf("ATTR %i FLAGS: %x\n",i,attr_flags);
+					//printf("ATTR %i RESID: %x\n",i,attr_resid);
 
 					//replace project information
 					if (tname=="manifest" && attrname=="package") {
 
-						print_line("FOUND PACKAGE");
+						print_line("FOUND package");
 						string_table[attr_value]=get_package_name();
 					}
 
@@ -796,14 +796,14 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 					//print_line("attrname: "+attrname);
 					if (tname=="manifest" && /*nspace=="android" &&*/ attrname=="versionCode") {
 
-						print_line("FOUND versioncode");
+						print_line("FOUND versionCode");
 						encode_uint32(version_code,&p_manifest[iofs+16]);
 					}
 
 
 					if (tname=="manifest" && /*nspace=="android" &&*/ attrname=="versionName") {
 
-						print_line("FOUND versionname");
+						print_line("FOUND versionName");
 						if (attr_value==0xFFFFFFFF) {
 							WARN_PRINT("Version name in a resource, should be plaintext")
 						} else
@@ -834,10 +834,10 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 
 						} else if (value.begins_with("godot.")) {
 							String perm = value.get_slice(".",1);
-							print_line("PERM: "+perm+" HAS: "+itos(perms.has(perm)));
 
 							if (perms.has(perm) || (p_give_internet && perm=="INTERNET")) {
 
+								print_line("PERM: "+perm);
 								string_table[attr_value]="android.permission."+perm;
 							}
 
@@ -871,12 +871,12 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 
 			} break;
 		}
-		printf("chunk %x: size: %d\n",chunk,size);
+		//printf("chunk %x: size: %d\n",chunk,size);
 
 		ofs+=size;
 	}
 
-	printf("end\n");
+	//printf("end\n");
 
 	//create new andriodmanifest binary
 
@@ -893,14 +893,14 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 
 		encode_uint32(ofs,&ret[string_table_begins+i*4]);
 		ofs+=string_table[i].length()*2+2+2;
-		print_line("ofs: "+itos(i)+": "+itos(ofs));
+		//print_line("ofs: "+itos(i)+": "+itos(ofs));
 	}
 	ret.resize(ret.size()+ofs);
 	uint8_t *chars=&ret[ret.size()-ofs];
 	for(int i=0;i<string_table.size();i++) {
 
 		String s = string_table[i];
-		print_line("savint string :"+s);
+		//print_line("savint string :"+s);
 		encode_uint16(s.length(),chars);
 		chars+=2;
 		for(int j=0;j<s.length();j++) { //include zero?
@@ -934,7 +934,7 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 
 	encode_uint32(new_stable_end-8,&ret[12]); //update new string table size
 
-	print_line("file size: "+itos(ret.size()));
+	//print_line("file size: "+itos(ret.size()));
 
 	p_manifest=ret;
 
@@ -949,7 +949,7 @@ void EditorExportPlatformAndroid::_fix_manifest(Vector<uint8_t>& p_manifest,bool
 		header[i]=decode_uint32(&p_manifest[i*4]);
 	}
 
-	print_line("STO: "+itos(header[3]));
+	//print_line("STO: "+itos(header[3]));
 	uint32_t st_offset=9*4;
 	//ERR_FAIL_COND(header[3]!=0x24)
 	uint32_t string_count=header[4];
@@ -1148,7 +1148,7 @@ Error EditorExportPlatformAndroid::export_project(const String& p_path, bool p_d
 
 			if (!found) {
 
-				String appicon = Globals::get_singleton()->get("application/icon");
+				String appicon = GlobalConfig::get_singleton()->get("application/icon");
 				if (appicon!="" && appicon.ends_with(".png")) {
 					FileAccess*f = FileAccess::open(appicon,FileAccess::READ);
 					if (f) {
@@ -1212,9 +1212,9 @@ Error EditorExportPlatformAndroid::export_project(const String& p_path, bool p_d
 
 	if (p_flags&EXPORT_DUMB_CLIENT) {
 
-		/*String host = EditorSettings::get_singleton()->get("file_server/host");
-		int port = EditorSettings::get_singleton()->get("file_server/post");
-		String passwd = EditorSettings::get_singleton()->get("file_server/password");
+		/*String host = EditorSettings::get_singleton()->get("filesystem/file_server/host");
+		int port = EditorSettings::get_singleton()->get("filesystem/file_server/post");
+		String passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
 		cl.push_back("-rfs");
 		cl.push_back(host+":"+itos(port));
 		if (passwd!="") {
@@ -1305,7 +1305,7 @@ Error EditorExportPlatformAndroid::export_project(const String& p_path, bool p_d
 	if (_signed) {
 
 
-		String jarsigner=EditorSettings::get_singleton()->get("android/jarsigner");
+		String jarsigner=EditorSettings::get_singleton()->get("export/android/jarsigner");
 		if (!FileAccess::exists(jarsigner)) {
 			EditorNode::add_io_error("'jarsigner' could not be found.\nPlease supply a path in the editor settings.\nResulting apk is unsigned.");
 			return OK;
@@ -1315,9 +1315,9 @@ Error EditorExportPlatformAndroid::export_project(const String& p_path, bool p_d
 		String password;
 		String user;
 		if (p_debug) {
-			keystore=EditorSettings::get_singleton()->get("android/debug_keystore");
-			password=EditorSettings::get_singleton()->get("android/debug_keystore_pass");
-			user=EditorSettings::get_singleton()->get("android/debug_keystore_user");
+			keystore=EditorSettings::get_singleton()->get("export/android/debug_keystore");
+			password=EditorSettings::get_singleton()->get("export/android/debug_keystore_pass");
+			user=EditorSettings::get_singleton()->get("export/android/debug_keystore_user");
 
 			ep.step("Signing Debug APK..",103);
 
@@ -1340,7 +1340,7 @@ Error EditorExportPlatformAndroid::export_project(const String& p_path, bool p_d
 		args.push_back("SHA1");
 		args.push_back("-sigalg");
 		args.push_back("MD5withRSA");
-		String tsa_url=EditorSettings::get_singleton()->get("android/timestamping_authority_url");
+		String tsa_url=EditorSettings::get_singleton()->get("export/android/timestamping_authority_url");
 		if (tsa_url != "") {
 			args.push_back("-tsa");
 			args.push_back(tsa_url);
@@ -1506,7 +1506,7 @@ void EditorExportPlatformAndroid::_device_poll_thread(void *ud) {
 
 	while(!ea->quit_request) {
 
-		String adb=EditorSettings::get_singleton()->get("android/adb");
+		String adb=EditorSettings::get_singleton()->get("export/android/adb");
 		if (FileAccess::exists(adb)) {
 
 			String devices;
@@ -1523,7 +1523,7 @@ void EditorExportPlatformAndroid::_device_poll_thread(void *ud) {
 				if (dpos==-1)
 					continue;
 				d=d.substr(0,dpos).strip_edges();
-	//			print_line("found devuce: "+d);
+				//print_line("found devuce: "+d);
 				ldevices.push_back(d);
 			}
 
@@ -1602,8 +1602,8 @@ void EditorExportPlatformAndroid::_device_poll_thread(void *ud) {
 						}
 
 						d.name=vendor+" "+device;
-	//					print_line("name: "+d.name);
-	//					print_line("description: "+d.description);
+						//print_line("name: "+d.name);
+						//print_line("description: "+d.description);
 
 					}
 
@@ -1628,8 +1628,8 @@ void EditorExportPlatformAndroid::_device_poll_thread(void *ud) {
 
 	}
 
-	if (EditorSettings::get_singleton()->get("android/shutdown_adb_on_exit")) {
-		String adb=EditorSettings::get_singleton()->get("android/adb");
+	if (EditorSettings::get_singleton()->get("export/android/shutdown_adb_on_exit")) {
+		String adb=EditorSettings::get_singleton()->get("export/android/adb");
 		if (!FileAccess::exists(adb)) {
 			return; //adb not configured
 		}
@@ -1647,7 +1647,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 
 	EditorProgress ep("run","Running on "+devices[p_device].name,3);
 
-	String adb=EditorSettings::get_singleton()->get("android/adb");
+	String adb=EditorSettings::get_singleton()->get("export/android/adb");
 	if (adb=="") {
 
 		EditorNode::add_io_error("ADB executable not configured in settings, can't run.");
@@ -1659,7 +1659,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 	ep.step("Exporting APK",0);
 
 
-	bool use_adb_over_usb = bool(EDITOR_DEF("android/use_remote_debug_over_adb",true));
+	bool use_adb_over_usb = bool(EDITOR_DEF("export/android/use_remote_debug_over_adb",true));
 
 	if (use_adb_over_usb) {
 		p_flags|=EXPORT_REMOTE_DEBUG_LOCALHOST;
@@ -1719,7 +1719,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 		args.push_back("--remove-all");
 		err = OS::get_singleton()->execute(adb,args,true,NULL,NULL,&rv);
 
-		int port = Globals::get_singleton()->get("debug/debug_port");
+		int port = GlobalConfig::get_singleton()->get("network/debug/remote_port");
 		args.clear();
 		args.push_back("reverse");
 		args.push_back("tcp:"+itos(port));
@@ -1728,7 +1728,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 		err = OS::get_singleton()->execute(adb,args,true,NULL,NULL,&rv);
 		print_line("Reverse result: "+itos(rv));
 
-		int fs_port = EditorSettings::get_singleton()->get("file_server/port");
+		int fs_port = EditorSettings::get_singleton()->get("filesystem/file_server/port");
 
 		args.clear();
 		args.push_back("reverse");
@@ -1748,6 +1748,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 	args.push_back("shell");
 	args.push_back("am");
 	args.push_back("start");
+	args.push_back("--user 0");
 	args.push_back("-a");
 	args.push_back("android.intent.action.MAIN");
 	args.push_back("-n");
@@ -1766,7 +1767,7 @@ Error EditorExportPlatformAndroid::run(int p_device, int p_flags) {
 String EditorExportPlatformAndroid::get_package_name() {
 
 	String pname = package;
-	String basename = Globals::get_singleton()->get("application/name");
+	String basename = GlobalConfig::get_singleton()->get("application/name");
 	basename=basename.to_lower();
 
 	String name;
@@ -1822,7 +1823,7 @@ EditorExportPlatformAndroid::EditorExportPlatformAndroid() {
 bool EditorExportPlatformAndroid::can_export(String *r_error) const {
 
 	bool valid=true;
-	String adb=EditorSettings::get_singleton()->get("android/adb");
+	String adb=EditorSettings::get_singleton()->get("export/android/adb");
 	String err;
 
 	if (!FileAccess::exists(adb)) {
@@ -1831,7 +1832,7 @@ bool EditorExportPlatformAndroid::can_export(String *r_error) const {
 		err+="ADB executable not configured in editor settings.\n";
 	}
 
-	String js = EditorSettings::get_singleton()->get("android/jarsigner");
+	String js = EditorSettings::get_singleton()->get("export/android/jarsigner");
 
 	if (!FileAccess::exists(js)) {
 
@@ -1839,7 +1840,7 @@ bool EditorExportPlatformAndroid::can_export(String *r_error) const {
 		err+="OpenJDK 6 jarsigner not configured in editor settings.\n";
 	}
 
-	String dk = EditorSettings::get_singleton()->get("android/debug_keystore");
+	String dk = EditorSettings::get_singleton()->get("export/android/debug_keystore");
 
 	if (!FileAccess::exists(dk)) {
 
@@ -1864,10 +1865,12 @@ bool EditorExportPlatformAndroid::can_export(String *r_error) const {
 
 	if (apk_expansion) {
 
-		//if (apk_expansion_salt=="") {
-		//	valid=false;
-		//	err+="Invalid SALT for apk expansion.\n";
-		//}
+		/*
+		if (apk_expansion_salt=="") {
+			valid=false;
+			err+="Invalid SALT for apk expansion.\n";
+		}
+		*/
 		if (apk_expansion_pkey=="") {
 			valid=false;
 			err+="Invalid public key for apk expansion.\n";
@@ -1893,23 +1896,22 @@ EditorExportPlatformAndroid::~EditorExportPlatformAndroid() {
 void register_android_exporter() {
 
 	String exe_ext=OS::get_singleton()->get_name()=="Windows"?"exe":"";
-	EDITOR_DEF("android/adb","");
+	EDITOR_DEF("export/android/adb","");
 	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING,"android/adb",PROPERTY_HINT_GLOBAL_FILE,exe_ext));
-	EDITOR_DEF("android/jarsigner","");
+	EDITOR_DEF("export/android/jarsigner","");
 	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING,"android/jarsigner",PROPERTY_HINT_GLOBAL_FILE,exe_ext));
-	EDITOR_DEF("android/debug_keystore","");
+	EDITOR_DEF("export/android/debug_keystore","");
 	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING,"android/debug_keystore",PROPERTY_HINT_GLOBAL_FILE,"keystore"));
-	EDITOR_DEF("android/debug_keystore_user","androiddebugkey");
-	EDITOR_DEF("android/debug_keystore_pass","android");
+	EDITOR_DEF("export/android/debug_keystore_user","androiddebugkey");
+	EDITOR_DEF("export/android/debug_keystore_pass","android");
 	//EDITOR_DEF("android/release_keystore","");
 	//EDITOR_DEF("android/release_username","");
 	//EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING,"android/release_keystore",PROPERTY_HINT_GLOBAL_FILE,"*.keystore"));
-	EDITOR_DEF("android/timestamping_authority_url","");
-	EDITOR_DEF("android/use_remote_debug_over_adb",false);
-	EDITOR_DEF("android/shutdown_adb_on_exit",true);
+	EDITOR_DEF("export/android/timestamping_authority_url","");
+	EDITOR_DEF("export/android/use_remote_debug_over_adb",false);
+	EDITOR_DEF("export/android/shutdown_adb_on_exit",true);
 
 	Ref<EditorExportPlatformAndroid> exporter = Ref<EditorExportPlatformAndroid>( memnew(EditorExportPlatformAndroid) );
 	EditorImportExport::get_singleton()->add_export_platform(exporter);
 
 }
-

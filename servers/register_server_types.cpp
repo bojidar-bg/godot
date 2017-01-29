@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -33,9 +33,8 @@
 #include "audio_server.h"
 #include "physics_server.h"
 #include "physics_2d_server.h"
-#include "spatial_sound_server.h"
-#include "spatial_sound_2d_server.h"
 #include "script_debugger_remote.h"
+#include "visual/shader_types.h"
 
 static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage>* r_usage) {
 
@@ -55,37 +54,35 @@ static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsag
 
 }
 
+ShaderTypes *shader_types=NULL;
+
 void register_server_types() {
 
-	Globals::get_singleton()->add_singleton( Globals::Singleton("VisualServer",VisualServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("VS",VisualServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("AudioServer",AudioServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("AS",AudioServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("PhysicsServer",PhysicsServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("PS",PhysicsServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("Physics2DServer",Physics2DServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("PS2D",Physics2DServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("SpatialSoundServer",SpatialSoundServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("SS",SpatialSoundServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("SpatialSound2DServer",SpatialSound2DServer::get_singleton()) );
-	Globals::get_singleton()->add_singleton( Globals::Singleton("SS2D",SpatialSound2DServer::get_singleton()) );
+	GLOBAL_DEF("memory/multithread/thread_rid_pool_prealloc",20);
+
+	GlobalConfig::get_singleton()->add_singleton( GlobalConfig::Singleton("VisualServer",VisualServer::get_singleton()) );
+	GlobalConfig::get_singleton()->add_singleton( GlobalConfig::Singleton("AudioServer",AudioServer::get_singleton()) );
+	GlobalConfig::get_singleton()->add_singleton( GlobalConfig::Singleton("PhysicsServer",PhysicsServer::get_singleton()) );
+	GlobalConfig::get_singleton()->add_singleton( GlobalConfig::Singleton("Physics2DServer",Physics2DServer::get_singleton()) );
+
+	shader_types = memnew( ShaderTypes );
 
 
-	ObjectTypeDB::register_virtual_type<Physics2DDirectBodyState>();
-	ObjectTypeDB::register_virtual_type<Physics2DDirectSpaceState>();
-	ObjectTypeDB::register_virtual_type<Physics2DShapeQueryResult>();
-	ObjectTypeDB::register_type<Physics2DTestMotionResult>();
-	ObjectTypeDB::register_type<Physics2DShapeQueryParameters>();
+	ClassDB::register_virtual_class<Physics2DDirectBodyState>();
+	ClassDB::register_virtual_class<Physics2DDirectSpaceState>();
+	ClassDB::register_virtual_class<Physics2DShapeQueryResult>();
+	ClassDB::register_class<Physics2DTestMotionResult>();
+	ClassDB::register_class<Physics2DShapeQueryParameters>();
 
-	ObjectTypeDB::register_type<PhysicsShapeQueryParameters>();
-	ObjectTypeDB::register_virtual_type<PhysicsDirectBodyState>();
-	ObjectTypeDB::register_virtual_type<PhysicsDirectSpaceState>();
-	ObjectTypeDB::register_virtual_type<PhysicsShapeQueryResult>();
+	ClassDB::register_class<PhysicsShapeQueryParameters>();
+	ClassDB::register_virtual_class<PhysicsDirectBodyState>();
+	ClassDB::register_virtual_class<PhysicsDirectSpaceState>();
+	ClassDB::register_virtual_class<PhysicsShapeQueryResult>();
 
 	ScriptDebuggerRemote::resource_usage_func=_debugger_get_resource_usage;
 }
 
 void unregister_server_types(){
 
-
+	memdelete( shader_types );
 }

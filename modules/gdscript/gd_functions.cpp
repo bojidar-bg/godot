@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,13 +28,14 @@
 /*************************************************************************/
 #include "gd_functions.h"
 #include "math_funcs.h"
-#include "object_type_db.h"
+#include "class_db.h"
 #include "reference.h"
 #include "gd_script.h"
 #include "func_ref.h"
 #include "os/os.h"
 #include "variant_parser.h"
 #include "io/marshalls.h"
+#include "io/json.h"
 
 const char *GDFunctions::get_func_name(Function p_func) {
 
@@ -88,6 +89,7 @@ const char *GDFunctions::get_func_name(Function p_func) {
 		"convert",
 		"typeof",
 		"type_exists",
+		"char",
 		"str",
 		"print",
 		"printt",
@@ -102,8 +104,12 @@ const char *GDFunctions::get_func_name(Function p_func) {
 		"load",
 		"inst2dict",
 		"dict2inst",
+		"validate_json",
+		"parse_json",
+		"to_json",
 		"hash",
 		"Color8",
+		"ColorN",
 		"print_stack",
 		"instance_from_id",
 	};
@@ -345,14 +351,14 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 		case MATH_SEED: {
 			VALIDATE_ARG_COUNT(1);
 			VALIDATE_ARG_NUM(0);
-			uint32_t seed=*p_args[0];
+			uint64_t seed=*p_args[0];
 			Math::seed(seed);
 			r_ret=Variant();
 		} break;
 		case MATH_RANDSEED: {
 			VALIDATE_ARG_COUNT(1);
 			VALIDATE_ARG_NUM(0);
-			uint32_t seed=*p_args[0];
+			uint64_t seed=*p_args[0];
 			int ret = Math::rand_from_seed(&seed);
 			Array reta;
 			reta.push_back(ret);
@@ -535,15 +541,21 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 		case TYPE_EXISTS: {
 
 			VALIDATE_ARG_COUNT(1);
-			r_ret = ObjectTypeDB::type_exists(*p_args[0]);
+			r_ret = ClassDB::class_exists(*p_args[0]);
 
+		} break;
+		case TEXT_CHAR: {
+			VALIDATE_ARG_COUNT(1);
+			VALIDATE_ARG_NUM(0);
+			CharType result[2] = {*p_args[0], 0};
+			r_ret=String(result);
 		} break;
 		case TEXT_STR: {
 
 			String str;
 			for(int i=0;i<p_arg_count;i++) {
 
-				String os = p_args[i]->operator String();;
+				String os = p_args[i]->operator String();
 
 				if (i==0)
 					str=os;
@@ -661,7 +673,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 		case VAR_TO_BYTES: {
 			VALIDATE_ARG_COUNT(1);
 
-			ByteArray barr;
+			PoolByteArray barr;
 			int len;
 			Error err = encode_variant(*p_args[0],NULL,len);
 			if (err) {
@@ -674,7 +686,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 
 			barr.resize(len);
 			{
-				ByteArray::Write w = barr.write();
+				PoolByteArray::Write w = barr.write();
 				encode_variant(*p_args[0],w.ptr(),len);
 
 			}
@@ -682,24 +694,24 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 		} break;
 		case BYTES_TO_VAR: {
 			VALIDATE_ARG_COUNT(1);
-			if (p_args[0]->get_type()!=Variant::RAW_ARRAY) {
+			if (p_args[0]->get_type()!=Variant::POOL_BYTE_ARRAY) {
 				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 				r_error.argument=0;
-				r_error.expected=Variant::RAW_ARRAY;
+				r_error.expected=Variant::POOL_BYTE_ARRAY;
 				r_ret=Variant();
 				return;
 			}
 
-			ByteArray varr=*p_args[0];
+			PoolByteArray varr=*p_args[0];
 			Variant ret;
 			{
-				ByteArray::Read r=varr.read();
+				PoolByteArray::Read r=varr.read();
 				Error err = decode_variant(ret,r.ptr(),varr.size(),NULL);
 				if (err!=OK) {
 					r_ret=RTR("Not enough bytes for decoding bytes, or invalid format.");
 					r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 					r_error.argument=0;
-					r_error.expected=Variant::RAW_ARRAY;
+					r_error.expected=Variant::POOL_BYTE_ARRAY;
 					return;
 				}
 
@@ -723,7 +735,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 
 					VALIDATE_ARG_NUM(0);
 					int count=*p_args[0];
-					Array arr(true);
+					Array arr;
 					if (count<=0) {
 						r_ret=arr;
 						return;
@@ -749,7 +761,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 					int from=*p_args[0];
 					int to=*p_args[1];
 
-					Array arr(true);
+					Array arr;
 					if (from>=to) {
 						r_ret=arr;
 						return;
@@ -780,7 +792,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 						return;
 					}
 
-					Array arr(true);
+					Array arr;
 					if (from>=to && incr>0) {
 						r_ret=arr;
 						return;
@@ -839,9 +851,11 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 			if (p_args[0]->get_type()!=Variant::STRING) {
 				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
 				r_error.argument=0;
+				r_error.expected=Variant::STRING;
 				r_ret=Variant();
+			} else {
+				r_ret=ResourceLoader::load(*p_args[0]);
 			}
-			r_ret=ResourceLoader::load(*p_args[0]);
 
 		} break;
 		case INST2DICT: {
@@ -907,7 +921,7 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 
 					NodePath cp(sname,Vector<StringName>(),false);
 
-					Dictionary d(true);
+					Dictionary d;
 					d["@subpath"]=cp;
 					d["@path"]=p->path;
 
@@ -1016,6 +1030,57 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 			}
 
 		} break;
+		case VALIDATE_JSON: {
+
+			VALIDATE_ARG_COUNT(1);
+
+			if (p_args[0]->get_type()!=Variant::STRING) {
+				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+				r_error.argument=0;
+				r_error.expected=Variant::STRING;
+				r_ret=Variant();
+				return;
+			}
+
+			String errs;
+			int errl;
+
+			Error err = JSON::parse(*p_args[0],r_ret,errs,errl);
+
+			if (err!=OK) {
+				r_ret=itos(errl)+":"+errs;
+			} else {
+				r_ret="";
+			}
+
+		} break;
+		case PARSE_JSON: {
+
+			VALIDATE_ARG_COUNT(1);
+
+			if (p_args[0]->get_type()!=Variant::STRING) {
+				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+				r_error.argument=0;
+				r_error.expected=Variant::STRING;
+				r_ret=Variant();
+				return;
+			}
+
+			String errs;
+			int errl;
+
+			Error err = JSON::parse(*p_args[0],r_ret,errs,errl);
+
+			if (err!=OK) {
+				r_ret=Variant();
+			}
+
+		} break;
+		case TO_JSON: {
+			VALIDATE_ARG_COUNT(1);
+
+			r_ret = JSON::print(*p_args[0]);
+		} break;
 		case HASH: {
 
 			VALIDATE_ARG_COUNT(1);
@@ -1051,6 +1116,36 @@ void GDFunctions::call(Function p_func,const Variant **p_args,int p_arg_count,Va
 			}
 
 			r_ret=color;
+
+		} break;
+		case COLORN: {
+
+			if (p_arg_count<1) {
+				r_error.error=Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+				r_error.argument=1;
+				r_ret=Variant();
+				return;
+			}
+
+			if (p_arg_count>2) {
+				r_error.error=Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+				r_error.argument=2;
+				r_ret=Variant();
+				return;
+			}
+			
+			if (p_args[0]->get_type()!=Variant::STRING) {
+				r_error.error=Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+				r_error.argument=0;
+				r_ret=Variant();
+			} else {
+				Color color = Color::named(*p_args[0]);
+				if (p_arg_count==2) {
+					VALIDATE_ARG_NUM(1);
+					color.a=*p_args[1];
+				}
+				r_ret=color;
+			}
 
 		} break;
 
@@ -1133,6 +1228,7 @@ bool GDFunctions::is_deterministic(Function p_func) {
 		case TYPE_CONVERT:
 		case TYPE_OF:
 		case TYPE_EXISTS:
+		case TEXT_CHAR:
 		case TEXT_STR:
 		case COLOR8:
 // enable for debug only, otherwise not desirable - case GEN_RANGE:
@@ -1403,6 +1499,13 @@ MethodInfo GDFunctions::get_info(Function p_func) {
 			return mi;
 
 		} break;
+		case TEXT_CHAR: {
+
+			MethodInfo mi("char",PropertyInfo(Variant::INT,"ascii"));
+			mi.return_val.type=Variant::STRING;
+			return mi;
+
+		} break;
 		case TEXT_STR: {
 
 			MethodInfo mi("str",PropertyInfo(Variant::NIL,"what"),PropertyInfo(Variant::NIL,"..."));
@@ -1459,13 +1562,13 @@ MethodInfo GDFunctions::get_info(Function p_func) {
 		} break;
 		case VAR_TO_BYTES: {
 			MethodInfo mi("var2bytes",PropertyInfo(Variant::NIL,"var"));
-			mi.return_val.type=Variant::RAW_ARRAY;
+			mi.return_val.type=Variant::POOL_BYTE_ARRAY;
 			return mi;
 
 		} break;
 		case BYTES_TO_VAR: {
 
-			MethodInfo mi("bytes2var:Variant",PropertyInfo(Variant::RAW_ARRAY,"bytes"));
+			MethodInfo mi("bytes2var:Variant",PropertyInfo(Variant::POOL_BYTE_ARRAY,"bytes"));
 			mi.return_val.type=Variant::NIL;
 			return mi;
 		} break;
@@ -1494,6 +1597,24 @@ MethodInfo GDFunctions::get_info(Function p_func) {
 			mi.return_val.type=Variant::OBJECT;
 			return mi;
 		} break;
+		case VALIDATE_JSON: {
+
+			MethodInfo mi("validate_json:Variant",PropertyInfo(Variant::STRING,"json"));
+			mi.return_val.type=Variant::STRING;
+			return mi;
+		} break;
+		case PARSE_JSON: {
+
+			MethodInfo mi("parse_json:Variant",PropertyInfo(Variant::STRING,"json"));
+			mi.return_val.type=Variant::NIL;
+			return mi;
+		} break;
+		case TO_JSON: {
+
+			MethodInfo mi("to_json",PropertyInfo(Variant::NIL,"var:Variant"));
+			mi.return_val.type=Variant::STRING;
+			return mi;
+		} break;
 		case HASH: {
 
 			MethodInfo mi("hash",PropertyInfo(Variant::NIL,"var:Variant"));
@@ -1503,6 +1624,12 @@ MethodInfo GDFunctions::get_info(Function p_func) {
 		case COLOR8: {
 
 			MethodInfo mi("Color8",PropertyInfo(Variant::INT,"r8"),PropertyInfo(Variant::INT,"g8"),PropertyInfo(Variant::INT,"b8"),PropertyInfo(Variant::INT,"a8"));
+			mi.return_val.type=Variant::COLOR;
+			return mi;
+		} break;
+		case COLORN: {
+
+			MethodInfo mi("ColorN",PropertyInfo(Variant::STRING,"name"),PropertyInfo(Variant::REAL,"alpha"));
 			mi.return_val.type=Variant::COLOR;
 			return mi;
 		} break;

@@ -1,9 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
 # makedocs.py: Generate documentation for Open Project Wiki
-# Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.
+# Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.
 # Contributor: Jorge Araya Navarro <elcorreo@deshackra.com>
 #
 

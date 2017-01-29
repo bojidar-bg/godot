@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -85,6 +85,10 @@ public:
 	//virtual void set_video_mode(const VideoMode& p_video_mode);
 	//virtual VideoMode get_video_mode() const;
 	//virtual void get_fullscreen_mode_list(List<VideoMode> *p_list) const;
+
+	virtual Error open_dynamic_library(const String p_path, void* &p_library_handle);
+	virtual Error close_dynamic_library(void* p_library_handle);
+	virtual Error get_dynamic_library_symbol_handle(void* p_library_handle, const String p_name, void* &p_symbol_handle);
 
 	virtual Error set_cwd(const String& p_cwd);
 

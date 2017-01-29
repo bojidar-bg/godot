@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -599,8 +599,10 @@ int BroadPhase2DHashGrid::cull_segment(const Vector2& p_from, const Vector2& p_t
 
 		E->key()->pass=pass;
 
-//		if (use_aabb && !p_aabb.intersects(E->key()->aabb))
-//			continue;
+		/*
+		if (use_aabb && !p_aabb.intersects(E->key()->aabb))
+			continue;
+		*/
 
 		if (!E->key()->aabb.intersects_segment(p_from,p_to))
 			continue;
@@ -645,8 +647,10 @@ int BroadPhase2DHashGrid::cull_aabb(const Rect2& p_aabb,CollisionObject2DSW** p_
 		if (!p_aabb.intersects(E->key()->aabb))
 			continue;
 
-//		if (!E->key()->aabb.intersects_segment(p_from,p_to))
-//			continue;
+		/*
+		if (!E->key()->aabb.intersects_segment(p_from,p_to))
+			continue;
+		*/
 
 		p_results[cullcount]=E->key()->owner;
 		p_result_indices[cullcount]=E->key()->subindex;
@@ -683,12 +687,12 @@ BroadPhase2DSW *BroadPhase2DHashGrid::_create() {
 
 BroadPhase2DHashGrid::BroadPhase2DHashGrid() {
 
-	hash_table_size = GLOBAL_DEF("physics_2d/bp_hash_table_size",4096);
+	hash_table_size = GLOBAL_DEF("physics/2d/bp_hash_table_size",4096);
 	hash_table_size = Math::larger_prime(hash_table_size);
 	hash_table = memnew_arr( PosBin*, hash_table_size);
 
-	cell_size = GLOBAL_DEF("physics_2d/cell_size",128);
-	large_object_min_surface = GLOBAL_DEF("physics_2d/large_object_surface_treshold_in_cells",512);
+	cell_size = GLOBAL_DEF("physics/2d/cell_size",128);
+	large_object_min_surface = GLOBAL_DEF("physics/2d/large_object_surface_treshold_in_cells",512);
 
 	for(int i=0;i<hash_table_size;i++)
 		hash_table[i]=NULL;

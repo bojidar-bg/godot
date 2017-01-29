@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -31,44 +31,132 @@
 
 #include "typedefs.h"
 #include "math_defs.h"
+#include "pcg.h"
 
 #ifndef NO_MATH_H
-#include "math.h"
+#include <math.h>
 #endif
+
+#define Math_PI 3.14159265358979323846
+#define Math_SQRT12 0.7071067811865475244008443621048490
 
 class Math {
 
+	static pcg32_random_t default_pcg;
 
-	static uint32_t default_seed;
 public:
-	Math() {}; // useless to instance
+	Math() {} // useless to instance
 
 	enum {
 		RANDOM_MAX=2147483647L
 	};
 
-	static double sin(double p_x);
-	static double cos(double p_x);
-	static double tan(double p_x);
-	static double sinh(double p_x);
-	static double cosh(double p_x);
-	static double tanh(double p_x);
-	static double asin(double p_x);
-	static double acos(double p_x);
-	static double atan(double p_x);
-	static double atan2(double p_y, double p_x);
-	static double deg2rad(double p_y);
-	static double rad2deg(double p_y);
-	static double sqrt(double p_x);
-	static double fmod(double p_x,double p_y);
-	static double fposmod(double p_x,double p_y);
-	static uint32_t rand_from_seed(uint32_t *seed);
-	static double floor(double p_x);
-	static double ceil(double p_x);
+
+	static _ALWAYS_INLINE_ double sin(double p_x) {
+
+		return ::sin(p_x);
+
+	}
+
+	static _ALWAYS_INLINE_ double cos(double p_x) {
+
+		return ::cos(p_x);
+
+	}
+
+	static _ALWAYS_INLINE_ double tan(double p_x) {
+
+		return ::tan(p_x);
+
+	}
+	static _ALWAYS_INLINE_ double sinh(double p_x) {
+
+		return ::sinh(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double cosh(double p_x) {
+
+		return ::cosh(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double tanh(double p_x) {
+
+		return ::tanh(p_x);
+	}
+
+
+	static _ALWAYS_INLINE_ double asin(double p_x) {
+
+		return ::asin(p_x);
+
+	}
+
+	static _ALWAYS_INLINE_ double acos(double p_x) {
+
+		return ::acos(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double atan(double p_x) {
+
+		return ::atan(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double atan2(double p_y, double p_x) {
+
+		return ::atan2(p_y,p_x);
+
+	}
+
+	static _ALWAYS_INLINE_ double deg2rad(double p_y) {
+
+		return p_y*Math_PI/180.0;
+	}
+
+	static _ALWAYS_INLINE_ double rad2deg(double p_y) {
+
+		return p_y*180.0/Math_PI;
+	}
+
+
+	static _ALWAYS_INLINE_ double sqrt(double p_x) {
+
+		return ::sqrt(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double fmod(double p_x,double p_y) {
+
+		return ::fmod(p_x,p_y);
+	}
+
+	static _ALWAYS_INLINE_ double fposmod(double p_x,double p_y) {
+
+		if (p_x>=0) {
+
+			return fmod(p_x,p_y);
+
+		} else {
+
+			return p_y-fmod(-p_x,p_y);
+		}
+
+	}
+	static _ALWAYS_INLINE_ double floor(double p_x) {
+
+		return ::floor(p_x);
+	}
+
+	static _ALWAYS_INLINE_ double ceil(double p_x) {
+
+		return ::ceil(p_x);
+	}
+
+
+	static uint32_t rand_from_seed(uint64_t *seed);
+
 	static double ease(double p_x, double p_c);
 	static int step_decimals(double p_step);
 	static double stepify(double p_value,double p_step);
-	static void seed(uint32_t x=0);
+	static void seed(uint64_t x=0);
 	static void randomize();
 	static uint32_t larger_prime(uint32_t p_val);
 	static double dectime(double p_value,double p_amount, double p_step);
@@ -84,10 +172,20 @@ public:
 		return Math::exp( p_db * 0.11512925464970228420089957273422 );
 	}
 
-	static bool is_nan(double p_val);
-	static bool is_inf(double p_val);
+	static _ALWAYS_INLINE_ bool is_nan(double p_val) {
 
+		return (p_val!=p_val);
+	}
 
+	static _ALWAYS_INLINE_ bool is_inf(double p_val) {
+
+	#ifdef _MSC_VER
+		return !_finite(p_val);
+	#else
+		return isinf(p_val);
+	#endif
+
+	}
 
 	static uint32_t rand();
 	static double randf();
@@ -95,6 +193,15 @@ public:
 	static double round(double p_val);
 
 	static double random(double from, double to);
+
+	static _FORCE_INLINE_ bool isequal_approx(real_t a, real_t b) {
+		// TODO: Comparing floats for approximate-equality is non-trivial.
+		// Using epsilon should cover the typical cases in Godot (where a == b is used to compare two reals), such as matrix and vector comparison operators.
+		// A proper implementation in terms of ULPs should eventually replace the contents of this function.
+		// See https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/ for details.
+
+		return abs(a-b) < CMP_EPSILON;
+	}
 
 
 	static _FORCE_INLINE_ real_t abs(real_t g) {
@@ -175,10 +282,110 @@ public:
 	static double log(double x);
 	static double exp(double x);
 
+
+	static _FORCE_INLINE_ uint32_t halfbits_to_floatbits(uint16_t h)
+	{
+	    uint16_t h_exp, h_sig;
+	    uint32_t f_sgn, f_exp, f_sig;
+
+	    h_exp = (h&0x7c00u);
+	    f_sgn = ((uint32_t)h&0x8000u) << 16;
+	    switch (h_exp) {
+		case 0x0000u: /* 0 or subnormal */
+		    h_sig = (h&0x03ffu);
+		    /* Signed zero */
+		    if (h_sig == 0) {
+			return f_sgn;
+		    }
+		    /* Subnormal */
+		    h_sig <<= 1;
+		    while ((h_sig&0x0400u) == 0) {
+			h_sig <<= 1;
+			h_exp++;
+		    }
+		    f_exp = ((uint32_t)(127 - 15 - h_exp)) << 23;
+		    f_sig = ((uint32_t)(h_sig&0x03ffu)) << 13;
+		    return f_sgn + f_exp + f_sig;
+		case 0x7c00u: /* inf or NaN */
+		    /* All-ones exponent and a copy of the significand */
+		    return f_sgn + 0x7f800000u + (((uint32_t)(h&0x03ffu)) << 13);
+		default: /* normalized */
+		    /* Just need to adjust the exponent and shift */
+		    return f_sgn + (((uint32_t)(h&0x7fffu) + 0x1c000u) << 13);
+	    }
+	}
+
+	static _FORCE_INLINE_ float halfptr_to_float(const uint16_t *h) {
+
+		union {
+			uint32_t u32;
+			float f32;
+		} u;
+
+		u.u32=halfbits_to_floatbits(*h);
+		return u.f32;
+	}
+
+	static _FORCE_INLINE_ uint16_t make_half_float(float f) {
+
+	    union {
+	       float fv;
+	       uint32_t ui;
+	    } ci;
+	    ci.fv=f;
+
+	    uint32_t    x = ci.ui;
+	    uint32_t    sign = (unsigned short)(x >> 31);
+	    uint32_t    mantissa;
+	    uint32_t    exp;
+	    uint16_t          hf;
+
+	    // get mantissa
+	    mantissa = x & ((1 << 23) - 1);
+	    // get exponent bits
+	    exp = x & (0xFF << 23);
+	    if (exp >= 0x47800000)
+	    {
+		// check if the original single precision float number is a NaN
+		if (mantissa && (exp == (0xFF << 23)))
+		{
+		    // we have a single precision NaN
+		    mantissa = (1 << 23) - 1;
+		}
+		else
+		{
+		    // 16-bit half-float representation stores number as Inf
+		    mantissa = 0;
+		}
+		hf = (((uint16_t)sign) << 15) | (uint16_t)((0x1F << 10)) |
+		      (uint16_t)(mantissa >> 13);
+	    }
+	    // check if exponent is <= -15
+	    else if (exp <= 0x38000000)
+	    {
+
+		/*// store a denorm half-float value or zero
+		exp = (0x38000000 - exp) >> 23;
+		mantissa >>= (14 + exp);
+
+		hf = (((uint16_t)sign) << 15) | (uint16_t)(mantissa);
+		*/
+		hf=0; //denormals do not work for 3D, convert to zero
+	    }
+	    else
+	    {
+		hf = (((uint16_t)sign) << 15) |
+		      (uint16_t)((exp - 0x38000000) >> 13) |
+		      (uint16_t)(mantissa >> 13);
+	    }
+
+	    return hf;
+	}
+
+
+
 };
 
 
-#define Math_PI 3.14159265358979323846
-#define Math_SQRT12 0.7071067811865475244008443621048490
 
 #endif // MATH_FUNCS_H

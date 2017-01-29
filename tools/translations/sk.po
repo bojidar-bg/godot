@@ -1,5 +1,5 @@
 # Slovak translation of the Godot Engine editor
-# Copyright (C) 2016 Juan Linietsky, Ariel Manzur and the Godot community
+# Copyright (C) 2016-2017 Juan Linietsky, Ariel Manzur and the Godot community
 # This file is distributed under the same license as the Godot source code.
 #
 # J08nY <johnenter@gmail.com>, 2016.
@@ -159,6 +159,10 @@ msgid "Editing Signal:"
 msgstr "Signály:"
 
 #: modules/visual_script/visual_script_editor.cpp
+msgid "Change Expression"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
 msgid "Add Node"
 msgstr ""
 
@@ -200,6 +204,43 @@ msgstr ""
 
 #: modules/visual_script/visual_script_editor.cpp
 msgid "Add Setter Property"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Condition"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Sequence"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Switch"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Iterator"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "While"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Return"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp tools/editor/call_dialog.cpp
+msgid "Call"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Get"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+#: tools/editor/property_editor.cpp
+msgid "Set"
 msgstr ""
 
 #: modules/visual_script/visual_script_editor.cpp
@@ -332,6 +373,85 @@ msgid ""
 "(error)."
 msgstr ""
 
+#: modules/visual_script/visual_script_nodes.cpp
+msgid "just pressed"
+msgstr ""
+
+#: modules/visual_script/visual_script_nodes.cpp
+msgid "just released"
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid ""
+"Couldn't read the certficate file. Are the path and password both correct?"
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Error creating the signature object."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Error creating the package signature."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid ""
+"No export templates found.\n"
+"Download and install export templates."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Custom debug package not found."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Custom release package not found."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid unique name."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid product GUID."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid publisher GUID."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid background color."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid Store Logo image dimensions (should be 50x50)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 44x44 logo image dimensions (should be 44x44)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 71x71 logo image dimensions (should be 71x71)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 150x150 logo image dimensions (should be 150x150)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 310x310 logo image dimensions (should be 310x310)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid wide 310x150 logo image dimensions (should be 310x150)."
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid splash screen image dimensions (should be 620x300)."
+msgstr ""
+
 #: scene/2d/animated_sprite.cpp
 msgid ""
 "A SpriteFrames resource must be created or set in the 'Frames' property in "
@@ -443,10 +563,6 @@ msgid ""
 "as parent."
 msgstr ""
 
-#: scene/3d/baked_light_instance.cpp
-msgid "BakedLightInstance does not contain a BakedLight resource."
-msgstr ""
-
 #: scene/3d/body_shape.cpp
 msgid ""
 "CollisionShape only serves to provide a collision shape to a CollisionObject "
@@ -481,6 +597,10 @@ msgid ""
 "It only provides navigation data."
 msgstr ""
 
+#: scene/3d/remote_transform.cpp
+msgid "Path property must point to a valid Spatial node to work."
+msgstr ""
+
 #: scene/3d/scenario_fx.cpp
 msgid ""
 "Only one WorldEnvironment is allowed per scene (or set of instanced scenes)."
@@ -502,7 +622,8 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: scene/gui/dialogs.cpp tools/editor/scene_tree_dock.cpp
+#: scene/gui/dialogs.cpp tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
 msgid "OK"
 msgstr ""
 
@@ -1119,10 +1240,6 @@ msgid "Method List For '%s':"
 msgstr ""
 
 #: tools/editor/call_dialog.cpp
-msgid "Call"
-msgstr ""
-
-#: tools/editor/call_dialog.cpp
 msgid "Method List:"
 msgstr ""
 
@@ -1241,6 +1358,12 @@ msgid "Method in target Node must be specified!"
 msgstr ""
 
 #: tools/editor/connections_dialog.cpp
+msgid ""
+"Target method not found! Specify a valid method or attach a script to target "
+"Node."
+msgstr ""
+
+#: tools/editor/connections_dialog.cpp
 msgid "Connect To Node:"
 msgstr ""
 
@@ -1314,6 +1437,15 @@ msgstr ""
 
 #: tools/editor/create_dialog.cpp
 msgid "Create New"
+msgstr ""
+
+#: tools/editor/create_dialog.cpp tools/editor/editor_file_dialog.cpp
+#: tools/editor/filesystem_dock.cpp
+msgid "Favorites:"
+msgstr ""
+
+#: tools/editor/create_dialog.cpp tools/editor/editor_file_dialog.cpp
+msgid "Recent:"
 msgstr ""
 
 #: tools/editor/create_dialog.cpp tools/editor/editor_help.cpp
@@ -1585,14 +1717,6 @@ msgstr ""
 msgid "Move Favorite Down"
 msgstr ""
 
-#: tools/editor/editor_file_dialog.cpp tools/editor/filesystem_dock.cpp
-msgid "Favorites:"
-msgstr ""
-
-#: tools/editor/editor_file_dialog.cpp
-msgid "Recent:"
-msgstr ""
-
 #: tools/editor/editor_file_dialog.cpp
 msgid "Preview:"
 msgstr ""
@@ -1641,6 +1765,11 @@ msgstr ""
 #: tools/editor/editor_help.cpp
 msgid "Constants:"
 msgstr "Konštanty:"
+
+#: tools/editor/editor_help.cpp
+#, fuzzy
+msgid "Property Description:"
+msgstr "Popis:"
 
 #: tools/editor/editor_help.cpp
 msgid "Method Description:"
@@ -1710,7 +1839,9 @@ msgstr ""
 msgid "Save Resource As.."
 msgstr ""
 
-#: tools/editor/editor_node.cpp tools/editor/scene_tree_dock.cpp
+#: tools/editor/editor_node.cpp
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
 msgid "I see.."
 msgstr ""
 
@@ -1935,7 +2066,9 @@ msgstr ""
 msgid "Pick a Main Scene"
 msgstr ""
 
-#: tools/editor/editor_node.cpp tools/editor/scene_tree_dock.cpp
+#: tools/editor/editor_node.cpp
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp tools/editor/script_create_dialog.cpp
 msgid "Ugh"
 msgstr ""
 
@@ -1984,14 +2117,6 @@ msgstr ""
 
 #: tools/editor/editor_node.cpp
 msgid "Go to previously opened scene."
-msgstr ""
-
-#: tools/editor/editor_node.cpp
-msgid "Fullscreen Mode"
-msgstr ""
-
-#: tools/editor/editor_node.cpp
-msgid "Distraction Free Mode"
 msgstr ""
 
 #: tools/editor/editor_node.cpp
@@ -2078,6 +2203,10 @@ msgstr ""
 
 #: tools/editor/editor_node.cpp
 msgid "Quit to Project List"
+msgstr ""
+
+#: tools/editor/editor_node.cpp
+msgid "Distraction Free Mode"
 msgstr ""
 
 #: tools/editor/editor_node.cpp
@@ -2239,6 +2368,10 @@ msgid "Editor Layout"
 msgstr ""
 
 #: tools/editor/editor_node.cpp
+msgid "Toggle Fullscreen"
+msgstr ""
+
+#: tools/editor/editor_node.cpp
 msgid "Install Export Templates"
 msgstr ""
 
@@ -2260,6 +2393,10 @@ msgstr ""
 
 #: tools/editor/editor_node.cpp
 msgid "Update Changes"
+msgstr ""
+
+#: tools/editor/editor_node.cpp
+msgid "Disable Update Spinner"
 msgstr ""
 
 #: tools/editor/editor_node.cpp
@@ -2300,6 +2437,10 @@ msgstr ""
 
 #: tools/editor/editor_node.cpp
 msgid "FileSystem"
+msgstr ""
+
+#: tools/editor/editor_node.cpp tools/editor/node_dock.cpp
+msgid "Node"
 msgstr ""
 
 #: tools/editor/editor_node.cpp
@@ -2608,6 +2749,7 @@ msgstr ""
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
 #: tools/editor/io_plugins/editor_texture_import_plugin.cpp
 #: tools/editor/io_plugins/editor_translation_import_plugin.cpp
+#: tools/editor/project_export.cpp
 msgid "Target Path:"
 msgstr ""
 
@@ -2832,6 +2974,10 @@ msgstr ""
 
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
 msgid "Auto"
+msgstr ""
+
+#: tools/editor/io_plugins/editor_scene_import_plugin.cpp
+msgid "Root Node Name:"
 msgstr ""
 
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
@@ -3128,10 +3274,6 @@ msgstr ""
 
 #: tools/editor/multi_node_edit.cpp
 msgid "MultiNode Set"
-msgstr ""
-
-#: tools/editor/node_dock.cpp
-msgid "Node"
 msgstr ""
 
 #: tools/editor/node_dock.cpp
@@ -3674,6 +3816,10 @@ msgid "Clear Bones"
 msgstr ""
 
 #: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Show Bones"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
 msgid "Make IK Chain"
 msgstr ""
 
@@ -3732,6 +3878,49 @@ msgstr ""
 
 #: tools/editor/plugins/canvas_item_editor_plugin.cpp
 msgid "Snap (Pixels):"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Add %s"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Adding %s..."
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "Create Node"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "Error instancing scene from %s"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "OK :("
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "No parent to instance a child at."
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "This operation requires a single selected node."
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Change default type"
+msgstr ""
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid ""
+"Drag & drop + Shift : Add node as sibling\n"
+"Drag & drop + Alt : Change node type"
 msgstr ""
 
 #: tools/editor/plugins/collision_polygon_2d_editor_plugin.cpp
@@ -4413,6 +4602,10 @@ msgid "Close Docs"
 msgstr ""
 
 #: tools/editor/plugins/script_editor_plugin.cpp
+msgid "Close All"
+msgstr ""
+
+#: tools/editor/plugins/script_editor_plugin.cpp
 #: tools/editor/plugins/script_text_editor.cpp
 #: tools/editor/plugins/shader_editor_plugin.cpp
 msgid "Find.."
@@ -4520,6 +4713,10 @@ msgid ""
 "Built-in scripts can only be edited when the scene they belong to is loaded"
 msgstr ""
 
+#: tools/editor/plugins/script_text_editor.cpp
+msgid "Pick Color"
+msgstr ""
+
 #: tools/editor/plugins/script_text_editor.cpp tools/editor/scene_tree_dock.cpp
 msgid "Move Up"
 msgstr ""
@@ -4589,18 +4786,6 @@ msgstr ""
 
 #: tools/editor/plugins/script_text_editor.cpp
 msgid "Contextual Help"
-msgstr ""
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Vertex"
-msgstr ""
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Fragment"
-msgstr ""
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Lighting"
 msgstr ""
 
 #: tools/editor/plugins/shader_graph_editor_plugin.cpp
@@ -4896,6 +5081,10 @@ msgid "Insert Animation Key"
 msgstr ""
 
 #: tools/editor/plugins/spatial_editor_plugin.cpp
+msgid "Focus Origin"
+msgstr ""
+
+#: tools/editor/plugins/spatial_editor_plugin.cpp
 #, fuzzy
 msgid "Focus Selection"
 msgstr "Všetky vybrané"
@@ -5164,6 +5353,10 @@ msgid "Remove Item"
 msgstr ""
 
 #: tools/editor/plugins/theme_editor_plugin.cpp
+msgid "Theme"
+msgstr ""
+
+#: tools/editor/plugins/theme_editor_plugin.cpp
 msgid "Add Class Items"
 msgstr ""
 
@@ -5357,6 +5550,65 @@ msgstr ""
 
 #: tools/editor/project_export.cpp
 msgid "No exporter for platform '%s' yet."
+msgstr ""
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "Create Android keystore"
+msgstr "Vytvoriť adresár"
+
+#: tools/editor/project_export.cpp
+msgid "Full name"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Organizational unit"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Organization"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "City"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "State"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "2 letter country code"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "User alias"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Password"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "at least 6 characters"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "File name"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Path : (better to save outside of project)"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid ""
+"Release keystore is not set.\n"
+"Do you want to create one?"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Fill Keystore/Release User and Release Password"
 msgstr ""
 
 #: tools/editor/project_export.cpp
@@ -5819,10 +6071,6 @@ msgid "Erase Input Action Event"
 msgstr ""
 
 #: tools/editor/project_settings.cpp
-msgid "Toggle Persisting"
-msgstr ""
-
-#: tools/editor/project_settings.cpp
 msgid "Error saving settings."
 msgstr ""
 
@@ -5966,13 +6214,18 @@ msgstr ""
 msgid "Dir.."
 msgstr ""
 
-#: tools/editor/property_editor.cpp
+#: tools/editor/property_editor.cpp tools/editor/script_create_dialog.cpp
 msgid "Load"
 msgstr ""
 
 #: tools/editor/property_editor.cpp
 msgid "Assign"
 msgstr ""
+
+#: tools/editor/property_editor.cpp
+#, fuzzy
+msgid "New Script"
+msgstr "Popis:"
 
 #: tools/editor/property_editor.cpp
 msgid "Error loading file: Not a resource!"
@@ -5991,15 +6244,7 @@ msgid "On"
 msgstr ""
 
 #: tools/editor/property_editor.cpp
-msgid "Set"
-msgstr ""
-
-#: tools/editor/property_editor.cpp
 msgid "Properties:"
-msgstr ""
-
-#: tools/editor/property_editor.cpp
-msgid "Global"
 msgstr ""
 
 #: tools/editor/property_editor.cpp
@@ -6079,23 +6324,11 @@ msgid "Scene Run Settings"
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "OK :("
-msgstr ""
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "No parent to instance a child at."
-msgstr ""
-
-#: tools/editor/scene_tree_dock.cpp
 msgid "No parent to instance the scenes at."
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Error loading scene from %s"
-msgstr ""
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "Error instancing scene from %s"
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
@@ -6137,10 +6370,6 @@ msgid "This operation can't be done without a scene."
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "This operation requires a single selected node."
-msgstr ""
-
-#: tools/editor/scene_tree_dock.cpp
 msgid "This operation can't be done on instanced scenes."
 msgstr ""
 
@@ -6162,10 +6391,6 @@ msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Remove Node(s)"
-msgstr ""
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "Create Node"
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
@@ -6207,8 +6432,14 @@ msgid "Change Type"
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "Add Script"
-msgstr ""
+#, fuzzy
+msgid "Attach Script"
+msgstr "Popis:"
+
+#: tools/editor/scene_tree_dock.cpp
+#, fuzzy
+msgid "Clear Script"
+msgstr "Popis:"
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Merge From Scene"
@@ -6233,13 +6464,11 @@ msgid ""
 msgstr ""
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "Create a new script for the selected node."
+msgid "Attach a new or existing script for the selected node."
 msgstr ""
 
-#: tools/editor/scene_tree_editor.cpp
-msgid ""
-"This item cannot be made visible because the parent is hidden. Unhide the "
-"parent first."
+#: tools/editor/scene_tree_dock.cpp
+msgid "Clear a script for the selected node."
 msgstr ""
 
 #: tools/editor/scene_tree_editor.cpp
@@ -6335,6 +6564,10 @@ msgid "Could not create script in filesystem."
 msgstr ""
 
 #: tools/editor/script_create_dialog.cpp
+msgid "Error loading script from %s"
+msgstr ""
+
+#: tools/editor/script_create_dialog.cpp
 msgid "Path is empty"
 msgstr ""
 
@@ -6347,16 +6580,18 @@ msgid "Invalid base path"
 msgstr ""
 
 #: tools/editor/script_create_dialog.cpp
-msgid "File exists"
-msgstr ""
-
-#: tools/editor/script_create_dialog.cpp
 msgid "Invalid extension"
 msgstr ""
 
 #: tools/editor/script_create_dialog.cpp
-msgid "Valid path"
-msgstr ""
+#, fuzzy
+msgid "Create new script"
+msgstr "Popis:"
+
+#: tools/editor/script_create_dialog.cpp
+#, fuzzy
+msgid "Load existing script"
+msgstr "Popis:"
 
 #: tools/editor/script_create_dialog.cpp
 msgid "Class Name:"
@@ -6367,8 +6602,9 @@ msgid "Built-In Script"
 msgstr ""
 
 #: tools/editor/script_create_dialog.cpp
-msgid "Create Node Script"
-msgstr ""
+#, fuzzy
+msgid "Attach Node Script"
+msgstr "Popis:"
 
 #: tools/editor/script_editor_debugger.cpp
 msgid "Bytes:"
@@ -6532,4 +6768,8 @@ msgstr ""
 
 #: tools/editor/spatial_editor_gizmos.cpp
 msgid "Change Notifier Extents"
+msgstr ""
+
+#: tools/editor/spatial_editor_gizmos.cpp
+msgid "Change Probe Extents"
 msgstr ""

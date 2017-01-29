@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,7 +30,8 @@
 #define IMAGE_LOADER_PNG_H
 
 #include "io/image_loader.h"
-#include "drivers/png/png.h"
+
+#include <png.h>
 
 /**
 	@author Juan Linietsky <reduzio@gmail.com>

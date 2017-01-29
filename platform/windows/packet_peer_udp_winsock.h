@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -42,8 +42,8 @@ class PacketPeerUDPWinsock : public PacketPeerUDP {
 	mutable RingBuffer<uint8_t> rb;
 	uint8_t recv_buffer[PACKET_BUFFER_SIZE];
 	mutable uint8_t packet_buffer[PACKET_BUFFER_SIZE];
-	IP_Address packet_ip;
-	int packet_port;
+	mutable IP_Address packet_ip;
+	mutable int packet_port;
 	mutable int queue_count;
 	int sockfd;
 
@@ -67,7 +67,7 @@ public:
 
 	virtual int get_max_packet_size() const;
 
-	virtual Error listen(int p_port,int p_recv_buffer_size=65536);
+	virtual Error listen(int p_port, int p_recv_buffer_size=65536);
 	virtual void close();
 	virtual Error wait();
 	virtual bool is_listening() const;
@@ -75,7 +75,7 @@ public:
 	virtual IP_Address get_packet_address() const;
 	virtual int get_packet_port() const;
 
-	virtual void set_send_address(const IP_Address& p_address,int p_port);
+	virtual void set_dest_address(const IP_Address& p_address,int p_port);
 
 	static void make_default();
 	PacketPeerUDPWinsock();

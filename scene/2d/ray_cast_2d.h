@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -33,7 +33,7 @@
 
 class RayCast2D : public Node2D {
 
-	OBJ_TYPE(RayCast2D,Node2D);
+	GDCLASS(RayCast2D,Node2D);
 
 
 	bool enabled;
@@ -52,6 +52,7 @@ class RayCast2D : public Node2D {
 protected:
 
 	void _notification(int p_what);
+	void _update_raycast_state();
 	static void _bind_methods();
 public:
 
@@ -69,6 +70,8 @@ public:
 
 	void set_exclude_parent_body(bool p_exclude_parent_body);
 	bool get_exclude_parent_body() const;
+
+	void force_raycast_update();
 
 	bool is_colliding() const;
 	Object *get_collider() const;

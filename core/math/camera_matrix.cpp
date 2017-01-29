@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -54,7 +54,7 @@ void CameraMatrix::set_zero() {
 }
 
 
-Plane CameraMatrix::xform4(const Plane& p_vec4) {
+Plane CameraMatrix::xform4(const Plane& p_vec4) const {
 
 	Plane ret;
 
@@ -143,10 +143,22 @@ void CameraMatrix::set_frustum(float p_left, float p_right, float p_bottom, floa
 	float c = - ( p_far + p_near ) / ( p_far - p_near );
 	float d = - 2 * p_far * p_near / ( p_far - p_near );
 
-	te[0] = x;	te[4] = 0;	te[8] = a;	te[12] = 0;
-	te[1] = 0;	te[5] = y;	te[9] = b;	te[13] = 0;
-	te[2] = 0;	te[6] = 0;	te[10] = c;	te[14] = d;
-	te[3] = 0;	te[7] = 0;	te[11] = - 1;	te[15] = 0;
+	te[0] = x;
+	te[1] = 0;
+	te[2] = 0;
+	te[3] = 0;
+	te[4] = 0;
+	te[5] = y;
+	te[6] = 0;
+	te[7] = 0;
+	te[8] = a;
+	te[9] = b;
+	te[10] = c;
+	te[11] = -1;
+	te[12] = 0;
+	te[13] = 0;
+	te[14] = d;
+	te[15] = 0;
 
 #endif
 
@@ -186,18 +198,21 @@ void CameraMatrix::get_viewport_size(float& r_width, float& r_height) const {
 	Plane near_plane=Plane(matrix[ 3] + matrix[ 2],
 	                matrix[ 7] + matrix[ 6],
 	                matrix[11] + matrix[10],
-			-matrix[15] - matrix[14]).normalized();
+			-matrix[15] - matrix[14]);
+	near_plane.normalize();
 
 	///////--- Right Plane ---///////
 	Plane right_plane=Plane(matrix[ 3] - matrix[ 0],
 	                matrix[ 7] - matrix[ 4],
 	                matrix[11] - matrix[ 8],
-			- matrix[15] + matrix[12]).normalized();
+			- matrix[15] + matrix[12]);
+	right_plane.normalize();
 
 	Plane top_plane=Plane(matrix[ 3] - matrix[ 1],
 	                matrix[ 7] - matrix[ 5],
 	                matrix[11] - matrix[ 9],
-			-matrix[15] + matrix[13]).normalized();
+			-matrix[15] + matrix[13]);
+	top_plane.normalize();
 
 	Vector3 res;
 	near_plane.intersect_3(right_plane,top_plane,&res);
@@ -214,26 +229,29 @@ bool CameraMatrix::get_endpoints(const Transform& p_transform, Vector3 *p_8point
 	Plane near_plane=Plane(matrix[ 3] + matrix[ 2],
 	                matrix[ 7] + matrix[ 6],
 	                matrix[11] + matrix[10],
-			-matrix[15] - matrix[14]).normalized();
+			-matrix[15] - matrix[14]);
+	near_plane.normalize();
 
 	///////--- Far Plane ---///////
 	Plane far_plane=Plane(matrix[ 2] - matrix[ 3],
 		      matrix[ 6] - matrix[ 7],
 		      matrix[10] - matrix[11],
-		      matrix[15] - matrix[14]).normalized();
-
+		      matrix[15] - matrix[14]);
+	far_plane.normalize();
 
 	///////--- Right Plane ---///////
 	Plane right_plane=Plane(matrix[ 0] - matrix[ 3],
 	                matrix[ 4] - matrix[ 7],
 	                matrix[8] - matrix[ 11],
-			- matrix[15] + matrix[12]).normalized();
+			- matrix[15] + matrix[12]);
+	right_plane.normalize();
 
 	///////--- Top Plane ---///////
 	Plane top_plane=Plane(matrix[ 1] - matrix[ 3],
 	                matrix[ 5] - matrix[ 7],
 	                matrix[9] - matrix[ 11],
-			-matrix[15] + matrix[13]).normalized();
+			-matrix[15] + matrix[13]);
+	top_plane.normalize();
 
 	Vector3 near_endpoint;
 	Vector3 far_endpoint;
@@ -495,6 +513,28 @@ void CameraMatrix::set_light_bias() {
 
 }
 
+void CameraMatrix::set_light_atlas_rect(const Rect2& p_rect) {
+
+	float *m=&matrix[0][0];
+
+	m[0]=p_rect.size.width,
+	m[1]=0.0,
+	m[2]=0.0,
+	m[3]=0.0,
+	m[4]=0.0,
+	m[5]=p_rect.size.height,
+	m[6]=0.0,
+	m[7]=0.0,
+	m[8]=0.0,
+	m[9]=0.0,
+	m[10]=1.0,
+	m[11]=0.0,
+	m[12]=p_rect.pos.x,
+	m[13]=p_rect.pos.y,
+	m[14]=0.0,
+	m[15]=1.0;
+}
+
 CameraMatrix::operator String() const {
 
 	String str;
@@ -512,13 +552,23 @@ float CameraMatrix::get_aspect() const {
 	return w/h;
 }
 
+int CameraMatrix::get_pixels_per_meter(int p_for_pixel_width) const {
+
+
+	Vector3 result = xform(Vector3(1,0,-1));
+
+	return int((result.x * 0.5 + 0.5) * p_for_pixel_width);
+
+}
+
 float CameraMatrix::get_fov() const {
 	const float * matrix = (const float*)this->matrix;
 
 	Plane right_plane=Plane(matrix[ 3] - matrix[ 0],
 			matrix[ 7] - matrix[ 4],
 			matrix[11] - matrix[ 8],
-			- matrix[15] + matrix[12]).normalized();
+			- matrix[15] + matrix[12]);
+	right_plane.normalize();
 
 	return Math::rad2deg(Math::acos(Math::abs(right_plane.normal.x)))*2.0;
 }
@@ -533,7 +583,7 @@ void CameraMatrix::make_scale(const Vector3 &p_scale) {
 
 }
 
-void CameraMatrix::scale_translate_to_fit(const AABB& p_aabb) {
+void CameraMatrix::scale_translate_to_fit(const Rect3& p_aabb) {
 
 	Vector3 min = p_aabb.pos;
 	Vector3 max = p_aabb.pos+p_aabb.size;

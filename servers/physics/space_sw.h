@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -37,11 +37,12 @@
 #include "area_pair_sw.h"
 #include "broad_phase_sw.h"
 #include "collision_object_sw.h"
+#include "globals.h"
 
 
 class PhysicsDirectSpaceStateSW : public PhysicsDirectSpaceState {
 
-	OBJ_TYPE( PhysicsDirectSpaceStateSW, PhysicsDirectSpaceState );
+	GDCLASS( PhysicsDirectSpaceStateSW, PhysicsDirectSpaceState );
 public:
 
 	SpaceSW *space;
@@ -57,7 +58,7 @@ public:
 
 
 
-class SpaceSW {
+class SpaceSW : public RID_Data {
 
 public:
 

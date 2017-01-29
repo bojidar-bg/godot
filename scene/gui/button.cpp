@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -34,7 +34,7 @@
 
 Size2 Button::get_minimum_size() const {
 
-	Size2 minsize=get_font("font")->get_string_size( text );
+	Size2 minsize=get_font("font")->get_string_size( xl_text );
 	if (clip_text)
 		minsize.width=0;
 
@@ -48,7 +48,7 @@ Size2 Button::get_minimum_size() const {
 
 		minsize.height=MAX( minsize.height, _icon->get_height() );
 		minsize.width+=_icon->get_width();
-		if (text!="")
+		if (xl_text!="")
 			minsize.width+=get_constant("hseparation");
 	}
 
@@ -58,6 +58,13 @@ Size2 Button::get_minimum_size() const {
 
 
 void Button::_notification(int p_what) {
+
+	if (p_what==NOTIFICATION_TRANSLATION_CHANGED) {
+
+		xl_text=XL_MESSAGE(text);
+		minimum_size_changed();
+		update();
+	}
 
 	if (p_what==NOTIFICATION_DRAW) {
 
@@ -114,7 +121,7 @@ void Button::_notification(int p_what) {
 
 		Point2 icon_ofs = (!_icon.is_null())?Point2( _icon->get_width() + get_constant("hseparation"), 0):Point2();
 		int text_clip=size.width - style->get_minimum_size().width - icon_ofs.width;
-		Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size( text ) )/2.0;
+		Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size( xl_text ) )/2.0;
 
 		switch(align) {
 			case ALIGN_LEFT: {
@@ -128,14 +135,14 @@ void Button::_notification(int p_what) {
 				text_ofs+=style->get_offset();
 			} break;
 			case ALIGN_RIGHT: {
-				text_ofs.x=size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size( text ).x;
+				text_ofs.x=size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size( xl_text ).x;
 				text_ofs.y+=style->get_offset().y;
 			} break;
 		}
 
 
 		text_ofs.y+=font->get_ascent();
-		font->draw( ci, text_ofs.floor(), text, color,clip_text?text_clip:-1);
+		font->draw( ci, text_ofs.floor(), xl_text, color,clip_text?text_clip:-1);
 		if (!_icon.is_null()) {
 
 			int valign = size.height-style->get_minimum_size().y;
@@ -152,7 +159,8 @@ void Button::set_text(const String& p_text) {
 
 	if (text==p_text)
 		return;
-	text=XL_MESSAGE(p_text);
+	text=p_text;
+	xl_text=XL_MESSAGE(p_text);
 	update();
 	_change_notify("text");
 	minimum_size_changed();
@@ -215,16 +223,16 @@ Button::TextAlign Button::get_text_align() const {
 
 void Button::_bind_methods() {
 
-	ObjectTypeDB::bind_method(_MD("set_text","text"),&Button::set_text);
-	ObjectTypeDB::bind_method(_MD("get_text"),&Button::get_text);
-	ObjectTypeDB::bind_method(_MD("set_button_icon","texture:Texture"),&Button::set_icon);
-	ObjectTypeDB::bind_method(_MD("get_button_icon:Texture"),&Button::get_icon);
-	ObjectTypeDB::bind_method(_MD("set_flat","enabled"),&Button::set_flat);
-	ObjectTypeDB::bind_method(_MD("set_clip_text","enabled"),&Button::set_clip_text);
-	ObjectTypeDB::bind_method(_MD("get_clip_text"),&Button::get_clip_text);
-	ObjectTypeDB::bind_method(_MD("set_text_align","align"),&Button::set_text_align);
-	ObjectTypeDB::bind_method(_MD("get_text_align"),&Button::get_text_align);
-	ObjectTypeDB::bind_method(_MD("is_flat"),&Button::is_flat);
+	ClassDB::bind_method(_MD("set_text","text"),&Button::set_text);
+	ClassDB::bind_method(_MD("get_text"),&Button::get_text);
+	ClassDB::bind_method(_MD("set_button_icon","texture:Texture"),&Button::set_icon);
+	ClassDB::bind_method(_MD("get_button_icon:Texture"),&Button::get_icon);
+	ClassDB::bind_method(_MD("set_flat","enabled"),&Button::set_flat);
+	ClassDB::bind_method(_MD("set_clip_text","enabled"),&Button::set_clip_text);
+	ClassDB::bind_method(_MD("get_clip_text"),&Button::get_clip_text);
+	ClassDB::bind_method(_MD("set_text_align","align"),&Button::set_text_align);
+	ClassDB::bind_method(_MD("get_text_align"),&Button::get_text_align);
+	ClassDB::bind_method(_MD("is_flat"),&Button::is_flat);
 
 	BIND_CONSTANT( ALIGN_LEFT );
 	BIND_CONSTANT( ALIGN_CENTER );
@@ -242,7 +250,7 @@ Button::Button(const String &p_text) {
 
 	flat=false;
 	clip_text=false;
-	set_stop_mouse(true);
+	set_mouse_filter(MOUSE_FILTER_STOP);
 	set_text(p_text);
 	align=ALIGN_CENTER;
 }

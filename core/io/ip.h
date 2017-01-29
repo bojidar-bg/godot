@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -36,7 +36,7 @@
 struct _IP_ResolverPrivate;
 
 class IP : public Object {
-	OBJ_TYPE( IP, Object );
+	GDCLASS( IP, Object );
 	OBJ_CATEGORY("Networking");
 public:
 
@@ -46,6 +46,14 @@ public:
 		RESOLVER_STATUS_WAITING,
 		RESOLVER_STATUS_DONE,
 		RESOLVER_STATUS_ERROR,
+	};
+
+	enum Type {
+
+		TYPE_NONE = 0,
+		TYPE_IPV4 = 1,
+		TYPE_IPV6 = 2,
+		TYPE_ANY = 3,
 	};
 
 	enum {
@@ -65,7 +73,7 @@ protected:
 	static IP*singleton;
 	static void _bind_methods();
 
-	virtual IP_Address _resolve_hostname(const String& p_hostname)=0;
+	virtual IP_Address _resolve_hostname(const String& p_hostname, Type p_type = TYPE_ANY)=0;
 	Array _get_local_addresses() const;
 
 	static IP* (*_create)();
@@ -73,13 +81,15 @@ public:
 
 
 
-	IP_Address resolve_hostname(const String& p_hostname);
+	IP_Address resolve_hostname(const String& p_hostname, Type p_type = TYPE_ANY);
 	// async resolver hostname
-	ResolverID resolve_hostname_queue_item(const String& p_hostname);
+	ResolverID resolve_hostname_queue_item(const String& p_hostname, Type p_type = TYPE_ANY);
 	ResolverStatus get_resolve_item_status(ResolverID p_id) const;
 	IP_Address get_resolve_item_address(ResolverID p_id) const;
 	virtual void get_local_addresses(List<IP_Address> *r_addresses) const=0;
 	void erase_resolve_item(ResolverID p_id);
+
+	void clear_cache(const String& p_hostname = "");
 
 	static IP* get_singleton();
 
@@ -90,5 +100,7 @@ public:
 
 
 };
+
+VARIANT_ENUM_CAST(IP::Type);
 
 #endif // IP_H

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -29,10 +29,11 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "globals.h"
 #include "object.h"
 #include "path_db.h"
 #include "map.h"
-#include "object_type_db.h"
+#include "class_db.h"
 #include "script_language.h"
 #include "scene/main/scene_main_loop.h"
 
@@ -41,7 +42,7 @@ class Viewport;
 class SceneState;
 class Node : public Object {
 
-	OBJ_TYPE( Node, Object );
+	GDCLASS( Node, Object );
 	OBJ_CATEGORY("Nodes");
 
 public:
@@ -102,6 +103,8 @@ private:
 		StringName name;
 		SceneTree *tree;
 		bool inside_tree;
+		bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it corretly gets the _ready() notification
+		bool ready_first;
 #ifdef TOOLS_ENABLED
 		NodePath import_path; //path used when imported, used by scene editors to keep tracking
 #endif
@@ -127,6 +130,9 @@ private:
 		bool fixed_process;
 		bool idle_process;
 
+		bool fixed_process_internal;
+		bool idle_process_internal;
+
 		bool input;
 		bool unhandled_input;
 		bool unhandled_key_input;
@@ -141,16 +147,22 @@ private:
 
 	} data;
 
+	enum NameCasing {
+		NAME_CASING_PASCAL_CASE,
+		NAME_CASING_CAMEL_CASE,
+		NAME_CASING_SNAKE_CASE
+	};
+
 
 	void _print_tree(const Node *p_node);
 
-	virtual bool _use_builtin_script() const { return true; }
 	Node *_get_node(const NodePath& p_path) const;
 	Node *_get_child_by_name(const StringName& p_name) const;
 
 	void _replace_connections_target(Node* p_new_target);
 
-	void _validate_child_name(Node *p_name, bool p_force_human_readable=false);
+	void _validate_child_name(Node *p_child, bool p_force_human_readable=false);
+	String _generate_serial_child_name(Node *p_child);
 
 	void _propagate_reverse_notification(int p_notification);
 	void _propagate_deferred_notification(int p_notification, bool p_reverse);
@@ -193,6 +205,7 @@ protected:
 	void _propagate_replace_owner(Node *p_owner,Node* p_by_owner);
 
 	static void _bind_methods();
+	static String _get_name_num_separator();
 
 friend class SceneState;
 
@@ -219,6 +232,10 @@ public:
 		NOTIFICATION_DRAG_BEGIN=21,
 		NOTIFICATION_DRAG_END=22,
 		NOTIFICATION_PATH_CHANGED=23,
+		NOTIFICATION_TRANSLATION_CHANGED=24,
+		NOTIFICATION_INTERNAL_PROCESS = 25,
+		NOTIFICATION_INTERNAL_FIXED_PROCESS = 26,
+
 	};
 
 	/* NODE/TREE */
@@ -298,6 +315,11 @@ public:
 	float get_process_delta_time() const;
 	bool is_processing() const;
 
+	void set_fixed_process_internal(bool p_process);
+	bool is_fixed_processing_internal() const;
+
+	void set_process_internal(bool p_process);
+	bool is_processing_internal() const;
 
 	void set_process_input(bool p_enable);
 	bool is_processing_input() const;
@@ -333,9 +355,13 @@ public:
 	PauseMode get_pause_mode() const;
 	bool can_process() const;
 
+	void request_ready();
+
 	static void print_stray_nodes();
 
-	String validate_child_name(const String& p_name) const;
+#ifdef TOOLS_ENABLED
+	String validate_child_name(Node* p_child);
+#endif
 
 	void queue_delete();
 

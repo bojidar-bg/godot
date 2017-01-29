@@ -1,3 +1,31 @@
+/*************************************************************************/
+/*  a_star.cpp                                                           */
+/*************************************************************************/
+/*                       This file is part of:                           */
+/*                           GODOT ENGINE                                */
+/*                    http://www.godotengine.org                         */
+/*************************************************************************/
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
+/*                                                                       */
+/* Permission is hereby granted, free of charge, to any person obtaining */
+/* a copy of this software and associated documentation files (the       */
+/* "Software"), to deal in the Software without restriction, including   */
+/* without limitation the rights to use, copy, modify, merge, publish,   */
+/* distribute, sublicense, and/or sell copies of the Software, and to    */
+/* permit persons to whom the Software is furnished to do so, subject to */
+/* the following conditions:                                             */
+/*                                                                       */
+/* The above copyright notice and this permission notice shall be        */
+/* included in all copies or substantial portions of the Software.       */
+/*                                                                       */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
+/*************************************************************************/
 #include "a_star.h"
 #include "geometry.h"
 
@@ -267,10 +295,10 @@ bool AStar::_solve(Point* begin_point, Point* end_point) {
 
 }
 
-DVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
+PoolVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 
-	ERR_FAIL_COND_V(!points.has(p_from_id),DVector<Vector3>());
-	ERR_FAIL_COND_V(!points.has(p_to_id),DVector<Vector3>());
+	ERR_FAIL_COND_V(!points.has(p_from_id),PoolVector<Vector3>());
+	ERR_FAIL_COND_V(!points.has(p_to_id),PoolVector<Vector3>());
 
 
 	pass++;
@@ -279,7 +307,7 @@ DVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 	Point* b = points[p_to_id];
 
 	if (a==b) {
-		DVector<Vector3> ret;
+		PoolVector<Vector3> ret;
 		ret.push_back(a->pos);
 		return ret;
 	}
@@ -291,7 +319,7 @@ DVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 	bool found_route=_solve(begin_point,end_point);
 
 	if (!found_route)
-		return DVector<Vector3>();
+		return PoolVector<Vector3>();
 
 	//midpoints
 	Point *p=end_point;
@@ -301,11 +329,11 @@ DVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 		p=p->prev_point;
 	}
 
-	DVector<Vector3> path;
+	PoolVector<Vector3> path;
 	path.resize(pc);
 
 	{
-		DVector<Vector3>::Write w = path.write();
+		PoolVector<Vector3>::Write w = path.write();
 
 		Point *p=end_point;
 		int idx=pc-1;
@@ -323,10 +351,10 @@ DVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 }
 
 
-DVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
+PoolVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 
-	ERR_FAIL_COND_V(!points.has(p_from_id),DVector<int>());
-	ERR_FAIL_COND_V(!points.has(p_to_id),DVector<int>());
+	ERR_FAIL_COND_V(!points.has(p_from_id),PoolVector<int>());
+	ERR_FAIL_COND_V(!points.has(p_to_id),PoolVector<int>());
 
 
 	pass++;
@@ -335,7 +363,7 @@ DVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 	Point* b = points[p_to_id];
 
 	if (a==b) {
-		DVector<int> ret;
+		PoolVector<int> ret;
 		ret.push_back(a->id);
 		return ret;
 	}
@@ -347,7 +375,7 @@ DVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 	bool found_route=_solve(begin_point,end_point);
 
 	if (!found_route)
-		return DVector<int>();
+		return PoolVector<int>();
 
 	//midpoints
 	Point *p=end_point;
@@ -357,11 +385,11 @@ DVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 		p=p->prev_point;
 	}
 
-	DVector<int> path;
+	PoolVector<int> path;
 	path.resize(pc);
 
 	{
-		DVector<int>::Write w = path.write();
+		PoolVector<int>::Write w = path.write();
 
 		p=end_point;
 		int idx=pc-1;
@@ -379,23 +407,23 @@ DVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 
 void AStar::_bind_methods() {
 
-	ObjectTypeDB::bind_method(_MD("get_available_point_id"),&AStar::get_available_point_id);
-	ObjectTypeDB::bind_method(_MD("add_point","id","pos","weight_scale"),&AStar::add_point,DEFVAL(1.0));
-	ObjectTypeDB::bind_method(_MD("get_point_pos","id"),&AStar::get_point_pos);
-	ObjectTypeDB::bind_method(_MD("get_point_weight_scale","id"),&AStar::get_point_weight_scale);
-	ObjectTypeDB::bind_method(_MD("remove_point","id"),&AStar::remove_point);
+	ClassDB::bind_method(_MD("get_available_point_id"),&AStar::get_available_point_id);
+	ClassDB::bind_method(_MD("add_point","id","pos","weight_scale"),&AStar::add_point,DEFVAL(1.0));
+	ClassDB::bind_method(_MD("get_point_pos","id"),&AStar::get_point_pos);
+	ClassDB::bind_method(_MD("get_point_weight_scale","id"),&AStar::get_point_weight_scale);
+	ClassDB::bind_method(_MD("remove_point","id"),&AStar::remove_point);
 
-	ObjectTypeDB::bind_method(_MD("connect_points","id","to_id"),&AStar::connect_points);
-	ObjectTypeDB::bind_method(_MD("disconnect_points","id","to_id"),&AStar::disconnect_points);
-	ObjectTypeDB::bind_method(_MD("are_points_connected","id","to_id"),&AStar::are_points_connected);
+	ClassDB::bind_method(_MD("connect_points","id","to_id"),&AStar::connect_points);
+	ClassDB::bind_method(_MD("disconnect_points","id","to_id"),&AStar::disconnect_points);
+	ClassDB::bind_method(_MD("are_points_connected","id","to_id"),&AStar::are_points_connected);
 
-	ObjectTypeDB::bind_method(_MD("clear"),&AStar::clear);
+	ClassDB::bind_method(_MD("clear"),&AStar::clear);
 
-	ObjectTypeDB::bind_method(_MD("get_closest_point","to_pos"),&AStar::get_closest_point);
-	ObjectTypeDB::bind_method(_MD("get_closest_pos_in_segment","to_pos"),&AStar::get_closest_pos_in_segment);
+	ClassDB::bind_method(_MD("get_closest_point","to_pos"),&AStar::get_closest_point);
+	ClassDB::bind_method(_MD("get_closest_pos_in_segment","to_pos"),&AStar::get_closest_pos_in_segment);
 
-	ObjectTypeDB::bind_method(_MD("get_point_path","from_id","to_id"),&AStar::get_point_path);
-	ObjectTypeDB::bind_method(_MD("get_id_path","from_id","to_id"),&AStar::get_id_path);
+	ClassDB::bind_method(_MD("get_point_path","from_id","to_id"),&AStar::get_point_path);
+	ClassDB::bind_method(_MD("get_id_path","from_id","to_id"),&AStar::get_id_path);
 
 }
 

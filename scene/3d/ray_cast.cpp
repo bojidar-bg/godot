@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -134,37 +134,42 @@ void RayCast::_notification(int p_what) {
 			if (!enabled)
 				break;
 
-
-
-			Ref<World> w3d = get_world();
-			ERR_BREAK( w3d.is_null() );
-
-			PhysicsDirectSpaceState *dss = PhysicsServer::get_singleton()->space_get_direct_state(w3d->get_space());
-			ERR_BREAK( !dss );
-
-			Transform gt = get_global_transform();
-
-			Vector3 to = cast_to;
-			if (to==Vector3())
-				to=Vector3(0,0.01,0);
-
-			PhysicsDirectSpaceState::RayResult rr;
-
-			if (dss->intersect_ray(gt.get_origin(),gt.xform(to),rr,exclude, layer_mask, type_mask)) {
-
-				collided=true;
-				against=rr.collider_id;
-				collision_point=rr.position;
-				collision_normal=rr.normal;
-				against_shape=rr.shape;
-			} else {
-				collided=false;
-			}
-
+			_update_raycast_state();
 
 
 		} break;
 	}
+}
+
+void RayCast::_update_raycast_state(){
+	Ref<World> w3d = get_world();
+	ERR_FAIL_COND( w3d.is_null() );
+
+	PhysicsDirectSpaceState *dss = PhysicsServer::get_singleton()->space_get_direct_state(w3d->get_space());
+	ERR_FAIL_COND( !dss );
+
+	Transform gt = get_global_transform();
+
+	Vector3 to = cast_to;
+	if (to==Vector3())
+		to=Vector3(0,0.01,0);
+
+	PhysicsDirectSpaceState::RayResult rr;
+
+	if (dss->intersect_ray(gt.get_origin(),gt.xform(to),rr,exclude, layer_mask, type_mask)) {
+
+		collided=true;
+		against=rr.collider_id;
+		collision_point=rr.position;
+		collision_normal=rr.normal;
+		against_shape=rr.shape;
+	} else {
+		collided=false;
+	}
+}
+
+void RayCast::force_raycast_update() {
+	_update_raycast_state();
 }
 
 void RayCast::add_exception_rid(const RID& p_rid) {
@@ -205,36 +210,37 @@ void RayCast::clear_exceptions(){
 void RayCast::_bind_methods() {
 
 
-	ObjectTypeDB::bind_method(_MD("set_enabled","enabled"),&RayCast::set_enabled);
-	ObjectTypeDB::bind_method(_MD("is_enabled"),&RayCast::is_enabled);
+	ClassDB::bind_method(_MD("set_enabled","enabled"),&RayCast::set_enabled);
+	ClassDB::bind_method(_MD("is_enabled"),&RayCast::is_enabled);
 
-	ObjectTypeDB::bind_method(_MD("set_cast_to","local_point"),&RayCast::set_cast_to);
-	ObjectTypeDB::bind_method(_MD("get_cast_to"),&RayCast::get_cast_to);
+	ClassDB::bind_method(_MD("set_cast_to","local_point"),&RayCast::set_cast_to);
+	ClassDB::bind_method(_MD("get_cast_to"),&RayCast::get_cast_to);
 
-	ObjectTypeDB::bind_method(_MD("is_colliding"),&RayCast::is_colliding);
+	ClassDB::bind_method(_MD("is_colliding"),&RayCast::is_colliding);
+	ClassDB::bind_method(_MD("force_raycast_update"),&RayCast::force_raycast_update);
 
-	ObjectTypeDB::bind_method(_MD("get_collider"),&RayCast::get_collider);
-	ObjectTypeDB::bind_method(_MD("get_collider_shape"),&RayCast::get_collider_shape);
-	ObjectTypeDB::bind_method(_MD("get_collision_point"),&RayCast::get_collision_point);
-	ObjectTypeDB::bind_method(_MD("get_collision_normal"),&RayCast::get_collision_normal);
+	ClassDB::bind_method(_MD("get_collider"),&RayCast::get_collider);
+	ClassDB::bind_method(_MD("get_collider_shape"),&RayCast::get_collider_shape);
+	ClassDB::bind_method(_MD("get_collision_point"),&RayCast::get_collision_point);
+	ClassDB::bind_method(_MD("get_collision_normal"),&RayCast::get_collision_normal);
 
-	ObjectTypeDB::bind_method(_MD("add_exception_rid","rid"),&RayCast::add_exception_rid);
-	ObjectTypeDB::bind_method(_MD("add_exception","node"),&RayCast::add_exception);
+	ClassDB::bind_method(_MD("add_exception_rid","rid"),&RayCast::add_exception_rid);
+	ClassDB::bind_method(_MD("add_exception","node"),&RayCast::add_exception);
 
-	ObjectTypeDB::bind_method(_MD("remove_exception_rid","rid"),&RayCast::remove_exception_rid);
-	ObjectTypeDB::bind_method(_MD("remove_exception","node"),&RayCast::remove_exception);
+	ClassDB::bind_method(_MD("remove_exception_rid","rid"),&RayCast::remove_exception_rid);
+	ClassDB::bind_method(_MD("remove_exception","node"),&RayCast::remove_exception);
 
-	ObjectTypeDB::bind_method(_MD("clear_exceptions"),&RayCast::clear_exceptions);
+	ClassDB::bind_method(_MD("clear_exceptions"),&RayCast::clear_exceptions);
 
-	ObjectTypeDB::bind_method(_MD("set_layer_mask","mask"),&RayCast::set_layer_mask);
-	ObjectTypeDB::bind_method(_MD("get_layer_mask"),&RayCast::get_layer_mask);
+	ClassDB::bind_method(_MD("set_layer_mask","mask"),&RayCast::set_layer_mask);
+	ClassDB::bind_method(_MD("get_layer_mask"),&RayCast::get_layer_mask);
 
-	ObjectTypeDB::bind_method(_MD("set_type_mask","mask"),&RayCast::set_type_mask);
-	ObjectTypeDB::bind_method(_MD("get_type_mask"),&RayCast::get_type_mask);
+	ClassDB::bind_method(_MD("set_type_mask","mask"),&RayCast::set_type_mask);
+	ClassDB::bind_method(_MD("get_type_mask"),&RayCast::get_type_mask);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL,"enabled"),_SCS("set_enabled"),_SCS("is_enabled"));
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3,"cast_to"),_SCS("set_cast_to"),_SCS("get_cast_to"));
-	ADD_PROPERTY(PropertyInfo(Variant::INT,"layer_mask",PROPERTY_HINT_ALL_FLAGS),_SCS("set_layer_mask"),_SCS("get_layer_mask"));
+	ADD_PROPERTY(PropertyInfo(Variant::INT,"layer_mask",PROPERTY_HINT_LAYERS_3D_PHYSICS),_SCS("set_layer_mask"),_SCS("get_layer_mask"));
 	ADD_PROPERTY(PropertyInfo(Variant::INT,"type_mask",PROPERTY_HINT_FLAGS,"Static,Kinematic,Rigid,Character,Area"),_SCS("set_type_mask"),_SCS("get_type_mask"));
 }
 

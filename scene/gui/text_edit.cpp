@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -247,7 +247,7 @@ void TextEdit::Text::clear_caches() {
 void TextEdit::Text::clear() {
 
 
-	text.clear();;
+	text.clear();
 	insert(0,"");
 }
 
@@ -347,7 +347,7 @@ void TextEdit::_update_scrollbars() {
 		v_scroll->show();
 		v_scroll->set_max(total_rows);
 		v_scroll->set_page(visible_rows);
-		v_scroll->set_val(cursor.line_ofs);
+		v_scroll->set_value(cursor.line_ofs);
 
 	}  else {
 		cursor.line_ofs = 0;
@@ -359,7 +359,7 @@ void TextEdit::_update_scrollbars() {
 		h_scroll->show();
 		h_scroll->set_max(total_width);
 		h_scroll->set_page(visible_width);
-		h_scroll->set_val(cursor.x_ofs);
+		h_scroll->set_value(cursor.x_ofs);
 
 	} else {
 
@@ -482,12 +482,20 @@ void TextEdit::_notification(int p_what) {
 			Color color = cache.font_color;
 			int in_region=-1;
 
+			if (line_length_guideline) {
+				int x=xmargin_beg+cache.font->get_char_size('0').width*line_length_guideline_col-cursor.x_ofs;
+				if (x>xmargin_beg && x<xmargin_end) {
+					Color guideline_color(color.r,color.g,color.b,color.a*0.25f);
+					VisualServer::get_singleton()->canvas_item_add_line(ci,Point2(x,0),Point2(x,cache.size.height),guideline_color);
+				}
+			}
+
 			if (syntax_coloring) {
 
-				if (custom_bg_color.a>0.01) {
+				if (cache.background_color.a>0.01) {
 
 					Point2i ofs = Point2i(cache.style_normal->get_offset())/2.0;
-					VisualServer::get_singleton()->canvas_item_add_rect(ci,Rect2(ofs, get_size()-cache.style_normal->get_minimum_size()+ofs),custom_bg_color);
+					VisualServer::get_singleton()->canvas_item_add_rect(ci,Rect2(ofs, get_size()-cache.style_normal->get_minimum_size()+ofs),cache.background_color);
 				}
 				//compute actual region to start (may be inside say, a comment).
 				//slow in very large documments :( but ok for source!
@@ -685,6 +693,8 @@ void TextEdit::_notification(int p_what) {
 			// get the highlighted words
 			String highlighted_text = get_selection_text();
 
+			String line_num_padding = line_numbers_zero_padded ? "0" : " ";
+
 			for (int i=0;i<visible_rows;i++) {
 
 				int line=i+cursor.line_ofs;
@@ -750,7 +760,7 @@ void TextEdit::_notification(int p_what) {
 				if (cache.line_number_w) {
 					String fc = String::num(line+1);
 					while (fc.length() < line_number_char_count) {
-						fc="0"+fc;
+						fc=line_num_padding+fc;
 					}
 
 					cache.font->draw(ci,Point2(cache.style_normal->get_margin(MARGIN_LEFT)+cache.breakpoint_gutter_width,ofs_y+cache.font->get_ascent()),fc,cache.line_number_color);
@@ -897,7 +907,7 @@ void TextEdit::_notification(int p_what) {
 						else if (in_function_name)
 							color=cache.function_color;
 						else if (is_symbol)
-							color=symbol_color;
+							color=cache.symbol_color;
 						else if (is_number)
 							color=cache.number_color;
 
@@ -1245,15 +1255,19 @@ void TextEdit::_notification(int p_what) {
 			}
 			if (OS::get_singleton()->has_virtual_keyboard())
 				OS::get_singleton()->show_virtual_keyboard(get_text(),get_global_rect());
+			if (raised_from_completion) {
+				VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 1);
+			}
 
 		} break;
 		case NOTIFICATION_FOCUS_EXIT: {
 
 			if (OS::get_singleton()->has_virtual_keyboard())
 				OS::get_singleton()->hide_virtual_keyboard();
-
+			if (raised_from_completion) {
+				VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 0);
+			}
 		} break;
-
 	}
 }
 
@@ -1454,13 +1468,13 @@ void TextEdit::_get_mouse_pos(const Point2i& p_mouse, int &r_row, int &r_col) co
 	r_col=col;
 }
 
-void TextEdit::_input_event(const InputEvent& p_input_event) {
+void TextEdit::_gui_input(const InputEvent& p_gui_input) {
 
-	switch(p_input_event.type) {
+	switch(p_gui_input.type) {
 
 		case InputEvent::MOUSE_BUTTON: {
 
-			const InputEventMouseButton &mb=p_input_event.mouse_button;
+			const InputEventMouseButton &mb=p_gui_input.mouse_button;
 
 			if (completion_active && completion_rect.has_point(Point2(mb.x,mb.y))) {
 
@@ -1501,16 +1515,16 @@ void TextEdit::_input_event(const InputEvent& p_input_event) {
 
 			if (mb.pressed) {
 				if (mb.button_index==BUTTON_WHEEL_UP && !mb.mod.command) {
-					v_scroll->set_val( v_scroll->get_val() -3 );
+					v_scroll->set_value( v_scroll->get_value() -3 );
 				}
 				if (mb.button_index==BUTTON_WHEEL_DOWN && !mb.mod.command) {
-					v_scroll->set_val( v_scroll->get_val() +3 );
+					v_scroll->set_value( v_scroll->get_value() +3 );
 				}
 				if (mb.button_index==BUTTON_WHEEL_LEFT) {
-					h_scroll->set_val( h_scroll->get_val() -3 );
+					h_scroll->set_value( h_scroll->get_value() -3 );
 				}
 				if (mb.button_index==BUTTON_WHEEL_RIGHT) {
-					h_scroll->set_val( h_scroll->get_val() +3 );
+					h_scroll->set_value( h_scroll->get_value() +3 );
 				}
 				if (mb.button_index==BUTTON_LEFT) {
 
@@ -1671,7 +1685,7 @@ void TextEdit::_input_event(const InputEvent& p_input_event) {
 		} break;
 		case InputEvent::MOUSE_MOTION: {
 
-			const InputEventMouseMotion &mm=p_input_event.mouse_motion;
+			const InputEventMouseMotion &mm=p_gui_input.mouse_motion;
 
 			if (select_identifiers_enabled) {
 				if (mm.mod.command && mm.button_mask==0) {
@@ -1714,7 +1728,7 @@ void TextEdit::_input_event(const InputEvent& p_input_event) {
 
 		case InputEvent::KEY: {
 
-			InputEventKey k=p_input_event.key;
+			InputEventKey k=p_gui_input.key;
 
 
 #ifdef OSX_ENABLED
@@ -3022,7 +3036,7 @@ void TextEdit::adjust_viewport_to_cursor() {
 		cursor.line_ofs=cursor.line;
 
 	int visible_width=cache.size.width-cache.style_normal->get_minimum_size().width-cache.line_number_w-cache.breakpoint_gutter_width;
-	if (v_scroll->is_visible())
+	if (v_scroll->is_visible_in_tree())
 		visible_width-=v_scroll->get_combined_minimum_size().width;
 	visible_width-=20; // give it a little more space
 
@@ -3030,7 +3044,7 @@ void TextEdit::adjust_viewport_to_cursor() {
 	//printf("rowofs %i, visrows %i, cursor.line %i\n",cursor.line_ofs,get_visible_rows(),cursor.line);
 
 	int visible_rows = get_visible_rows();
-	if (h_scroll->is_visible())
+	if (h_scroll->is_visible_in_tree())
 		visible_rows-=((h_scroll->get_combined_minimum_size().height-1)/get_row_height());
 
 	if (cursor.line>=(cursor.line_ofs+visible_rows))
@@ -3064,12 +3078,12 @@ void TextEdit::center_viewport_to_cursor() {
 		cursor.line_ofs=cursor.line;
 
 	int visible_width=cache.size.width-cache.style_normal->get_minimum_size().width-cache.line_number_w-cache.breakpoint_gutter_width;
-	if (v_scroll->is_visible())
+	if (v_scroll->is_visible_in_tree())
 		visible_width-=v_scroll->get_combined_minimum_size().width;
 	visible_width-=20; // give it a little more space
 
 	int visible_rows = get_visible_rows();
-	if (h_scroll->is_visible())
+	if (h_scroll->is_visible_in_tree())
 		visible_rows-=((h_scroll->get_combined_minimum_size().height-1)/get_row_height());
 
 	int max_ofs = text.size()-(scroll_past_end_of_file_enabled?1:visible_rows);
@@ -3191,10 +3205,10 @@ void TextEdit::_scroll_moved(double p_to_val) {
 	if (updating_scrolls)
 		return;
 
-	if (h_scroll->is_visible())
-		cursor.x_ofs=h_scroll->get_val();
-	if (v_scroll->is_visible())
-		cursor.line_ofs=v_scroll->get_val();
+	if (h_scroll->is_visible_in_tree())
+		cursor.x_ofs=h_scroll->get_value();
+	if (v_scroll->is_visible_in_tree())
+		cursor.line_ofs=v_scroll->get_value();
 	update();
 }
 
@@ -3313,7 +3327,7 @@ void TextEdit::set_text(String p_text){
 	cursor_set_column(0);
 	update();
 	setting_text=false;
-
+	_text_changed_emit();
 	//get_range()->set(0);
 };
 
@@ -3444,7 +3458,7 @@ void TextEdit::_reset_caret_blink_timer() {
 
 void TextEdit::_toggle_draw_caret() {
 	draw_caret = !draw_caret;
-	if (is_visible()) {
+	if (is_visible_in_tree() && has_focus() && window_has_focus) {
 		update();
 	}
 }
@@ -3475,6 +3489,8 @@ void TextEdit::_update_caches() {
 	cache.word_highlighted_color=get_color("word_highlighted_color");
 	cache.search_result_color=get_color("search_result_color");
 	cache.search_result_border_color=get_color("search_result_border_color");
+	cache.symbol_color=get_color("symbol_color");
+	cache.background_color=get_color("background_color");
 	cache.line_spacing=get_constant("line_spacing");
 	cache.row_height = cache.font->get_height() + cache.line_spacing;
 	cache.tab_icon=get_icon("tab");
@@ -3486,15 +3502,8 @@ void TextEdit::_update_caches() {
 void TextEdit::clear_colors() {
 
 	keywords.clear();
-	color_regions.clear();;
+	color_regions.clear();
 	text.clear_caches();
-	custom_bg_color=Color(0,0,0,0);
-}
-
-void TextEdit::set_custom_bg_color(const Color& p_color) {
-
-	custom_bg_color=p_color;
-	update();
 }
 
 void TextEdit::add_keyword_color(const String& p_keyword,const Color& p_color) {
@@ -3510,12 +3519,6 @@ void TextEdit::add_color_region(const String& p_begin_key,const String& p_end_ke
 	text.clear_caches();
 	update();
 
-}
-
-void TextEdit::set_symbol_color(const Color& p_color) {
-
-	symbol_color=p_color;
-	update();
 }
 
 void TextEdit::set_syntax_coloring(bool p_enabled) {
@@ -3780,7 +3783,7 @@ int TextEdit::_get_column_pos_of_word(const String &p_key, const String &p_searc
 
 				if (col > 0 && _is_text_char(p_search[col-1])) {
 					col = -1;
-				} else if (_is_text_char(p_search[col+p_key.length()])) {
+				} else if ((col + p_key.length()) < p_search.length() && _is_text_char(p_search[col+p_key.length()])) {
 					col = -1;
 				}
 			}
@@ -3791,11 +3794,11 @@ int TextEdit::_get_column_pos_of_word(const String &p_key, const String &p_searc
 	return col;
 }
 
-DVector<int> TextEdit::_search_bind(const String &p_key,uint32_t p_search_flags, int p_from_line,int p_from_column) const {
+PoolVector<int> TextEdit::_search_bind(const String &p_key,uint32_t p_search_flags, int p_from_line,int p_from_column) const {
 
 	int col,line;
 	if (search(p_key,p_search_flags,p_from_line,p_from_column,col,line)) {
-		DVector<int> result;
+		PoolVector<int> result;
 		result.resize(2);
 		result.set(0,line);
 		result.set(1,col);
@@ -3803,7 +3806,7 @@ DVector<int> TextEdit::_search_bind(const String &p_key,uint32_t p_search_flags,
 
 	} else {
 
-		return DVector<int>();
+		return PoolVector<int>();
 	}
 }
 
@@ -4152,21 +4155,21 @@ void TextEdit::tag_saved_version() {
 
 int TextEdit::get_v_scroll() const {
 
-	return v_scroll->get_val();
+	return v_scroll->get_value();
 }
 void TextEdit::set_v_scroll(int p_scroll) {
 
-	v_scroll->set_val(p_scroll);
+	v_scroll->set_value(p_scroll);
 	cursor.line_ofs=p_scroll;
 }
 
 int TextEdit::get_h_scroll() const {
 
-	return h_scroll->get_val();
+	return h_scroll->get_value();
 }
 void TextEdit::set_h_scroll(int p_scroll) {
 
-	h_scroll->set_val(p_scroll);
+	h_scroll->set_value(p_scroll);
 }
 
 void TextEdit::set_completion(bool p_enabled,const Vector<String>& p_prefixes) {
@@ -4197,12 +4200,17 @@ void TextEdit::_confirm_completion() {
 
 
 void TextEdit::_cancel_code_hint() {
+
+	VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 0);
+	raised_from_completion = false;
 	completion_hint="";
 	update();
 }
 
 void TextEdit::_cancel_completion() {
 
+	VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 0);
+	raised_from_completion = false;
 	if (!completion_active)
 		return;
 
@@ -4221,7 +4229,6 @@ void TextEdit::_update_completion_candidates() {
 
 	String l = text[cursor.line];
 	int cofs = CLAMP(cursor.column,0,l.length());
-
 
 	String s;
 
@@ -4271,14 +4278,14 @@ void TextEdit::_update_completion_candidates() {
 
 		while(cofs>0 && l[cofs-1]>32 && _is_completable(l[cofs-1])) {
 			s=String::chr(l[cofs-1])+s;
-			if (l[cofs-1]=='\'' || l[cofs-1]=='"')
+			if (l[cofs-1]=='\'' || l[cofs-1]=='"' || l[cofs-1]=='$')
 				break;
 
 			cofs--;
 		}
 	}
 
-	if (cursor.column > 0 && l[cursor.column - 1] == '(' && !pre_keyword && !completion_strings[0].begins_with("\"")) {
+	if (cursor.column > 0 && l[cursor.column - 1] == '(' && !pre_keyword &&  !completion_strings[0].begins_with("\"")) {
 		cancel = true;
 	}
 
@@ -4300,8 +4307,9 @@ void TextEdit::_update_completion_candidates() {
 			_cancel_completion();
 			return;
 		}
+
 		if (s.is_subsequence_ofi(completion_strings[i])) {
-			// don't remove duplicates if no input is provided
+				// don't remove duplicates if no input is provided
 			if (s != "" && completion_options.find(completion_strings[i]) != -1) {
 				continue;
 			}
@@ -4337,6 +4345,7 @@ void TextEdit::_update_completion_candidates() {
 	if (completion_options.size()==0) {
 		//no options to complete, cancel
 		_cancel_completion();
+
 		return;
 
 	}
@@ -4348,7 +4357,7 @@ void TextEdit::_update_completion_candidates() {
 	if (completion_options.size()==1) {
 		//one option to complete, just complete it automagically
 		_confirm_completion();
-		//		insert_text_at_cursor(completion_options[0].substr(s.length(),completion_options[0].length()-s.length()));
+		//insert_text_at_cursor(completion_options[0].substr(s.length(),completion_options[0].length()-s.length()));
 		_cancel_completion();
 		return;
 
@@ -4382,6 +4391,8 @@ void TextEdit::query_code_comple() {
 
 void TextEdit::set_code_hint(const String& p_hint) {
 
+	VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 1);
+	raised_from_completion = true;
 	completion_hint=p_hint;
 	completion_hint_offset=-0xFFFF;
 	update();
@@ -4389,7 +4400,8 @@ void TextEdit::set_code_hint(const String& p_hint) {
 
 void TextEdit::code_complete(const Vector<String> &p_strings) {
 
-
+	VisualServer::get_singleton()->canvas_item_set_z(get_canvas_item(), 1);
+	raised_from_completion = true;
 	completion_strings=p_strings;
 	completion_active=true;
 	completion_current="";
@@ -4500,8 +4512,24 @@ void TextEdit::set_show_line_numbers(bool p_show) {
 	update();
 }
 
+void TextEdit::set_line_numbers_zero_padded(bool p_zero_padded) {
+
+	line_numbers_zero_padded=p_zero_padded;
+	update();
+}
+
 bool TextEdit::is_show_line_numbers_enabled() const {
 	return line_numbers;
+}
+
+void TextEdit::set_show_line_length_guideline(bool p_show) {
+	line_length_guideline=p_show;
+	update();
+}
+
+void TextEdit::set_line_length_guideline_column(int p_column) {
+	line_length_guideline_col=p_column;
+	update();
 }
 
 void TextEdit::set_draw_breakpoint_gutter(bool p_draw) {
@@ -4580,90 +4608,90 @@ PopupMenu *TextEdit::get_menu() const {
 void TextEdit::_bind_methods() {
 
 
-	ObjectTypeDB::bind_method(_MD("_input_event"),&TextEdit::_input_event);
-	ObjectTypeDB::bind_method(_MD("_scroll_moved"),&TextEdit::_scroll_moved);
-	ObjectTypeDB::bind_method(_MD("_cursor_changed_emit"),&TextEdit::_cursor_changed_emit);
-	ObjectTypeDB::bind_method(_MD("_text_changed_emit"),&TextEdit::_text_changed_emit);
-	ObjectTypeDB::bind_method(_MD("_push_current_op"),&TextEdit::_push_current_op);
-	ObjectTypeDB::bind_method(_MD("_click_selection_held"),&TextEdit::_click_selection_held);
-	ObjectTypeDB::bind_method(_MD("_toggle_draw_caret"),&TextEdit::_toggle_draw_caret);
+	ClassDB::bind_method(_MD("_gui_input"),&TextEdit::_gui_input);
+	ClassDB::bind_method(_MD("_scroll_moved"),&TextEdit::_scroll_moved);
+	ClassDB::bind_method(_MD("_cursor_changed_emit"),&TextEdit::_cursor_changed_emit);
+	ClassDB::bind_method(_MD("_text_changed_emit"),&TextEdit::_text_changed_emit);
+	ClassDB::bind_method(_MD("_push_current_op"),&TextEdit::_push_current_op);
+	ClassDB::bind_method(_MD("_click_selection_held"),&TextEdit::_click_selection_held);
+	ClassDB::bind_method(_MD("_toggle_draw_caret"),&TextEdit::_toggle_draw_caret);
 
 	BIND_CONSTANT( SEARCH_MATCH_CASE );
 	BIND_CONSTANT( SEARCH_WHOLE_WORDS );
 	BIND_CONSTANT( SEARCH_BACKWARDS );
 
 	/*
-    ObjectTypeDB::bind_method(_MD("delete_char"),&TextEdit::delete_char);
-    ObjectTypeDB::bind_method(_MD("delete_line"),&TextEdit::delete_line);
+    ClassDB::bind_method(_MD("delete_char"),&TextEdit::delete_char);
+    ClassDB::bind_method(_MD("delete_line"),&TextEdit::delete_line);
 */
 
-	ObjectTypeDB::bind_method(_MD("set_text","text"),&TextEdit::set_text);
-	ObjectTypeDB::bind_method(_MD("insert_text_at_cursor","text"),&TextEdit::insert_text_at_cursor);
+	ClassDB::bind_method(_MD("set_text","text"),&TextEdit::set_text);
+	ClassDB::bind_method(_MD("insert_text_at_cursor","text"),&TextEdit::insert_text_at_cursor);
 
-	ObjectTypeDB::bind_method(_MD("get_line_count"),&TextEdit::get_line_count);
-	ObjectTypeDB::bind_method(_MD("get_text"),&TextEdit::get_text);
-	ObjectTypeDB::bind_method(_MD("get_line","line"),&TextEdit::get_line);
+	ClassDB::bind_method(_MD("get_line_count"),&TextEdit::get_line_count);
+	ClassDB::bind_method(_MD("get_text"),&TextEdit::get_text);
+	ClassDB::bind_method(_MD("get_line","line"),&TextEdit::get_line);
 
-	ObjectTypeDB::bind_method(_MD("cursor_set_column","column","adjust_viewport"),&TextEdit::cursor_set_column,DEFVAL(false));
-	ObjectTypeDB::bind_method(_MD("cursor_set_line","line","adjust_viewport"),&TextEdit::cursor_set_line,DEFVAL(false));
+	ClassDB::bind_method(_MD("cursor_set_column","column","adjust_viewport"),&TextEdit::cursor_set_column,DEFVAL(false));
+	ClassDB::bind_method(_MD("cursor_set_line","line","adjust_viewport"),&TextEdit::cursor_set_line,DEFVAL(false));
 
-	ObjectTypeDB::bind_method(_MD("cursor_get_column"),&TextEdit::cursor_get_column);
-	ObjectTypeDB::bind_method(_MD("cursor_get_line"),&TextEdit::cursor_get_line);
-	ObjectTypeDB::bind_method(_MD("cursor_set_blink_enabled", "enable"),&TextEdit::cursor_set_blink_enabled);
-	ObjectTypeDB::bind_method(_MD("cursor_get_blink_enabled"),&TextEdit::cursor_get_blink_enabled);
-	ObjectTypeDB::bind_method(_MD("cursor_set_blink_speed", "blink_speed"),&TextEdit::cursor_set_blink_speed);
-	ObjectTypeDB::bind_method(_MD("cursor_get_blink_speed"),&TextEdit::cursor_get_blink_speed);
-	ObjectTypeDB::bind_method(_MD("cursor_set_block_mode", "enable"), &TextEdit::cursor_set_block_mode);
-	ObjectTypeDB::bind_method(_MD("cursor_is_block_mode"), &TextEdit::cursor_is_block_mode);
+	ClassDB::bind_method(_MD("cursor_get_column"),&TextEdit::cursor_get_column);
+	ClassDB::bind_method(_MD("cursor_get_line"),&TextEdit::cursor_get_line);
+	ClassDB::bind_method(_MD("cursor_set_blink_enabled", "enable"),&TextEdit::cursor_set_blink_enabled);
+	ClassDB::bind_method(_MD("cursor_get_blink_enabled"),&TextEdit::cursor_get_blink_enabled);
+	ClassDB::bind_method(_MD("cursor_set_blink_speed", "blink_speed"),&TextEdit::cursor_set_blink_speed);
+	ClassDB::bind_method(_MD("cursor_get_blink_speed"),&TextEdit::cursor_get_blink_speed);
+	ClassDB::bind_method(_MD("cursor_set_block_mode", "enable"), &TextEdit::cursor_set_block_mode);
+	ClassDB::bind_method(_MD("cursor_is_block_mode"), &TextEdit::cursor_is_block_mode);
 
-	ObjectTypeDB::bind_method(_MD("set_readonly","enable"),&TextEdit::set_readonly);
-	ObjectTypeDB::bind_method(_MD("set_wrap","enable"),&TextEdit::set_wrap);
-	ObjectTypeDB::bind_method(_MD("set_max_chars","amount"),&TextEdit::set_max_chars);
+	ClassDB::bind_method(_MD("set_readonly","enable"),&TextEdit::set_readonly);
+	ClassDB::bind_method(_MD("set_wrap","enable"),&TextEdit::set_wrap);
+	ClassDB::bind_method(_MD("set_max_chars","amount"),&TextEdit::set_max_chars);
 
-	ObjectTypeDB::bind_method(_MD("cut"),&TextEdit::cut);
-	ObjectTypeDB::bind_method(_MD("copy"),&TextEdit::copy);
-	ObjectTypeDB::bind_method(_MD("paste"),&TextEdit::paste);
-	ObjectTypeDB::bind_method(_MD("select_all"),&TextEdit::select_all);
-	ObjectTypeDB::bind_method(_MD("select","from_line","from_column","to_line","to_column"),&TextEdit::select);
+	ClassDB::bind_method(_MD("cut"),&TextEdit::cut);
+	ClassDB::bind_method(_MD("copy"),&TextEdit::copy);
+	ClassDB::bind_method(_MD("paste"),&TextEdit::paste);
+	ClassDB::bind_method(_MD("select_all"),&TextEdit::select_all);
+	ClassDB::bind_method(_MD("select","from_line","from_column","to_line","to_column"),&TextEdit::select);
 
-	ObjectTypeDB::bind_method(_MD("is_selection_active"),&TextEdit::is_selection_active);
-	ObjectTypeDB::bind_method(_MD("get_selection_from_line"),&TextEdit::get_selection_from_line);
-	ObjectTypeDB::bind_method(_MD("get_selection_from_column"),&TextEdit::get_selection_from_column);
-	ObjectTypeDB::bind_method(_MD("get_selection_to_line"),&TextEdit::get_selection_to_line);
-	ObjectTypeDB::bind_method(_MD("get_selection_to_column"),&TextEdit::get_selection_to_column);
-	ObjectTypeDB::bind_method(_MD("get_selection_text"),&TextEdit::get_selection_text);
-	ObjectTypeDB::bind_method(_MD("get_word_under_cursor"),&TextEdit::get_word_under_cursor);
-	ObjectTypeDB::bind_method(_MD("search","flags","from_line","from_column","to_line","to_column"),&TextEdit::_search_bind);
+	ClassDB::bind_method(_MD("is_selection_active"),&TextEdit::is_selection_active);
+	ClassDB::bind_method(_MD("get_selection_from_line"),&TextEdit::get_selection_from_line);
+	ClassDB::bind_method(_MD("get_selection_from_column"),&TextEdit::get_selection_from_column);
+	ClassDB::bind_method(_MD("get_selection_to_line"),&TextEdit::get_selection_to_line);
+	ClassDB::bind_method(_MD("get_selection_to_column"),&TextEdit::get_selection_to_column);
+	ClassDB::bind_method(_MD("get_selection_text"),&TextEdit::get_selection_text);
+	ClassDB::bind_method(_MD("get_word_under_cursor"),&TextEdit::get_word_under_cursor);
+	ClassDB::bind_method(_MD("search","flags","from_line","from_column","to_line","to_column"),&TextEdit::_search_bind);
 
-	ObjectTypeDB::bind_method(_MD("undo"),&TextEdit::undo);
-	ObjectTypeDB::bind_method(_MD("redo"),&TextEdit::redo);
-	ObjectTypeDB::bind_method(_MD("clear_undo_history"),&TextEdit::clear_undo_history);
+	ClassDB::bind_method(_MD("undo"),&TextEdit::undo);
+	ClassDB::bind_method(_MD("redo"),&TextEdit::redo);
+	ClassDB::bind_method(_MD("clear_undo_history"),&TextEdit::clear_undo_history);
 
-	ObjectTypeDB::bind_method(_MD("set_show_line_numbers", "enable"), &TextEdit::set_show_line_numbers);
-	ObjectTypeDB::bind_method(_MD("is_show_line_numbers_enabled"), &TextEdit::is_show_line_numbers_enabled);
+	ClassDB::bind_method(_MD("set_show_line_numbers", "enable"), &TextEdit::set_show_line_numbers);
+	ClassDB::bind_method(_MD("is_show_line_numbers_enabled"), &TextEdit::is_show_line_numbers_enabled);
 
-	ObjectTypeDB::bind_method(_MD("set_highlight_all_occurrences", "enable"), &TextEdit::set_highlight_all_occurrences);
-	ObjectTypeDB::bind_method(_MD("is_highlight_all_occurrences_enabled"), &TextEdit::is_highlight_all_occurrences_enabled);
+	ClassDB::bind_method(_MD("set_highlight_all_occurrences", "enable"), &TextEdit::set_highlight_all_occurrences);
+	ClassDB::bind_method(_MD("is_highlight_all_occurrences_enabled"), &TextEdit::is_highlight_all_occurrences_enabled);
 
-	ObjectTypeDB::bind_method(_MD("set_syntax_coloring","enable"),&TextEdit::set_syntax_coloring);
-	ObjectTypeDB::bind_method(_MD("is_syntax_coloring_enabled"),&TextEdit::is_syntax_coloring_enabled);
+	ClassDB::bind_method(_MD("set_syntax_coloring","enable"),&TextEdit::set_syntax_coloring);
+	ClassDB::bind_method(_MD("is_syntax_coloring_enabled"),&TextEdit::is_syntax_coloring_enabled);
 
 
-	ObjectTypeDB::bind_method(_MD("add_keyword_color","keyword","color"),&TextEdit::add_keyword_color);
-	ObjectTypeDB::bind_method(_MD("add_color_region","begin_key","end_key","color","line_only"),&TextEdit::add_color_region,DEFVAL(false));
-	ObjectTypeDB::bind_method(_MD("set_symbol_color","color"),&TextEdit::set_symbol_color);
-	ObjectTypeDB::bind_method(_MD("set_custom_bg_color","color"),&TextEdit::set_custom_bg_color);
-	ObjectTypeDB::bind_method(_MD("clear_colors"),&TextEdit::clear_colors);
-	ObjectTypeDB::bind_method(_MD("menu_option"),&TextEdit::menu_option);
-	ObjectTypeDB::bind_method(_MD("get_menu:PopupMenu"),&TextEdit::get_menu);
+	ClassDB::bind_method(_MD("add_keyword_color","keyword","color"),&TextEdit::add_keyword_color);
+	ClassDB::bind_method(_MD("add_color_region","begin_key","end_key","color","line_only"),&TextEdit::add_color_region,DEFVAL(false));
+	ClassDB::bind_method(_MD("clear_colors"),&TextEdit::clear_colors);
+	ClassDB::bind_method(_MD("menu_option"),&TextEdit::menu_option);
+	ClassDB::bind_method(_MD("get_menu:PopupMenu"),&TextEdit::get_menu);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "syntax_highlighting"), _SCS("set_syntax_coloring"), _SCS("is_syntax_coloring_enabled"));
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_line_numbers"), _SCS("set_show_line_numbers"), _SCS("is_show_line_numbers_enabled"));
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "highlight_all_occurrences"), _SCS("set_highlight_all_occurrences"), _SCS("is_highlight_all_occurrences_enabled"));
 
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "caret/block_caret"), _SCS("cursor_set_block_mode"), _SCS("cursor_is_block_mode"));
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "caret/caret_blink"), _SCS("cursor_set_blink_enabled"), _SCS("cursor_get_blink_enabled"));
-	ADD_PROPERTYNZ(PropertyInfo(Variant::REAL, "caret/caret_blink_speed",PROPERTY_HINT_RANGE,"0.1,10,0.1"), _SCS("cursor_set_blink_speed"),_SCS("cursor_get_blink_speed") );
+
+	ADD_GROUP("Caret","caret_");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "caret_block_mode"), _SCS("cursor_set_block_mode"), _SCS("cursor_is_block_mode"));
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "caret_blink"), _SCS("cursor_set_blink_enabled"), _SCS("cursor_get_blink_enabled"));
+	ADD_PROPERTYNZ(PropertyInfo(Variant::REAL, "caret_blink_speed",PROPERTY_HINT_RANGE,"0.1,10,0.1"), _SCS("cursor_set_blink_speed"),_SCS("cursor_get_blink_speed") );
 
 	ADD_SIGNAL(MethodInfo("cursor_changed"));
 	ADD_SIGNAL(MethodInfo("text_changed"));
@@ -4680,6 +4708,7 @@ void TextEdit::_bind_methods() {
 	BIND_CONSTANT( MENU_MAX );
 
 
+	GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec",3);
 }
 
 TextEdit::TextEdit()  {
@@ -4703,8 +4732,8 @@ TextEdit::TextEdit()  {
 	tab_size=4;
 	text.set_tab_size(tab_size);
 	text.clear();
-	//	text.insert(1,"Mongolia..");
-	//	text.insert(2,"PAIS GENEROSO!!");
+	//text.insert(1,"Mongolia..");
+	//text.insert(2,"PAIS GENEROSO!!");
 	text.set_color_regions(&color_regions);
 
 	h_scroll = memnew( HScrollBar );
@@ -4737,11 +4766,10 @@ TextEdit::TextEdit()  {
 	caret_blink_timer->connect("timeout", this,"_toggle_draw_caret");
 	cursor_set_blink_enabled(false);
 
-	custom_bg_color=Color(0,0,0,0);
 	idle_detect = memnew( Timer );
 	add_child(idle_detect);
 	idle_detect->set_one_shot(true);
-	idle_detect->set_wait_time(GLOBAL_DEF("display/text_edit_idle_detect_sec",3));
+	idle_detect->set_wait_time(GLOBAL_GET("gui/timers/text_edit_idle_detect_sec"));
 	idle_detect->connect("timeout", this,"_push_current_op");
 
 	click_select_held = memnew( Timer );
@@ -4781,6 +4809,9 @@ TextEdit::TextEdit()  {
 	completion_line_ofs=0;
 	tooltip_obj=NULL;
 	line_numbers=false;
+	line_numbers_zero_padded=false;
+	line_length_guideline=false;
+	line_length_guideline_col=80;
 	draw_breakpoint_gutter=false;
 	next_operation_is_complex=false;
 	scroll_past_end_of_file_enabled=false;
@@ -4791,6 +4822,8 @@ TextEdit::TextEdit()  {
 	insert_mode = false;
 	window_has_focus=true;
 	select_identifiers_enabled=false;
+
+	raised_from_completion = false;
 
 	context_menu_enabled=true;
 	menu = memnew( PopupMenu );
@@ -4803,7 +4836,7 @@ TextEdit::TextEdit()  {
 	menu->add_item(TTR("Clear"),MENU_CLEAR);
 	menu->add_separator();
 	menu->add_item(TTR("Undo"),MENU_UNDO,KEY_MASK_CMD|KEY_Z);
-	menu->connect("item_pressed",this,"menu_option");
+	menu->connect("id_pressed",this,"menu_option");
 
 
 }

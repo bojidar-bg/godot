@@ -1,5 +1,5 @@
 # Korean translation of the Godot Engine editor
-# Copyright (C) 2016 Juan Linietsky, Ariel Manzur and the Godot community
+# Copyright (C) 2016-2017 Juan Linietsky, Ariel Manzur and the Godot community
 # This file is distributed under the same license as the Godot source code.
 #
 # 박한얼 (volzhs) <volzhs@gmail.com>, 2016.
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2016-08-17 10:07+0000\n"
+"PO-Revision-Date: 2016-11-23 14:38+0000\n"
 "Last-Translator: 박한얼 <volzhs@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/godot-engine/"
 "godot/ko/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2.8-dev\n"
+"X-Generator: Weblate 2.10-dev\n"
 
 #: modules/gdscript/gd_functions.cpp
 #: modules/visual_script/visual_script_builtin_funcs.cpp
@@ -159,6 +159,10 @@ msgid "Editing Signal:"
 msgstr "시그널 편집:"
 
 #: modules/visual_script/visual_script_editor.cpp
+msgid "Change Expression"
+msgstr "표현식 변경"
+
+#: modules/visual_script/visual_script_editor.cpp
 msgid "Add Node"
 msgstr "노드 추가"
 
@@ -187,9 +191,8 @@ msgid "Hold Ctrl to drop a Variable Setter."
 msgstr ""
 
 #: modules/visual_script/visual_script_editor.cpp
-#, fuzzy
 msgid "Add Preload Node"
-msgstr "자식 노드 추가"
+msgstr "Preload 노드 추가"
 
 #: modules/visual_script/visual_script_editor.cpp
 msgid "Add Node(s) From Tree"
@@ -202,6 +205,43 @@ msgstr ""
 #: modules/visual_script/visual_script_editor.cpp
 msgid "Add Setter Property"
 msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Condition"
+msgstr "조건"
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Sequence"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Switch"
+msgstr "스위치"
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Iterator"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "While"
+msgstr ""
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Return"
+msgstr "리턴"
+
+#: modules/visual_script/visual_script_editor.cpp tools/editor/call_dialog.cpp
+msgid "Call"
+msgstr "호출"
+
+#: modules/visual_script/visual_script_editor.cpp
+msgid "Get"
+msgstr "얻기"
+
+#: modules/visual_script/visual_script_editor.cpp
+#: tools/editor/property_editor.cpp
+msgid "Set"
+msgstr "설정"
 
 #: modules/visual_script/visual_script_editor.cpp
 #: tools/editor/plugins/canvas_item_editor_plugin.cpp
@@ -263,24 +303,20 @@ msgid "Toggle Breakpoint"
 msgstr "중단점 토글"
 
 #: modules/visual_script/visual_script_editor.cpp
-#, fuzzy
 msgid "Find Node Type"
 msgstr "노드 타입 찾기"
 
 #: modules/visual_script/visual_script_editor.cpp
-#, fuzzy
 msgid "Copy Nodes"
-msgstr "포즈 복사"
+msgstr "노드 복사"
 
 #: modules/visual_script/visual_script_editor.cpp
-#, fuzzy
 msgid "Cut Nodes"
-msgstr "노드 생성"
+msgstr "노드 잘라내기"
 
 #: modules/visual_script/visual_script_editor.cpp
-#, fuzzy
 msgid "Paste Nodes"
-msgstr "포즈 붙여넣기"
+msgstr "노드 붙여넣기"
 
 #: modules/visual_script/visual_script_flow_control.cpp
 msgid "Input type not iterable: "
@@ -335,6 +371,88 @@ msgid ""
 "Invalid return value from _step(), must be integer (seq out), or string "
 "(error)."
 msgstr ""
+
+#: modules/visual_script/visual_script_nodes.cpp
+msgid "just pressed"
+msgstr ""
+
+#: modules/visual_script/visual_script_nodes.cpp
+msgid "just released"
+msgstr ""
+
+#: platform/uwp/export/export.cpp
+msgid ""
+"Couldn't read the certficate file. Are the path and password both correct?"
+msgstr "인증서 파일을 읽을 수 없습니다. 경로와 비밀번호가 정확합니까?"
+
+#: platform/uwp/export/export.cpp
+msgid "Error creating the signature object."
+msgstr "서명 오브젝트 생성중 에러."
+
+#: platform/uwp/export/export.cpp
+msgid "Error creating the package signature."
+msgstr "패키지 서명을 생성하는 중 에러가 발생했습니다."
+
+#: platform/uwp/export/export.cpp
+msgid ""
+"No export templates found.\n"
+"Download and install export templates."
+msgstr ""
+"내보내기 템플릿을 찾을 수 없습니다.\n"
+"내보내기 템플릿을 다운로드하여 설치하십시요."
+
+#: platform/uwp/export/export.cpp
+msgid "Custom debug package not found."
+msgstr "커스텀 디버그 패키지를 찾을 수 없습니다."
+
+#: platform/uwp/export/export.cpp
+msgid "Custom release package not found."
+msgstr "커스텀 릴리즈 패키지를 찾을 수 없습니다."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid unique name."
+msgstr "유효하지 않은 고유 이름."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid product GUID."
+msgstr "유요하지 않은 프로덕트 GUID."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid publisher GUID."
+msgstr "유요하지 않은 퍼블리셔 GUID."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid background color."
+msgstr "유요하지 않은 배경 색상."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid Store Logo image dimensions (should be 50x50)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (50x50 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 44x44 logo image dimensions (should be 44x44)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (44x44 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 71x71 logo image dimensions (should be 71x71)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (71x71 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 150x150 logo image dimensions (should be 150x150)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (150x150 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid square 310x310 logo image dimensions (should be 310x310)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (310x310 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid wide 310x150 logo image dimensions (should be 310x150)."
+msgstr "유효하지 않은 로고 이미지 크기입니다 (310x150 이어야 합니다)."
+
+#: platform/uwp/export/export.cpp
+msgid "Invalid splash screen image dimensions (should be 620x300)."
+msgstr ""
+"유효하지 않은 스플래쉬 스크린 이미지 크기입니다 (620x300 이어야 합니다)."
 
 #: scene/2d/animated_sprite.cpp
 msgid ""
@@ -466,10 +584,6 @@ msgstr ""
 "VisibilityEnable2D는 편집 씬의 루트의 하위 노드로 추가할 때 가장 잘 동작합니"
 "다."
 
-#: scene/3d/baked_light_instance.cpp
-msgid "BakedLightInstance does not contain a BakedLight resource."
-msgstr "BakedLightInstance가 BakedLight 리소스를 가지고 있지 않습니다."
-
 #: scene/3d/body_shape.cpp
 msgid ""
 "CollisionShape only serves to provide a collision shape to a CollisionObject "
@@ -516,6 +630,10 @@ msgstr ""
 "NavigationMeshInstance은 Navigation 노드의 하위에 있어야 합니다. 이것은 네비"
 "게이션 데이타만을 제공합니다."
 
+#: scene/3d/remote_transform.cpp
+msgid "Path property must point to a valid Spatial node to work."
+msgstr "Path 속성은 유효한 Spatial 노드를 가리켜야 합니다."
+
 #: scene/3d/scenario_fx.cpp
 msgid ""
 "Only one WorldEnvironment is allowed per scene (or set of instanced scenes)."
@@ -541,7 +659,8 @@ msgstr ""
 msgid "Cancel"
 msgstr "취소"
 
-#: scene/gui/dialogs.cpp tools/editor/scene_tree_dock.cpp
+#: scene/gui/dialogs.cpp tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
 msgid "OK"
 msgstr "확인"
 
@@ -1059,7 +1178,7 @@ msgstr "최적화"
 
 #: tools/editor/animation_editor.cpp
 msgid "Select an AnimationPlayer from the Scene Tree to edit animations."
-msgstr ""
+msgstr "애니메이션 편집을 위해서는 씬에서 AnimationPlayer를 선택해야 합니다."
 
 #: tools/editor/animation_editor.cpp
 msgid "Key"
@@ -1161,10 +1280,6 @@ msgstr "에셋 ZIP 파일"
 #: tools/editor/call_dialog.cpp
 msgid "Method List For '%s':"
 msgstr "'%s' 함수 목록:"
-
-#: tools/editor/call_dialog.cpp
-msgid "Call"
-msgstr "호출"
 
 #: tools/editor/call_dialog.cpp
 msgid "Method List:"
@@ -1270,7 +1385,7 @@ msgstr "축소"
 
 #: tools/editor/code_editor.cpp
 msgid "Reset Zoom"
-msgstr ""
+msgstr "줌 리셋"
 
 #: tools/editor/code_editor.cpp tools/editor/script_editor_debugger.cpp
 msgid "Line:"
@@ -1283,6 +1398,14 @@ msgstr "칼럼:"
 #: tools/editor/connections_dialog.cpp
 msgid "Method in target Node must be specified!"
 msgstr "대상 노드의 함수를 명시해야합니다!"
+
+#: tools/editor/connections_dialog.cpp
+msgid ""
+"Target method not found! Specify a valid method or attach a script to target "
+"Node."
+msgstr ""
+"타겟 메소드를 찾을 수 없습니다! 유효한 메소드를 지정하거나, 타겟 노드에 스크"
+"립트를 추가하세요."
 
 #: tools/editor/connections_dialog.cpp
 msgid "Connect To Node:"
@@ -1359,6 +1482,15 @@ msgstr "시그널"
 #: tools/editor/create_dialog.cpp
 msgid "Create New"
 msgstr "새로 만들기"
+
+#: tools/editor/create_dialog.cpp tools/editor/editor_file_dialog.cpp
+#: tools/editor/filesystem_dock.cpp
+msgid "Favorites:"
+msgstr "즐겨찾기:"
+
+#: tools/editor/create_dialog.cpp tools/editor/editor_file_dialog.cpp
+msgid "Recent:"
+msgstr "최근:"
 
 #: tools/editor/create_dialog.cpp tools/editor/editor_help.cpp
 #: tools/editor/plugins/script_editor_plugin.cpp
@@ -1637,14 +1769,6 @@ msgstr "즐겨찾기 위로 이동"
 msgid "Move Favorite Down"
 msgstr "즐겨찾기 아래로 이동"
 
-#: tools/editor/editor_file_dialog.cpp tools/editor/filesystem_dock.cpp
-msgid "Favorites:"
-msgstr "즐겨찾기:"
-
-#: tools/editor/editor_file_dialog.cpp
-msgid "Recent:"
-msgstr "최근:"
-
 #: tools/editor/editor_file_dialog.cpp
 msgid "Preview:"
 msgstr "미리보기:"
@@ -1693,6 +1817,11 @@ msgstr "GUI 테마 항목:"
 #: tools/editor/editor_help.cpp
 msgid "Constants:"
 msgstr "상수:"
+
+#: tools/editor/editor_help.cpp
+#, fuzzy
+msgid "Property Description:"
+msgstr "간단한 설명:"
 
 #: tools/editor/editor_help.cpp
 msgid "Method Description:"
@@ -1762,7 +1891,9 @@ msgstr "리소스 저장 중 에러!"
 msgid "Save Resource As.."
 msgstr "리소스를 다른 이름으로 저장.."
 
-#: tools/editor/editor_node.cpp tools/editor/scene_tree_dock.cpp
+#: tools/editor/editor_node.cpp
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
 msgid "I see.."
 msgstr "알겠습니다.."
 
@@ -1996,7 +2127,9 @@ msgstr ""
 msgid "Pick a Main Scene"
 msgstr "메인 씬 선택"
 
-#: tools/editor/editor_node.cpp tools/editor/scene_tree_dock.cpp
+#: tools/editor/editor_node.cpp
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp tools/editor/script_create_dialog.cpp
 msgid "Ugh"
 msgstr "오우"
 
@@ -2048,14 +2181,6 @@ msgstr "씬"
 #: tools/editor/editor_node.cpp
 msgid "Go to previously opened scene."
 msgstr "이전에 열었던 씬으로 가기."
-
-#: tools/editor/editor_node.cpp
-msgid "Fullscreen Mode"
-msgstr "전체화면 모드"
-
-#: tools/editor/editor_node.cpp
-msgid "Distraction Free Mode"
-msgstr "초집중 모드"
 
 #: tools/editor/editor_node.cpp
 msgid "Next tab"
@@ -2141,6 +2266,10 @@ msgstr "씬 되돌리기"
 #: tools/editor/editor_node.cpp
 msgid "Quit to Project List"
 msgstr "종료하고 프로젝트 목록으로 돌아가기"
+
+#: tools/editor/editor_node.cpp
+msgid "Distraction Free Mode"
+msgstr "초집중 모드"
 
 #: tools/editor/editor_node.cpp
 msgid "Import assets to the project."
@@ -2321,6 +2450,10 @@ msgid "Editor Layout"
 msgstr "에디터 레이아웃"
 
 #: tools/editor/editor_node.cpp
+msgid "Toggle Fullscreen"
+msgstr "전체화면 토글"
+
+#: tools/editor/editor_node.cpp
 msgid "Install Export Templates"
 msgstr "내보내기 템플릿 설치"
 
@@ -2343,6 +2476,10 @@ msgstr "항상 갱신"
 #: tools/editor/editor_node.cpp
 msgid "Update Changes"
 msgstr "변경사항만 갱신"
+
+#: tools/editor/editor_node.cpp
+msgid "Disable Update Spinner"
+msgstr "업데이트 스피너 비활성화"
 
 #: tools/editor/editor_node.cpp
 msgid "Inspector"
@@ -2383,6 +2520,10 @@ msgstr "오브젝트 속성."
 #: tools/editor/editor_node.cpp
 msgid "FileSystem"
 msgstr "파일 시스템"
+
+#: tools/editor/editor_node.cpp tools/editor/node_dock.cpp
+msgid "Node"
+msgstr "노드"
 
 #: tools/editor/editor_node.cpp
 msgid "Output"
@@ -2690,6 +2831,7 @@ msgstr "소스 텍스쳐:"
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
 #: tools/editor/io_plugins/editor_texture_import_plugin.cpp
 #: tools/editor/io_plugins/editor_translation_import_plugin.cpp
+#: tools/editor/project_export.cpp
 msgid "Target Path:"
 msgstr "대상 경로:"
 
@@ -2919,6 +3061,10 @@ msgstr "사용자 정의 루트 노드 타입:"
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
 msgid "Auto"
 msgstr "자동"
+
+#: tools/editor/io_plugins/editor_scene_import_plugin.cpp
+msgid "Root Node Name:"
+msgstr "루트 노드 이름:"
 
 #: tools/editor/io_plugins/editor_scene_import_plugin.cpp
 msgid "The Following Files are Missing:"
@@ -3218,10 +3364,6 @@ msgstr "번역"
 #: tools/editor/multi_node_edit.cpp
 msgid "MultiNode Set"
 msgstr "다중 노드 설정"
-
-#: tools/editor/node_dock.cpp
-msgid "Node"
-msgstr "노드"
 
 #: tools/editor/node_dock.cpp
 msgid "Groups"
@@ -3765,6 +3907,10 @@ msgid "Clear Bones"
 msgstr "Bones 없애기"
 
 #: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Show Bones"
+msgstr "뼈대 보기"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
 msgid "Make IK Chain"
 msgstr "IK 체인 만들기"
 
@@ -3824,6 +3970,51 @@ msgstr "값 설정"
 #: tools/editor/plugins/canvas_item_editor_plugin.cpp
 msgid "Snap (Pixels):"
 msgstr "스냅 (픽셀):"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Add %s"
+msgstr "%s 추가"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Adding %s..."
+msgstr "%s 추가중..."
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "Create Node"
+msgstr "노드 생성"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "Error instancing scene from %s"
+msgstr "'%s' 로부터 씬 인스턴스 중 에러"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "OK :("
+msgstr "넹 :("
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "No parent to instance a child at."
+msgstr "선택된 부모 노드가 없어서 자식노드를 인스턴스할 수 없습니다."
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+#: tools/editor/scene_tree_dock.cpp
+msgid "This operation requires a single selected node."
+msgstr "이 작업은 하나의 선택된 노드를 필요로 합니다."
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid "Change default type"
+msgstr "기본 타입 변경"
+
+#: tools/editor/plugins/canvas_item_editor_plugin.cpp
+msgid ""
+"Drag & drop + Shift : Add node as sibling\n"
+"Drag & drop + Alt : Change node type"
+msgstr ""
+"드래그 & 드랍 + 쉬프트 : 형제 노드로 추가\n"
+"드래그 & 드랍 + 알트 : 노드 타입 변경"
 
 #: tools/editor/plugins/collision_polygon_2d_editor_plugin.cpp
 #: tools/editor/plugins/light_occluder_2d_editor_plugin.cpp
@@ -4503,6 +4694,10 @@ msgid "Close Docs"
 msgstr "문서 닫기"
 
 #: tools/editor/plugins/script_editor_plugin.cpp
+msgid "Close All"
+msgstr "모두 닫기"
+
+#: tools/editor/plugins/script_editor_plugin.cpp
 #: tools/editor/plugins/script_text_editor.cpp
 #: tools/editor/plugins/shader_editor_plugin.cpp
 msgid "Find.."
@@ -4612,6 +4807,10 @@ msgid ""
 "Built-in scripts can only be edited when the scene they belong to is loaded"
 msgstr "내장 스크립트는 종속된 씬이 열린 상태에서만 편집이 가능합니다"
 
+#: tools/editor/plugins/script_text_editor.cpp
+msgid "Pick Color"
+msgstr "색상 선택"
+
 #: tools/editor/plugins/script_text_editor.cpp tools/editor/scene_tree_dock.cpp
 msgid "Move Up"
 msgstr "위로 이동"
@@ -4682,18 +4881,6 @@ msgstr "라인으로 이동.."
 #: tools/editor/plugins/script_text_editor.cpp
 msgid "Contextual Help"
 msgstr "도움말 보기"
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Vertex"
-msgstr "버텍스"
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Fragment"
-msgstr "프래그먼트"
-
-#: tools/editor/plugins/shader_editor_plugin.cpp
-msgid "Lighting"
-msgstr "라이팅"
 
 #: tools/editor/plugins/shader_graph_editor_plugin.cpp
 msgid "Change Scalar Constant"
@@ -4988,6 +5175,10 @@ msgid "Insert Animation Key"
 msgstr "애니메이션 키 삽입"
 
 #: tools/editor/plugins/spatial_editor_plugin.cpp
+msgid "Focus Origin"
+msgstr "원점 보기"
+
+#: tools/editor/plugins/spatial_editor_plugin.cpp
 msgid "Focus Selection"
 msgstr "선택 포커스"
 
@@ -5253,6 +5444,10 @@ msgid "Remove Item"
 msgstr "아이템 삭제"
 
 #: tools/editor/plugins/theme_editor_plugin.cpp
+msgid "Theme"
+msgstr "테마"
+
+#: tools/editor/plugins/theme_editor_plugin.cpp
 msgid "Add Class Items"
 msgstr "클래스 아이템 추가"
 
@@ -5447,6 +5642,71 @@ msgstr "프로젝트 PCK 작성중 에러!"
 #: tools/editor/project_export.cpp
 msgid "No exporter for platform '%s' yet."
 msgstr "'%s' 플랫폼으로 내보내기 위한 템플릿 파일이 없습니다."
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "Create Android keystore"
+msgstr "새 리소스 만들기"
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "Full name"
+msgstr "유요한 이름"
+
+#: tools/editor/project_export.cpp
+msgid "Organizational unit"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "Organization"
+msgstr "전환"
+
+#: tools/editor/project_export.cpp
+msgid "City"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "State"
+msgstr "상태:"
+
+#: tools/editor/project_export.cpp
+msgid "2 letter country code"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "User alias"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "Password"
+msgstr "암호:"
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "at least 6 characters"
+msgstr "유효한 문자:"
+
+#: tools/editor/project_export.cpp
+#, fuzzy
+msgid "File name"
+msgstr "새 이름:"
+
+#: tools/editor/project_export.cpp
+msgid "Path : (better to save outside of project)"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid ""
+"Release keystore is not set.\n"
+"Do you want to create one?"
+msgstr ""
+
+#: tools/editor/project_export.cpp
+msgid "Fill Keystore/Release User and Release Password"
+msgstr ""
 
 #: tools/editor/project_export.cpp
 msgid "Include"
@@ -5782,7 +6042,7 @@ msgstr ""
 msgid ""
 "You are about the scan %s folders for existing Godot projects. Do you "
 "confirm?"
-msgstr ""
+msgstr "%s 에서 기존 Godot 프로젝트들을 스캔하려고 합니다. 진행하시겠습니까?"
 
 #: tools/editor/project_manager.cpp
 msgid "Project Manager"
@@ -5907,10 +6167,6 @@ msgstr "입력 액션 추가"
 #: tools/editor/project_settings.cpp
 msgid "Erase Input Action Event"
 msgstr "입력 액션 이벤트 삭제"
-
-#: tools/editor/project_settings.cpp
-msgid "Toggle Persisting"
-msgstr "지속 전환"
 
 #: tools/editor/project_settings.cpp
 msgid "Error saving settings."
@@ -6056,13 +6312,17 @@ msgstr "파일.."
 msgid "Dir.."
 msgstr "디렉토리.."
 
-#: tools/editor/property_editor.cpp
+#: tools/editor/property_editor.cpp tools/editor/script_create_dialog.cpp
 msgid "Load"
 msgstr "로드"
 
 #: tools/editor/property_editor.cpp
 msgid "Assign"
 msgstr "할당"
+
+#: tools/editor/property_editor.cpp
+msgid "New Script"
+msgstr "새 스크립트"
 
 #: tools/editor/property_editor.cpp
 msgid "Error loading file: Not a resource!"
@@ -6081,30 +6341,20 @@ msgid "On"
 msgstr "사용"
 
 #: tools/editor/property_editor.cpp
-msgid "Set"
-msgstr "설정"
-
-#: tools/editor/property_editor.cpp
 msgid "Properties:"
 msgstr "속성:"
-
-#: tools/editor/property_editor.cpp
-msgid "Global"
-msgstr "Global"
 
 #: tools/editor/property_editor.cpp
 msgid "Sections:"
 msgstr "부문:"
 
 #: tools/editor/property_selector.cpp
-#, fuzzy
 msgid "Select Property"
-msgstr "포인트 선택"
+msgstr "속성 선택"
 
 #: tools/editor/property_selector.cpp
-#, fuzzy
 msgid "Select Method"
-msgstr "선택 모드"
+msgstr "메소드 선택"
 
 #: tools/editor/pvrtc_compress.cpp
 msgid "Could not execute PVRTC tool:"
@@ -6171,24 +6421,12 @@ msgid "Scene Run Settings"
 msgstr "씬 실행 설정"
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "OK :("
-msgstr "넹 :("
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "No parent to instance a child at."
-msgstr "선택된 부모 노드가 없어서 자식노드를 인스턴스할 수 없습니다."
-
-#: tools/editor/scene_tree_dock.cpp
 msgid "No parent to instance the scenes at."
 msgstr "씬을 인스턴스할 수 있는 부모가 없습니다."
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Error loading scene from %s"
 msgstr "'%s' 로부터 씬 로딩 중 에러"
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "Error instancing scene from %s"
-msgstr "'%s' 로부터 씬 인스턴스 중 에러"
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Ok"
@@ -6229,10 +6467,6 @@ msgid "This operation can't be done without a scene."
 msgstr "이 작업은 씬 없이는 불가합니다."
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "This operation requires a single selected node."
-msgstr "이 작업은 하나의 선택된 노드를 필요로 합니다."
-
-#: tools/editor/scene_tree_dock.cpp
 msgid "This operation can't be done on instanced scenes."
 msgstr "이 작업은 인스턴스된 씬에서는 불가합니다."
 
@@ -6255,10 +6489,6 @@ msgstr "상속 씬 내에서 수행할 수 없는 작업입니다!"
 #: tools/editor/scene_tree_dock.cpp
 msgid "Remove Node(s)"
 msgstr "노드 삭제"
-
-#: tools/editor/scene_tree_dock.cpp
-msgid "Create Node"
-msgstr "노드 생성"
 
 #: tools/editor/scene_tree_dock.cpp
 msgid ""
@@ -6300,8 +6530,12 @@ msgid "Change Type"
 msgstr "타입 변경"
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "Add Script"
-msgstr "스크립트 추가"
+msgid "Attach Script"
+msgstr "스크립트 붙이기"
+
+#: tools/editor/scene_tree_dock.cpp
+msgid "Clear Script"
+msgstr "스크립트 제거"
 
 #: tools/editor/scene_tree_dock.cpp
 msgid "Merge From Scene"
@@ -6327,16 +6561,12 @@ msgstr ""
 "씬 파일을 노드로 추가합니다. 루트 노드가 없을 경우, 상속씬으로 만들어집니다."
 
 #: tools/editor/scene_tree_dock.cpp
-msgid "Create a new script for the selected node."
-msgstr "선택된 노드에 새로운 스크립트를 생성합니다."
+msgid "Attach a new or existing script for the selected node."
+msgstr "선택된 노드에 새로운 스크립트를 생성하거나 기존 스크립트를 로드합니다."
 
-#: tools/editor/scene_tree_editor.cpp
-msgid ""
-"This item cannot be made visible because the parent is hidden. Unhide the "
-"parent first."
-msgstr ""
-"부모 노드가 숨겨져 있기 때문에 이 항목을 보이도록 만들 수 없습니다. 부모 노드"
-"를 먼저 보이도록 하세요."
+#: tools/editor/scene_tree_dock.cpp
+msgid "Clear a script for the selected node."
+msgstr "선택된 노드의 스크립트를 제거합니다."
 
 #: tools/editor/scene_tree_editor.cpp
 msgid "Toggle Spatial Visible"
@@ -6431,6 +6661,10 @@ msgid "Could not create script in filesystem."
 msgstr "파일 시스템에 스크립트를 생성할 수 없습니다."
 
 #: tools/editor/script_create_dialog.cpp
+msgid "Error loading script from %s"
+msgstr "'%s' 스크립트 로딩 중 에러"
+
+#: tools/editor/script_create_dialog.cpp
 msgid "Path is empty"
 msgstr "경로가 비어 있음"
 
@@ -6443,16 +6677,16 @@ msgid "Invalid base path"
 msgstr "기본 경로가 유요하지 않음"
 
 #: tools/editor/script_create_dialog.cpp
-msgid "File exists"
-msgstr "파일이 존재함"
-
-#: tools/editor/script_create_dialog.cpp
 msgid "Invalid extension"
 msgstr "확장자가 유요하지 않음"
 
 #: tools/editor/script_create_dialog.cpp
-msgid "Valid path"
-msgstr "유요한 경로"
+msgid "Create new script"
+msgstr "새 스크립트 만들기"
+
+#: tools/editor/script_create_dialog.cpp
+msgid "Load existing script"
+msgstr "기존 스크립트 로드하기"
 
 #: tools/editor/script_create_dialog.cpp
 msgid "Class Name:"
@@ -6463,8 +6697,8 @@ msgid "Built-In Script"
 msgstr "내장 스크립트"
 
 #: tools/editor/script_create_dialog.cpp
-msgid "Create Node Script"
-msgstr "노드 스크립트 생성"
+msgid "Attach Node Script"
+msgstr "노드 스크립트 붙이기"
 
 #: tools/editor/script_editor_debugger.cpp
 msgid "Bytes:"
@@ -6629,6 +6863,49 @@ msgstr "Ray Shape 길이 변경"
 #: tools/editor/spatial_editor_gizmos.cpp
 msgid "Change Notifier Extents"
 msgstr "Notifier 범위 변경"
+
+#: tools/editor/spatial_editor_gizmos.cpp
+#, fuzzy
+msgid "Change Probe Extents"
+msgstr "Notifier 범위 변경"
+
+#~ msgid "BakedLightInstance does not contain a BakedLight resource."
+#~ msgstr "BakedLightInstance가 BakedLight 리소스를 가지고 있지 않습니다."
+
+#~ msgid "Vertex"
+#~ msgstr "버텍스"
+
+#~ msgid "Fragment"
+#~ msgstr "프래그먼트"
+
+#~ msgid "Lighting"
+#~ msgstr "라이팅"
+
+#~ msgid "Toggle Persisting"
+#~ msgstr "지속 전환"
+
+#~ msgid "Global"
+#~ msgstr "Global"
+
+#~ msgid ""
+#~ "This item cannot be made visible because the parent is hidden. Unhide the "
+#~ "parent first."
+#~ msgstr ""
+#~ "부모 노드가 숨겨져 있기 때문에 이 항목을 보이도록 만들 수 없습니다. 부모 "
+#~ "노드를 먼저 보이도록 하세요."
+
+#~ msgid ""
+#~ "Paths cannot start with '/', absolute paths must start with 'res://', "
+#~ "'user://', or 'local://'"
+#~ msgstr ""
+#~ "경로는 '/'로 시작할 수 없습니다. 'res://', 'user://', 또는 'local://'로 시"
+#~ "작하는 절대 경로를 사용해야 합니다"
+
+#~ msgid "File exists"
+#~ msgstr "파일이 존재함"
+
+#~ msgid "Valid path"
+#~ msgstr "유요한 경로"
 
 #~ msgid "Cannot go into subdir:"
 #~ msgstr "하위 디렉토리로 이동할 수 없습니다:"

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -27,6 +27,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 #include "multi_node_edit.h"
+
 #include "editor_node.h"
 
 bool MultiNodeEdit::_set(const StringName& p_name, const Variant& p_value){
@@ -53,7 +54,14 @@ bool MultiNodeEdit::_set(const StringName& p_name, const Variant& p_value){
 		if (!n)
 			continue;
 
-		ur->add_do_property(n,name,p_value);
+		if (p_value.get_type() == Variant::NODE_PATH) {
+			Node *tonode = n->get_node(p_value);
+			NodePath p_path = n->get_path_to(tonode);
+			ur->add_do_property(n,name,p_path);
+		} else {
+			ur->add_do_property(n,name,p_value);
+		}
+
 		ur->add_undo_property(n,name,n->get(name));
 
 

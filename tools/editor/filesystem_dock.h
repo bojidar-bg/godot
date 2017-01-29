@@ -1,11 +1,11 @@
 /*************************************************************************/
-/*  scenes_dock.h                                                        */
+/*  filesystem_dock.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -52,7 +52,7 @@ class EditorNode;
 
 
 class FileSystemDock : public VBoxContainer {
-	OBJ_TYPE( FileSystemDock, VBoxContainer );
+	GDCLASS( FileSystemDock, VBoxContainer );
 
 public:
 	enum DisplayMode {
@@ -73,6 +73,11 @@ private:
 		FILE_COPY_PATH
 	};
 
+	enum FolderMenu {
+		FOLDER_EXPAND_ALL,
+		FOLDER_COLLAPSE_ALL
+	};
+
 
 	VBoxContainer *scanning_vb;
 	ProgressBar *scanning_progress;
@@ -90,13 +95,14 @@ private:
 	Button *button_hist_prev;
 	LineEdit *current_path;
 	LineEdit *search_box;
-	TextureFrame *search_icon;
+	TextureRect *search_icon;
 	HBoxContainer *path_hb;
 
 	bool split_mode;
 	DisplayMode display_mode;
 
 	PopupMenu *file_options;
+	PopupMenu *folder_options;
 
 	DependencyEditor *deps_editor;
 	DependencyEditorOwners *owners_editor;
@@ -134,6 +140,7 @@ private:
 
 
 	void _file_option(int p_option);
+	void _folder_option(int p_option);
 	void _update_files(bool p_keep_selection);
 	void _change_file_display();
 
@@ -151,6 +158,7 @@ private:
 
 	void _favorites_pressed();
 	void _open_pressed();
+	void _dir_rmb_pressed(const Vector2& local_mouse_pos);
 	void _search_changed(const String& p_text);
 
 

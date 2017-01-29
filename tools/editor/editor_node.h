@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -79,7 +79,7 @@
 
 #include "fileserver/editor_file_server.h"
 #include "editor_resource_preview.h"
-
+#include "scene/gui/viewport_container.h"
 
 
 #include "progress_dialog.h"
@@ -101,7 +101,7 @@ class EditorPluginList;
 
 class EditorNode : public Node {
 
-	OBJ_TYPE( EditorNode, Node );
+	GDCLASS( EditorNode, Node );
 
 public:
 	enum DockSlot {
@@ -159,7 +159,6 @@ private:
 		OBJECT_COPY_PARAMS,
 		OBJECT_PASTE_PARAMS,
 		OBJECT_UNIQUE_RESOURCES,
-		OBJECT_CALL_METHOD,
 		OBJECT_REQUEST_HELP,
 		RUN_PLAY,
 
@@ -179,6 +178,7 @@ private:
 		RUN_RELOAD_SCRIPTS,
 		SETTINGS_UPDATE_ALWAYS,
 		SETTINGS_UPDATE_CHANGES,
+		SETTINGS_UPDATE_SPINNER_HIDE,
 		SETTINGS_EXPORT_PREFERENCES,
 		SETTINGS_PREFERENCES,
 		SETTINGS_OPTIMIZED_PRESETS,
@@ -197,7 +197,9 @@ private:
 
 		IMPORT_PLUGIN_BASE=100,
 
-		OBJECT_METHOD_BASE=500
+		OBJECT_METHOD_BASE=500,
+
+		TOOL_MENU_BASE=1000
 	};
 
 
@@ -207,7 +209,7 @@ private:
 
 	//Ref<ResourceImportMetadata> scene_import_metadata;
 
-	Control* scene_root_parent;
+	PanelContainer* scene_root_parent;
 	Control *gui_base;
 	VBoxContainer *main_vbox;
 
@@ -286,7 +288,7 @@ private:
 
 	CreateDialog *create_dialog;
 
-	CallDialog *call_dialog;
+	//CallDialog *call_dialog;
 	ConfirmationDialog *confirmation;
 	ConfirmationDialog *import_confirmation;
 	ConfirmationDialog *open_recent_confirmation;
@@ -593,6 +595,22 @@ private:
 	void _call_build();
 	static int build_callback_count;
 	static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
+
+	bool _initializing_tool_menu;
+
+	struct ToolMenuItem {
+		String name;
+		String submenu;
+		Variant ud;
+		ObjectID handler;
+		String callback;
+	};
+
+	Vector<ToolMenuItem> tool_menu_items;
+
+	void _tool_menu_insert_item(const ToolMenuItem& p_item);
+	void _rebuild_tool_menu() const;
+
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -755,6 +773,9 @@ public:
 	Variant drag_files(const Vector<String>& p_files,Control* p_from);
 	Variant drag_files_and_dirs(const Vector<String>& p_files,Control* p_from);
 
+	void add_tool_menu_item(const String& p_name, Object *p_handler, const String& p_callback, const Variant& p_ud = Variant());
+	void add_tool_submenu_item(const String& p_name, PopupMenu *p_submenu);
+	void remove_tool_menu_item(const String& p_name);
 
 	EditorNode();
 	~EditorNode();
@@ -792,9 +813,9 @@ public:
 
 	void make_visible(bool p_visible);
 	void edit(Object *p_object);
-	bool forward_input_event(const Matrix32& p_canvas_xform,const InputEvent& p_event);
-	bool forward_spatial_input_event(Camera* p_camera, const InputEvent& p_event);
-	void forward_draw_over_canvas(const Matrix32& p_canvas_xform,Control* p_canvas);
+	bool forward_gui_input(const Transform2D& p_canvas_xform,const InputEvent& p_event);
+	bool forward_spatial_gui_input(Camera* p_camera, const InputEvent& p_event);
+	void forward_draw_over_canvas(const Transform2D& p_canvas_xform,Control* p_canvas);
 	void clear();
 	bool empty();
 

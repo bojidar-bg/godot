@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -34,6 +34,7 @@
 #include "math_funcs.h"
 #include "ustring.h"
 
+class Basis;
 
 struct Vector3 {
 
@@ -92,6 +93,8 @@ struct Vector3 {
 
 	_FORCE_INLINE_ Vector3 cross(const Vector3& p_b) const;
 	_FORCE_INLINE_ real_t dot(const Vector3& p_b) const;
+	_FORCE_INLINE_ Basis outer(const Vector3& p_b) const;
+	_FORCE_INLINE_ Basis to_diagonal_matrix() const;
 
 	_FORCE_INLINE_ Vector3 abs() const;
 	_FORCE_INLINE_ Vector3 floor() const;
@@ -144,6 +147,8 @@ struct Vector3 {
 
 #else
 
+#include "matrix3.h"
+
 Vector3 Vector3::cross(const Vector3& p_b) const {
 
 	Vector3 ret (
@@ -158,6 +163,21 @@ Vector3 Vector3::cross(const Vector3& p_b) const {
 real_t Vector3::dot(const Vector3& p_b) const {
 
 	return x*p_b.x + y*p_b.y + z*p_b.z;
+}
+
+Basis Vector3::outer(const Vector3& p_b) const {
+	
+	Vector3 row0(x*p_b.x, x*p_b.y, x*p_b.z);
+	Vector3 row1(y*p_b.x, y*p_b.y, y*p_b.z);
+	Vector3 row2(z*p_b.x, z*p_b.y, z*p_b.z);
+
+	return Basis(row0, row1, row2);
+}
+
+Basis Vector3::to_diagonal_matrix() const {
+	return Basis(x, 0, 0,
+				   0, y, 0,
+				   0, 0, z);
 }
 
 Vector3 Vector3::abs() const {
@@ -293,7 +313,6 @@ bool Vector3::operator==(const Vector3& p_v) const {
 }
 
 bool Vector3::operator!=(const Vector3& p_v) const {
-
 	return (x!=p_v.x || y!=p_v.y || z!=p_v.z);
 }
 

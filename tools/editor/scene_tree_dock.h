@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -49,7 +49,7 @@ class EditorNode;
 
 class SceneTreeDock : public VBoxContainer {
 
-	OBJ_TYPE( SceneTreeDock, VBoxContainer );
+	GDCLASS( SceneTreeDock, VBoxContainer );
 
 	enum Tool {
 
@@ -58,7 +58,8 @@ class SceneTreeDock : public VBoxContainer {
 		TOOL_REPLACE,
 		TOOL_CONNECT,
 		TOOL_GROUP,
-		TOOL_SCRIPT,
+		TOOL_ATTACH_SCRIPT,
+		TOOL_CLEAR_SCRIPT,
 		TOOL_MOVE_UP,
 		TOOL_MOVE_DOWN,
 		TOOL_DUPLICATE,
@@ -67,6 +68,7 @@ class SceneTreeDock : public VBoxContainer {
 		TOOL_MERGE_FROM_SCENE,
 		TOOL_MULTI_EDIT,
 		TOOL_ERASE,
+		TOOL_COPY_NODE_PATH,
 		TOOL_BUTTON_MAX
 	};
 
@@ -79,6 +81,7 @@ class SceneTreeDock : public VBoxContainer {
 	ToolButton *button_add;
 	ToolButton *button_instance;
 	ToolButton *button_create_script;
+	ToolButton *button_clear_script;
 
 	SceneTreeEditor *scene_tree;
 
@@ -100,7 +103,7 @@ class SceneTreeDock : public VBoxContainer {
 	EditorFileDialog *new_scene_from_dialog;
 
 	LineEdit *filter;
-	TextureFrame *filter_icon;
+	TextureRect *filter_icon;
 
 	PopupMenu * menu;
 
@@ -147,13 +150,16 @@ class SceneTreeDock : public VBoxContainer {
 
 	void _nodes_dragged(Array p_nodes,NodePath p_to,int p_type);
 	void _files_dropped(Vector<String> p_files,NodePath p_to,int p_type);
+	void _script_dropped(String p_file, NodePath p_to);
 
 	void _tree_rmb(const Vector2& p_menu_pos);
 
 	void _filter_changed(const String& p_filter);
 
 	void _perform_instance_scenes(const Vector<String>& p_files,Node* parent,int p_pos);
+	void _replace_with_branch_scene(const String& p_file,Node* base);
 
+	void _file_selected(String p_file);
 protected:
 
 	void _notification(int p_what);
@@ -173,7 +179,7 @@ public:
 	void fill_path_renames(Node* p_node, Node *p_new_parent, List<Pair<NodePath,NodePath> > *p_renames);
 	void perform_node_renames(Node* p_base,List<Pair<NodePath,NodePath> > *p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims=NULL);
 	SceneTreeEditor *get_tree_editor() { return scene_tree; }
-
+	EditorData *get_editor_data() { return editor_data; }
 
 	void open_script_dialog(Node* p_for_node);
 	SceneTreeDock(EditorNode *p_editor,Node *p_scene_root,EditorSelection *p_editor_selection,EditorData &p_editor_data);

@@ -5,7 +5,7 @@
 /*                           GODOT ENGINE                                */
 /*                    http://www.godotengine.org                         */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2017 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -29,10 +29,11 @@
 #include "math_funcs.h"
 
 #include "core/os/os.h"
-#include <math.h>
-#include "float.h"
-uint32_t Math::default_seed=1;
 
+#include "float.h"
+#include "pcg.h"
+
+pcg32_random_t Math::default_pcg = {1, PCG_DEFAULT_INC_64};
 
 #define PHI 0x9e3779b9
 
@@ -40,98 +41,33 @@ uint32_t Math::default_seed=1;
 static uint32_t Q[4096];
 #endif
 
-uint32_t Math::rand_from_seed(uint32_t *seed) {
-
-#if 1
-	uint32_t k;
-	uint32_t s = (*seed);
-	if (s == 0)
-		s = 0x12345987;
-	k = s / 127773;
-	s = 16807 * (s - k * 127773) - 2836 * k;
-//	if (s < 0)
-//		s += 2147483647;
-	(*seed) = s;
-	return (s & Math::RANDOM_MAX);
-#else
-	*seed = *seed * 1103515245 + 12345;
-	return (*seed % ((unsigned int)RANDOM_MAX + 1));
-#endif
+// TODO: we should eventually expose pcg.inc too
+uint32_t Math::rand_from_seed(uint64_t *seed) {
+	pcg32_random_t pcg = {*seed, PCG_DEFAULT_INC_64};
+	uint32_t r = pcg32_random_r(&pcg);
+	*seed = pcg.state;
+	return r;
 }
 
-void Math::seed(uint32_t x) {
-#if 0
-	int i;
-
-	Q[0] = x;
-	Q[1] = x + PHI;
-	Q[2] = x + PHI + PHI;
-
-	for (i = 3; i < 4096; i++)
-		Q[i] = Q[i - 3] ^ Q[i - 2] ^ PHI ^ i;
-#else
-	default_seed=x;
-#endif
+void Math::seed(uint64_t x) {
+	default_pcg.state=x;
 }
 
 void Math::randomize() {
 
 	OS::Time time = OS::get_singleton()->get_time();
-	seed(OS::get_singleton()->get_ticks_usec()*(time.hour+1)*(time.min+1)*(time.sec+1)*rand()); /* *OS::get_singleton()->get_time().sec); // windows doesn't have get_time(), returns always 0 */
+	seed(OS::get_singleton()->get_ticks_usec()*(time.hour+1)*(time.min+1)*(time.sec+1)*rand()); // TODO: can be simplified.
 }
 
 uint32_t Math::rand() {
-
-	return rand_from_seed(&default_seed)&0x7FFFFFFF;
+	return pcg32_random_r(&default_pcg);
 }
 
 double Math::randf() {
 
-	return (double)rand() / (double)RANDOM_MAX;
+	return (double)rand() / (double)Math::RANDOM_MAX;
 }
 
-double Math::sin(double p_x) {
-
-	return ::sin(p_x);
-
-}
-
-double Math::cos(double p_x) {
-
-	return ::cos(p_x);
-
-}
-
-double Math::tan(double p_x) {
-
-	return ::tan(p_x);
-
-}
-double Math::sinh(double p_x) {
-
-	return ::sinh(p_x);
-}
-
-double Math::cosh(double p_x) {
-
-	return ::cosh(p_x);
-}
-
-double Math::tanh(double p_x) {
-
-	return ::tanh(p_x);
-}
-
-
-double Math::deg2rad(double p_y) {
-
-	return p_y*Math_PI/180.0;
-}
-
-double Math::rad2deg(double p_y) {
-
-	return p_y*180.0/Math_PI;
-}
 
 double Math::round(double p_val) {
 
@@ -141,22 +77,6 @@ double Math::round(double p_val) {
 		p_val=-p_val;
 		return -::floor(p_val+0.5);
 	}
-}
-
-double Math::asin(double p_x) {
-
-	return ::asin(p_x);
-
-}
-
-double Math::acos(double p_x) {
-
-	return ::acos(p_x);
-}
-
-double Math::atan(double p_x) {
-
-	return ::atan(p_x);
 }
 
 double Math::dectime(double p_value,double p_amount, double p_step) {
@@ -169,42 +89,6 @@ double Math::dectime(double p_value,double p_amount, double p_step) {
 	return val*sgn;
 }
 
-double Math::atan2(double p_y, double p_x) {
-
-	return ::atan2(p_y,p_x);
-
-}
-double Math::sqrt(double p_x) {
-
-	return ::sqrt(p_x);
-}
-
-double Math::fmod(double p_x,double p_y) {
-
-	return ::fmod(p_x,p_y);
-}
-
-double Math::fposmod(double p_x,double p_y) {
-
-	if (p_x>=0) {
-
-		return Math::fmod(p_x,p_y);
-
-	} else {
-
-		return p_y-Math::fmod(-p_x,p_y);
-	}
-
-}
-double Math::floor(double p_x) {
-
-	return ::floor(p_x);
-}
-
-double Math::ceil(double p_x) {
-
-	return ::ceil(p_x);
-}
 
 int Math::step_decimals(double p_step) {
 
@@ -265,20 +149,7 @@ double Math::stepify(double p_value,double p_step) {
 	return p_value;
 }
 
-bool Math::is_nan(double p_val) {
 
-	return (p_val!=p_val);
-}
-
-bool Math::is_inf(double p_val) {
-
-#ifdef _MSC_VER
-	return !_finite(p_val);
-#else
-	return isinf(p_val);
-#endif
-
-}
 
 uint32_t Math::larger_prime(uint32_t p_val) {
 
