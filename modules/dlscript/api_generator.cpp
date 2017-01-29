@@ -78,7 +78,7 @@ String cpp_string_to_c_type(const String& p_type) {
 
 //
 
-List<ClassAPI> generate_c_api_classes(const APIGenConfig& p_config) {
+List<ClassAPI> generate_c_api_classes() {
 
 	List<ClassAPI> api;
 
@@ -89,9 +89,6 @@ List<ClassAPI> generate_c_api_classes(const APIGenConfig& p_config) {
 	for (List<StringName>::Element *e = classes.front(); e != NULL; e = e->next()) {
 
 		ClassDB::APIType api_type = ClassDB::get_api_type(e->get());
-		if (api_type == ClassDB::API_NONE || (!p_config.tools_enabled && api_type == ClassDB::API_EDITOR)) {
-			continue;
-		}
 
 		StringName class_name = e->get();
 
@@ -148,7 +145,7 @@ List<ClassAPI> generate_c_api_classes(const APIGenConfig& p_config) {
 }
 
 
-static List<String> generate_c_api_json(const APIGenConfig &p_config, const List<ClassAPI>& p_api) {
+static List<String> generate_c_api_json(const List<ClassAPI>& p_api) {
 
 	List<String> source;
 
@@ -169,15 +166,12 @@ static List<String> generate_c_api_json(const APIGenConfig &p_config, const List
 
 
 
-Error generate_c_api(const APIGenConfig &p_config) {
+Error generate_c_api(const String &p_path) {
 
-	List<ClassAPI> api = generate_c_api_classes(p_config);
+    List<ClassAPI> api = generate_c_api_classes();
 
-	if (p_config.generate_json)
-	{
-		List<String> json_source = generate_c_api_json(p_config, api);
-		save_file(p_config.save_path + "/" + p_config.json_name, json_source);
-	}
+    List<String> json_source = generate_c_api_json(api);
+    save_file(p_path, json_source);
 
 	return OK;
 }

@@ -8,15 +8,8 @@
 #include "typedefs.h"
 #include "core/ustring.h"
 
-struct APIGenConfig {
-	bool   tools_enabled;
-	String save_path;
 
-	bool   generate_json;
-	String json_name;
-};
-
-Error generate_c_api(const APIGenConfig &p_config);
+Error generate_c_api(const String &p_path);
 
 #endif
 
