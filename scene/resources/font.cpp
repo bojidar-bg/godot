@@ -83,6 +83,40 @@ void Font::draw(RID p_canvas_item, const Point2 &p_pos, const String &p_text, co
 	}
 }
 
+float Font::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) const {
+	RID texture;
+	Rect2 rect;
+	Rect2 src_rect;
+	bool reset_modulate = false;
+
+	float width = _draw_char(p_char, p_next, p_outline, rect, texture, src_rect, reset_modulate);
+
+	rect.position += p_pos;
+
+	Color color = p_outline ? p_modulate * outline_color : p_modulate;
+	if (reset_modulate) {
+		color.r = color.g = color.b = 1;
+	}
+
+	if (texture.is_valid()) {
+		VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, rect, texture, src_rect, color, false, RID(), false);
+	}
+
+	return width;
+}
+
+void Font::set_outline_color(Color p_color) {
+	if (p_color != outline_color) {
+		outline_color = p_color;
+		emit_changed();
+		_change_notify();
+	}
+}
+
+Color Font::get_outline_color() const {
+	return outline_color;
+}
+
 void Font::update_changes() {
 
 	emit_changed();
@@ -91,6 +125,8 @@ void Font::update_changes() {
 void Font::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("draw", "canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"), &Font::draw, DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1)));
+	ClassDB::bind_method(D_METHOD("set_outline_color", "color"), &Font::set_outline_color);
+	ClassDB::bind_method(D_METHOD("get_outline_color"), &Font::get_outline_color);
 	ClassDB::bind_method(D_METHOD("get_ascent"), &Font::get_ascent);
 	ClassDB::bind_method(D_METHOD("get_descent"), &Font::get_descent);
 	ClassDB::bind_method(D_METHOD("get_height"), &Font::get_height);
@@ -100,9 +136,12 @@ void Font::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_outline"), &Font::has_outline);
 	ClassDB::bind_method(D_METHOD("draw_char", "canvas_item", "position", "char", "next", "modulate", "outline"), &Font::draw_char, DEFVAL(-1), DEFVAL(Color(1, 1, 1)), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("update_changes"), &Font::update_changes);
+
+	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "outline_color"), "set_outline_color", "get_outline_color");
 }
 
 Font::Font() {
+	outline_color = Color(1, 1, 1);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -540,23 +579,26 @@ Ref<BitmapFont> BitmapFont::get_fallback() const {
 	return fallback;
 }
 
-float BitmapFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) const {
+float BitmapFont::_draw_char(CharType p_char, CharType p_next, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const {
 
 	const Character *c = char_map.getptr(p_char);
 
 	if (!c) {
 		if (fallback.is_valid())
-			return fallback->draw_char(p_canvas_item, p_pos, p_char, p_next, p_modulate, p_outline);
+			return fallback->_draw_char(p_char, p_next, p_outline, r_rect, r_texture, r_src_rect, r_reset_modulate);
 		return 0;
 	}
 
 	ERR_FAIL_COND_V(c->texture_idx < -1 || c->texture_idx >= textures.size(), 0);
 	if (!p_outline && c->texture_idx != -1) {
-		Point2 cpos = p_pos;
+		Point2 cpos;
 		cpos.x += c->h_align;
 		cpos.y -= ascent;
 		cpos.y += c->v_align;
-		VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->rect.size), textures[c->texture_idx]->get_rid(), c->rect, p_modulate, false, RID(), false);
+		r_rect = Rect2(cpos, c->rect.size);
+		r_texture = textures[c->texture_idx]->get_rid();
+		r_src_rect = c->rect;
+		r_reset_modulate = false;
 	}
 
 	return get_char_size(p_char, p_next).width;

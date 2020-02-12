@@ -39,10 +39,15 @@ class Font : public Resource {
 
 	GDCLASS(Font, Resource);
 
+	Color outline_color;
+
 protected:
 	static void _bind_methods();
 
 public:
+	void set_outline_color(Color p_color);
+	Color get_outline_color() const;
+
 	virtual float get_height() const = 0;
 
 	virtual float get_ascent() const = 0;
@@ -58,7 +63,10 @@ public:
 	void draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const String &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
 
 	virtual bool has_outline() const { return false; }
-	virtual float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const = 0;
+
+	float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const;
+
+	virtual float _draw_char(CharType p_char, CharType p_next, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const = 0;
 
 	void update_changes();
 	Font();
@@ -192,7 +200,7 @@ public:
 	void set_distance_field_hint(bool p_distance_field);
 	bool is_distance_field_hint() const;
 
-	float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const;
+	virtual float _draw_char(CharType p_char, CharType p_next, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const;
 
 	BitmapFont();
 	~BitmapFont();

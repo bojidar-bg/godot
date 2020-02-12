@@ -309,7 +309,7 @@ void DynamicFontAtSize::set_texture_flags(uint32_t p_flags) {
 	}
 }
 
-float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only, bool p_outline) const {
+float DynamicFontAtSize::_draw_char(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const {
 
 	if (!valid)
 		return 0;
@@ -342,16 +342,14 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
 		ERR_FAIL_COND_V(ch->texture_idx < -1 || ch->texture_idx >= font->textures.size(), 0);
 
 		if (!p_advance_only && ch->texture_idx != -1) {
-			Point2 cpos = p_pos;
+			Point2 cpos;
 			cpos.x += ch->h_align;
 			cpos.y -= font->get_ascent();
 			cpos.y += ch->v_align;
-			Color modulate = p_modulate;
-			if (FT_HAS_COLOR(face)) {
-				modulate.r = modulate.g = modulate.b = 1.0;
-			}
-			RID texture = font->textures[ch->texture_idx].texture->get_rid();
-			VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, ch->rect.size), texture, ch->rect_uv, modulate, false, RID(), false);
+			r_rect = Rect2(cpos, ch->rect.size);
+			r_texture = font->textures[ch->texture_idx].texture->get_rid();
+			r_src_rect = ch->rect_uv;
+			r_reset_modulate = FT_HAS_COLOR(face);
 		}
 
 		advance = ch->advance;
@@ -746,18 +744,6 @@ int DynamicFont::get_outline_size() const {
 	return outline_cache_id.outline_size;
 }
 
-void DynamicFont::set_outline_color(Color p_color) {
-	if (p_color != outline_color) {
-		outline_color = p_color;
-		emit_changed();
-		_change_notify();
-	}
-}
-
-Color DynamicFont::get_outline_color() const {
-	return outline_color;
-}
-
 bool DynamicFont::get_use_mipmaps() const {
 
 	return cache_id.mipmaps;
@@ -888,18 +874,17 @@ bool DynamicFont::has_outline() const {
 	return outline_cache_id.outline_size > 0;
 }
 
-float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) const {
+float DynamicFont::_draw_char(CharType p_char, CharType p_next, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const {
 	const Ref<DynamicFontAtSize> &font_at_size = p_outline && outline_cache_id.outline_size > 0 ? outline_data_at_size : data_at_size;
 
 	if (!font_at_size.is_valid())
 		return 0;
 
 	const Vector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
-	Color color = p_outline && outline_cache_id.outline_size > 0 ? p_modulate * outline_color : p_modulate;
 
 	// If requested outline draw, but no outline is present, simply return advance without drawing anything
 	bool advance_only = p_outline && outline_cache_id.outline_size == 0;
-	return font_at_size->draw_char(p_canvas_item, p_pos, p_char, p_next, color, fallbacks, advance_only, p_outline) + spacing_char;
+	return font_at_size->_draw_char(p_char, p_next, fallbacks, advance_only, p_outline, r_rect, r_texture, r_src_rect, r_reset_modulate) + spacing_char;
 }
 
 void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
@@ -1004,9 +989,6 @@ void DynamicFont::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_outline_size", "size"), &DynamicFont::set_outline_size);
 	ClassDB::bind_method(D_METHOD("get_outline_size"), &DynamicFont::get_outline_size);
 
-	ClassDB::bind_method(D_METHOD("set_outline_color", "color"), &DynamicFont::set_outline_color);
-	ClassDB::bind_method(D_METHOD("get_outline_color"), &DynamicFont::get_outline_color);
-
 	ClassDB::bind_method(D_METHOD("set_use_mipmaps", "enable"), &DynamicFont::set_use_mipmaps);
 	ClassDB::bind_method(D_METHOD("get_use_mipmaps"), &DynamicFont::get_use_mipmaps);
 	ClassDB::bind_method(D_METHOD("set_use_filter", "enable"), &DynamicFont::set_use_filter);
@@ -1023,7 +1005,6 @@ void DynamicFont::_bind_methods() {
 	ADD_GROUP("Settings", "");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "size", PROPERTY_HINT_RANGE, "1,1024,1"), "set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "outline_size", PROPERTY_HINT_RANGE, "0,1024,1"), "set_outline_size", "get_outline_size");
-	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "outline_color"), "set_outline_color", "get_outline_color");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_mipmaps"), "set_use_mipmaps", "get_use_mipmaps");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_filter"), "set_use_filter", "get_use_filter");
 	ADD_GROUP("Extra Spacing", "extra_spacing");
@@ -1053,7 +1034,6 @@ DynamicFont::DynamicFont() :
 	spacing_bottom = 0;
 	spacing_char = 0;
 	spacing_space = 0;
-	outline_color = Color(1, 1, 1);
 	if (dynamic_font_mutex) {
 		dynamic_font_mutex->lock();
 		dynamic_fonts->add(&font_list);

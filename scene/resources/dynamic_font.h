@@ -194,7 +194,7 @@ public:
 
 	Size2 get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
 
-	float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false, bool p_outline = false) const;
+	float _draw_char(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const;
 
 	void set_texture_flags(uint32_t p_flags);
 	void update_oversampling();
@@ -235,8 +235,6 @@ private:
 	int spacing_char;
 	int spacing_space;
 
-	Color outline_color;
-
 protected:
 	void _reload_cache();
 
@@ -256,8 +254,7 @@ public:
 	void set_outline_size(int p_size);
 	int get_outline_size() const;
 
-	void set_outline_color(Color p_color);
-	Color get_outline_color() const;
+	virtual float _draw_char(CharType p_char, CharType p_next, bool p_outline, Rect2 &r_rect, RID &r_texture, Rect2 &r_src_rect, bool &r_reset_modulate) const;
 
 	bool get_use_mipmaps() const;
 	void set_use_mipmaps(bool p_enable);
@@ -284,8 +281,6 @@ public:
 	virtual bool is_distance_field_hint() const;
 
 	virtual bool has_outline() const;
-
-	virtual float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const;
 
 	SelfList<DynamicFont> font_list;
 
