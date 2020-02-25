@@ -32,6 +32,13 @@
 #include "core/core_string_names.h"
 #include "scene/scene_string_names.h"
 
+struct TextSpan {
+	// [start, end)
+	int start_index;
+	int end_index;
+	float width;
+};
+
 void Label3D::_update() {
 	pending_update = false;
 
@@ -42,30 +49,74 @@ void Label3D::_update() {
 		return;
 	}
 
-	Vector2 ofs;
-	Map<RID, Ref<SurfaceTool> > surface_tools;
+	Vector<TextSpan> lines;
+	Vector2 text_size;
 
-	int chars_drawn = 0;
-	bool with_outline = font->has_outline();
-	for (int i = 0; i < text.length(); i++) {
-		if (text[i] == '\n') {
-			ofs.y -= font->get_height() + line_spacing;
-			print_line(String() + "OFS is " + ofs);
-		} else {
-			ofs.x += _draw_char_3d(surface_tools, ofs, text[i], text[i + 1], modulate, with_outline);
-		}
-		++chars_drawn;
-	}
+	{
+		TextSpan current_span = { 0, 0, 0 };
 
-	if (font->has_outline()) {
-		ofs = Vector2(0, 0);
-		for (int i = 0; i < chars_drawn; i++) {
-			if (text[i] == '\n') {
-				ofs.y -= font->get_height() + line_spacing;
+		for (int i = 0; i <= text.length(); i++) { // Care: <=!
+
+			if (i == text.length() || text[i] == '\n') {
+				text_size.y += font->get_height() + line_spacing;
+				text_size.x = MAX(text_size.x, current_span.width);
+				current_span.end_index = i;
+				lines.push_back(current_span);
+				current_span.start_index = i + 1;
+				current_span.width = 0;
 			} else {
-				ofs.x += _draw_char_3d(surface_tools, ofs, text[i], text[i + 1], modulate, false);
+				current_span.width += font->get_char_size(text[i], text[i + 1]).width;
 			}
 		}
+		text_size.y -= line_spacing;
+	}
+
+	Map<RID, Ref<SurfaceTool> > surface_tools;
+	bool with_outline = font->has_outline();
+	real_t space_w = font->get_char_size(' ').width;
+
+	while (true) { // Loop goes through with_outline = true first, then with_outline = false
+
+		Vector2 offset;
+		switch (valign) {
+			case VALIGN_TOP:
+				offset.y = 0;
+				break;
+			case VALIGN_CENTER:
+				offset.y = -text_size.y / 2;
+				break;
+			case VALIGN_BOTTOM:
+				offset.y = -text_size.y;
+				break;
+		}
+		offset.y -= line_spacing;
+
+		for (int line = 0; line < lines.size(); line++) {
+			TextSpan span = lines[line];
+			offset.x = 0;
+			switch (align) {
+				case HALIGN_LEFT:
+					offset.x = 0;
+					break;
+				case HALIGN_CENTER:
+					offset.x = -span.width / 2;
+					break;
+				case HALIGN_RIGHT:
+					offset.x = -span.width;
+					break;
+			}
+			offset.y += font->get_height() + line_spacing;
+
+			for (int i = span.start_index; i < span.end_index; i++) {
+				float w = _draw_char_3d(surface_tools, offset, text[i], text[i + 1], with_outline);
+				offset.x += text[i] == ' ' ? space_w : w; // HACK
+			}
+		}
+
+		if (!with_outline) {
+			break;
+		}
+		with_outline = false;
 	}
 
 	for (Map<RID, Ref<SurfaceTool> >::Element *E = surface_tools.front(); E; E = E->next()) {
@@ -89,7 +140,7 @@ void Label3D::_queue_update() {
 	call_deferred("_update");
 }
 
-float Label3D::_draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) {
+float Label3D::_draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const Point2 &p_pos, CharType p_char, CharType p_next, bool p_outline) {
 	RID texture;
 	Rect2 rect;
 	Rect2 src_rect;
@@ -97,7 +148,7 @@ float Label3D::_draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const
 
 	float width = font->_draw_char(p_char, p_next, p_outline, rect, texture, src_rect, reset_modulate);
 
-	Color color = p_outline ? p_modulate * font->get_outline_color() : p_modulate;
+	Color color = p_outline ? outline_modulate : modulate;
 	if (reset_modulate) {
 		color.r = color.g = color.b = 1;
 	}
@@ -119,10 +170,10 @@ float Label3D::_draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const
 		texture_size.height = VisualServer::get_singleton()->texture_get_height(texture);
 
 		Vector2 uvs[4] = {
-			src_rect.position / texture_size,
-			(src_rect.position + Vector2(src_rect.size.x, 0)) / texture_size,
-			(src_rect.position + src_rect.size) / texture_size,
 			(src_rect.position + Vector2(0, src_rect.size.y)) / texture_size,
+			(src_rect.position + src_rect.size) / texture_size,
+			(src_rect.position + Vector2(src_rect.size.x, 0)) / texture_size,
+			src_rect.position / texture_size,
 		};
 
 		Vector3 normal = Vector3(0.0, 1.0, 0.0);
@@ -139,12 +190,12 @@ float Label3D::_draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const
 			surface_tool->add_color(color);
 			surface_tool->add_uv(uvs[i]);
 
-			surface_tool->add_vertex(Vector3(vertices[i].x, 0, -vertices[i].y));
+			surface_tool->add_vertex(Vector3(vertices[i].x, -vertices[i].y, 0));
 		}
 
 		static const int indices[6] = {
-			0, 1, 2,
-			0, 2, 3
+			0, 2, 1,
+			0, 3, 2
 		};
 
 		for (int j = 0; j < 6; j++) {
@@ -199,6 +250,14 @@ AABB Label3D::get_aabb() const {
 		return mesh->get_aabb();
 
 	return AABB();
+}
+
+Ref<TriangleMesh> Label3D::generate_triangle_mesh() const {
+
+	if (!mesh.is_null())
+		return mesh->generate_triangle_mesh();
+
+	return Ref<TriangleMesh>();
 }
 
 PoolVector<Face3> Label3D::get_faces(uint32_t p_usage_flags) const {
@@ -273,7 +332,24 @@ Color Label3D::get_modulate() const {
 	return modulate;
 }
 
+void Label3D::set_outline_modulate(const Color &p_outline_modulate) {
+
+	if (p_outline_modulate == outline_modulate)
+		return;
+
+	outline_modulate = p_outline_modulate;
+	_queue_update();
+}
+
+Color Label3D::get_outline_modulate() const {
+
+	return outline_modulate;
+}
+
 void Label3D::set_pixel_size(float p_amount) {
+
+	if (pixel_size == p_amount)
+		return;
 
 	pixel_size = p_amount;
 	_queue_update();
@@ -281,6 +357,32 @@ void Label3D::set_pixel_size(float p_amount) {
 float Label3D::get_pixel_size() const {
 
 	return pixel_size;
+}
+
+void Label3D::set_align(HAlign p_align) {
+
+	if (align == p_align)
+		return;
+
+	align = p_align;
+	_queue_update();
+}
+HAlign Label3D::get_align() const {
+
+	return align;
+}
+
+void Label3D::set_valign(VAlign p_valign) {
+
+	if (valign == p_valign)
+		return;
+
+	valign = p_valign;
+	_queue_update();
+}
+VAlign Label3D::get_valign() const {
+
+	return valign;
 }
 
 void Label3D::set_draw_flag(SpriteBase3D::DrawFlags p_flag, bool p_enable) {
@@ -333,8 +435,17 @@ void Label3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_modulate", "modulate"), &Label3D::set_modulate);
 	ClassDB::bind_method(D_METHOD("get_modulate"), &Label3D::get_modulate);
 
+	ClassDB::bind_method(D_METHOD("set_outline_modulate", "outline_modulate"), &Label3D::set_outline_modulate);
+	ClassDB::bind_method(D_METHOD("get_outline_modulate"), &Label3D::get_outline_modulate);
+
 	ClassDB::bind_method(D_METHOD("set_pixel_size", "pixel_size"), &Label3D::set_pixel_size);
 	ClassDB::bind_method(D_METHOD("get_pixel_size"), &Label3D::get_pixel_size);
+
+	ClassDB::bind_method(D_METHOD("set_align", "align"), &Label3D::set_align);
+	ClassDB::bind_method(D_METHOD("get_align"), &Label3D::get_align);
+
+	ClassDB::bind_method(D_METHOD("set_valign", "valign"), &Label3D::set_valign);
+	ClassDB::bind_method(D_METHOD("get_valign"), &Label3D::get_valign);
 
 	ClassDB::bind_method(D_METHOD("set_draw_flag", "flag", "enabled"), &Label3D::set_draw_flag);
 	ClassDB::bind_method(D_METHOD("get_draw_flag", "flag"), &Label3D::get_draw_flag);
@@ -349,9 +460,15 @@ void Label3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_queue_update"), &Label3D::_queue_update);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT), "set_text", "get_text");
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "line_spacing", PROPERTY_HINT_RANGE, "0,100,0.1,or_greater,or_lesser"), "set_line_spacing", "get_line_spacing");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "font", PROPERTY_HINT_RESOURCE_TYPE, "Font"), "set_font", "get_font");
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_align", "get_align");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "valign", PROPERTY_HINT_ENUM, "Top,Center,Bottom"), "set_valign", "get_valign");
+
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "modulate"), "set_modulate", "get_modulate");
+	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "outline_modulate"), "set_outline_modulate", "get_outline_modulate");
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "font", PROPERTY_HINT_RESOURCE_TYPE, "Font"), "set_font", "get_font");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "line_spacing", PROPERTY_HINT_RANGE, "0,100,0.1,or_greater,or_lesser"), "set_line_spacing", "get_line_spacing");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "pixel_size", PROPERTY_HINT_RANGE, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
 
 	ADD_GROUP("Flags", "");
@@ -365,7 +482,7 @@ void Label3D::_bind_methods() {
 
 Label3D::Label3D() {
 
-	for (int i = 0; i < FLAG_MAX; i++)
+	for (int i = 0; i < SpriteBase3D::FLAG_MAX; i++)
 		flags[i] = i == SpriteBase3D::FLAG_TRANSPARENT || i == SpriteBase3D::FLAG_DOUBLE_SIDED;
 
 	alpha_cut = SpriteBase3D::ALPHA_CUT_DISABLED;
@@ -376,4 +493,7 @@ Label3D::Label3D() {
 	line_spacing = 0;
 	pixel_size = 0.01;
 	modulate = Color(1, 1, 1, 1);
+	outline_modulate = Color(1, 1, 1, 1);
+	align = HALIGN_CENTER;
+	valign = VALIGN_CENTER;
 }

@@ -38,6 +38,7 @@
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/cpu_particles.h"
 #include "scene/3d/gi_probe.h"
+#include "scene/3d/label_3d.h"
 #include "scene/3d/light.h"
 #include "scene/3d/listener.h"
 #include "scene/3d/mesh_instance.h"
@@ -1551,6 +1552,37 @@ void Sprite3DSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 	}
 }
 
+/////
+Label3DSpatialGizmoPlugin::Label3DSpatialGizmoPlugin() {
+}
+
+bool Label3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+	return Object::cast_to<Label3D>(p_spatial) != NULL;
+}
+
+String Label3DSpatialGizmoPlugin::get_name() const {
+	return "Label3D";
+}
+
+int Label3DSpatialGizmoPlugin::get_priority() const {
+	return -1;
+}
+
+bool Label3DSpatialGizmoPlugin::can_be_hidden() const {
+	return false;
+}
+
+void Label3DSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
+
+	Label3D *label = Object::cast_to<Label3D>(p_gizmo->get_spatial_node());
+
+	p_gizmo->clear();
+
+	Ref<TriangleMesh> tm = label->generate_triangle_mesh();
+	if (tm.is_valid()) {
+		p_gizmo->add_collision_triangles(tm);
+	}
+}
 ///
 
 Position3DSpatialGizmoPlugin::Position3DSpatialGizmoPlugin() {

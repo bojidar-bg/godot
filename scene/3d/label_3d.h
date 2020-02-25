@@ -60,14 +60,17 @@ class Label3D : public GeometryInstance {
 	Ref<Font> font;
 	float line_spacing;
 	Color modulate;
+	Color outline_modulate;
 	float pixel_size;
+	HAlign align;
+	VAlign valign;
 
 	bool pending_update;
 	bool flags[SpriteBase3D::FLAG_MAX];
 	SpriteBase3D::AlphaCutMode alpha_cut;
 	SpatialMaterial::BillboardMode billboard_mode;
 
-	float _draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline);
+	float _draw_char_3d(Map<RID, Ref<SurfaceTool> > &r_surface_tools, const Point2 &p_pos, CharType p_char, CharType p_next, bool p_outline);
 	Ref<SurfaceTool> _get_surface_tool(Map<RID, Ref<SurfaceTool> > &r_surface_tools, RID p_texture);
 
 protected:
@@ -88,8 +91,17 @@ public:
 	void set_modulate(const Color &p_color);
 	Color get_modulate() const;
 
+	void set_outline_modulate(const Color &p_color);
+	Color get_outline_modulate() const;
+
 	void set_pixel_size(float p_amount);
 	float get_pixel_size() const;
+
+	void set_align(HAlign p_align);
+	HAlign get_align() const;
+
+	void set_valign(VAlign p_valign);
+	VAlign get_valign() const;
 
 	void set_draw_flag(SpriteBase3D::DrawFlags p_flag, bool p_enable);
 	bool get_draw_flag(SpriteBase3D::DrawFlags p_flag) const;
@@ -101,6 +113,7 @@ public:
 
 	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
 	virtual AABB get_aabb() const;
+	Ref<TriangleMesh> generate_triangle_mesh() const;
 
 	Label3D();
 	//~Label3D();
