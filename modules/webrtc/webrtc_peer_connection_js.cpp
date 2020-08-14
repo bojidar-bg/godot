@@ -34,6 +34,7 @@
 
 #include "webrtc_data_channel_js.h"
 
+#include "platform/javascript/audio_driver_javascript.h"
 #include "core/io/json.h"
 #include "emscripten.h"
 
@@ -60,6 +61,53 @@ EMSCRIPTEN_KEEPALIVE void _emrtc_on_error() {
 EMSCRIPTEN_KEEPALIVE void _emrtc_emit_channel(void *obj, int p_id) {
 	WebRTCPeerConnectionJS *peer = static_cast<WebRTCPeerConnectionJS *>(obj);
 	peer->emit_signal("data_channel_received", Ref<WebRTCDataChannelJS>(new WebRTCDataChannelJS(p_id)));
+}
+
+EMSCRIPTEN_KEEPALIVE const float* _emrtc_get_stream_buffer(void *obj) {
+	AudioEffectRecord *record = static_cast<AudioEffectRecord *>(obj);
+	int _size = 0;
+	return record->get_recording_raw(_size);
+}
+
+EMSCRIPTEN_KEEPALIVE int _emrtc_get_stream_buffer_size(void *obj) {
+	AudioEffectRecord *record = static_cast<AudioEffectRecord *>(obj);
+	int _size = 0;
+	record->get_recording_raw(_size);
+	return _size;
+}
+
+EMSCRIPTEN_KEEPALIVE void _emrtc_reset_stream_buffer(void *obj) {
+	AudioEffectRecord *record = static_cast<AudioEffectRecord *>(obj);
+	record->set_recording_active(false);
+	record->set_recording_active(true);
+}
+
+EMSCRIPTEN_KEEPALIVE void _emrtc_emit_stream(void *obj, int p_id) {
+	WebRTCPeerConnectionJS *peer = static_cast<WebRTCPeerConnectionJS *>(obj);
+
+	Ref<AudioStreamGenerator> track;
+	track.instance();
+	track->connect("playback_instanced", peer, "_track_instanced", varray(p_id));
+
+	peer->emit_signal("media_track_received", track);
+}
+
+EMSCRIPTEN_KEEPALIVE void* _emrtc_get_playback(void* obj, int p_id) {
+	WebRTCPeerConnectionJS *peer = static_cast<WebRTCPeerConnectionJS *>(obj);
+	Map<int, ObjectID>::Element *el = peer->_playbacks.find(p_id);
+	if (el) {
+		AudioStreamGeneratorPlayback *playback = Object::cast_to<AudioStreamGeneratorPlayback>(ObjectDB::get_instance(el->get()));
+		if (playback == NULL) {
+			peer->_playbacks.erase(el);
+		}
+		return playback;
+	}
+	return NULL;
+}
+
+EMSCRIPTEN_KEEPALIVE void _emrtc_playback_push_frame(void *obj, float p_left, float p_right) {
+	AudioStreamGeneratorPlayback *playback = static_cast<AudioStreamGeneratorPlayback *>(obj);
+	playback->push_frame(AudioFrame(p_left, p_right));
 }
 }
 
@@ -106,6 +154,20 @@ void _emrtc_create_pc(int p_id, const Dictionary &p_config) {
 				[c_ptr, id]
 			);
 		};
+		conn.ontrack = function (evt) {
+			var dict = Module.IDHandler.get($0);
+			if (!dict) {
+				return;
+			}
+			var stream = new MediaStream();
+			stream.addTrack(evt.track);
+			var id = Module.IDHandler.add({"stream": stream});
+			ccall("_emrtc_emit_stream",
+				"void",
+				["number", "number"],
+				[c_ptr, id]
+			);
+		};
 		dict["conn"] = conn;
 	}, p_id, config.utf8().get_data());
 	/* clang-format on */
@@ -135,6 +197,55 @@ void WebRTCPeerConnectionJS::_on_connection_state_changed() {
 		return 5; // CLOSED
 	}, _js_id);
 	/* clang-format on */
+}
+
+void WebRTCPeerConnectionJS::_track_instanced(Ref<AudioStreamGeneratorPlayback> p_playback, int p_js_id) {
+	/* clang-format off */
+	int id = EM_ASM_INT({
+		try {
+			var dict = Module.IDHandler.get($0);
+			var track = Module.IDHandler.get($1);
+			var driver = Module.IDHandler.get($2);
+			if (!dict || !driver) return;
+
+			var jsId;
+
+			var source = driver["context"].createMediaStreamSource(track["stream"]);
+			var script = driver["context"].createScriptProcessor(driver["script"].bufferSize, 2, 2);
+			var getPlayback = cwrap("_emrtc_get_playback", "number", ["number"]);
+			var playbackPushFrame = cwrap("_emrtc_playback_push_frame", null, ["number", "number", "number"]);
+			script.onaudioprocess = function(audioProcessingEvent) {
+				var playback = getPlayback(dict["ptr"], jsId);
+				if (playback == 0) {
+					Module.IDHandler.remove(jsId);
+					source.disconnect(script);
+					source = undefined;
+					script = undefined;
+					return;
+				}
+				var input = audioProcessingEvent.inputBuffer;
+				var inputDataL = input.getChannelData(0);
+				var inputDataR = input.numberOfChannels > 1 ? input.getChannelData(1) : inputDataL;
+				for (var i = 0; i < inputDataL.length; i++) {
+					playbackPushFrame(playback, inputDataL[i], inputDataR[i]);
+				}
+			};
+
+			source.connect(script);
+
+			jsId = Module.IDHandler.add({
+				"script": script,
+				"source": source
+			});
+			return jsId;
+		} catch (e) {
+			console.log(e);
+			return 0;
+		}
+	}, _js_id, p_js_id, AudioDriverJavaScript::singleton->get_js_driver_id());
+	/* clang-format on */
+
+	_playbacks[id] = p_playback->get_instance_id();
 }
 
 void WebRTCPeerConnectionJS::close() {
@@ -275,6 +386,7 @@ Ref<WebRTCDataChannel> WebRTCPeerConnectionJS::create_data_channel(String p_chan
 				"ptr": null
 			})
 		} catch (e) {
+			console.log(e);
 			return 0;
 		}
 	}, _js_id, p_channel.utf8().get_data(), config.utf8().get_data());
@@ -283,12 +395,115 @@ Ref<WebRTCDataChannel> WebRTCPeerConnectionJS::create_data_channel(String p_chan
 	return memnew(WebRTCDataChannelJS(id));
 }
 
+Error WebRTCPeerConnectionJS::add_track(Ref<AudioEffectRecord> p_source) {
+	if (_tracks.has(p_source)) return ERR_ALREADY_IN_USE;
+
+	AudioEffectRecord *ptr = p_source.ptr();
+
+	/* clang-format off */
+	int track_id = EM_ASM_INT({
+		try {
+			var dict = Module.IDHandler.get($0);
+			var driver = Module.IDHandler.get($1);
+			var record = $2;
+			if (!dict || !driver) return;
+
+			var dest = driver["context"].createMediaStreamDestination(driver["context"], {});
+			var script = driver["context"].createScriptProcessor(driver["script"].bufferSize, 2, 2);
+			var streamGetBuffer = cwrap("_emrtc_get_stream_buffer", "number", ["number"]);
+			var streamGetBufferSize = cwrap("_emrtc_get_stream_buffer_size", "number", ["number"]);
+			var streamResetBuffer = cwrap("_emrtc_reset_stream_buffer", null, ["number"]);
+			var numberOfChannels = 2;
+			script.onaudioprocess = function(audioProcessingEvent) {
+				var output = audioProcessingEvent.outputBuffer;
+
+				var source = streamGetBuffer(record);
+				var sourceSize = streamGetBufferSize(record);
+
+				//if (sourceSize != output.length) console.log("Buffer underflow/overflow: Output data size mismatch!", sourceSize, output.length);
+
+				var internalBuffer = HEAPF32.subarray(
+						source / HEAPF32.BYTES_PER_ELEMENT,
+						source / HEAPF32.BYTES_PER_ELEMENT + sourceSize * numberOfChannels);
+
+				for (var channel = 0; channel < output.numberOfChannels; channel++) {
+					var outputData = output.getChannelData(channel);
+					// Loop through samples.
+					for (var sample = 0; sample < Math.min(outputData.length, sourceSize); sample++) {
+						outputData[sample] = internalBuffer[sample * numberOfChannels + channel % numberOfChannels];
+					}
+					for (var sample = Math.min(outputData.length, sourceSize); sample < outputData.length; sample++) {
+						outputData[sample] = 0;
+					}
+				}
+				streamResetBuffer(record);
+			};
+
+			script.connect(dest);
+			driver["script"].connect(script); // Hopefully ensure that our audio process is called after the main audio process
+
+			var tracks = dest.stream.getTracks();
+			for (var i = 0; i < tracks.length; i++) {
+				dict["conn"].addTrack(tracks[i], dest.stream);
+			}
+
+			return Module.IDHandler.add({
+				"dest": dest,
+				"script": script
+			});
+		} catch (e) {
+			console.log(e);
+			return 0;
+		}
+	}, _js_id, AudioDriverJavaScript::singleton->get_js_driver_id(), ptr);
+	/* clang-format on */
+
+	p_source->set_recording_active(true);
+	_tracks[p_source] = track_id;
+
+	return OK;
+};
+
+void WebRTCPeerConnectionJS::remove_track(Ref<AudioEffectRecord> p_source) {
+	if (!_tracks.has(p_source)) return;
+
+	/* clang-format off */
+	EM_ASM({
+		var dict = Module.IDHandler.get($0);
+		var driver = Module.IDHandler.get($1);
+		var stream = Module.IDHandler.get($2);
+		Module.IDHandler.remove($2);
+		if (!dict || !driver || !stream) return;
+
+		stream["script"].onaudioprocess = null;
+
+		stream["script"].disconnect(stream["dest"]);
+		driver["script"].disconnect(stream["script"]);
+
+		var tracks = stream["dest"].stream.getTracks();
+		for (var i = 0; i < tracks.length; i++) {
+			dict["conn"].removeTrack(tracks[i], dest.stream);
+		}
+
+		stream["script"] = undefined;
+		stream["dest"] = undefined;
+	}, _js_id, AudioDriverJavaScript::singleton->get_js_driver_id(), _tracks[p_source]);
+	/* clang-format on */
+
+	_tracks.erase(p_source);
+
+};
+
 Error WebRTCPeerConnectionJS::poll() {
 	return OK;
 }
 
 WebRTCPeerConnection::ConnectionState WebRTCPeerConnectionJS::get_connection_state() const {
 	return _conn_state;
+}
+
+void WebRTCPeerConnectionJS::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("_track_instanced"), &WebRTCPeerConnectionJS::_track_instanced);
 }
 
 WebRTCPeerConnectionJS::WebRTCPeerConnectionJS() {

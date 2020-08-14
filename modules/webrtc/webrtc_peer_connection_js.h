@@ -34,18 +34,30 @@
 #ifdef JAVASCRIPT_ENABLED
 
 #include "webrtc_peer_connection.h"
+#include "servers/audio/effects/audio_stream_generator.h"
+#include "core/set.h"
 
 class WebRTCPeerConnectionJS : public WebRTCPeerConnection {
 
 private:
 	int _js_id;
 	ConnectionState _conn_state;
+	Map<Ref<AudioEffectRecord>, int> _tracks;
+
+protected:
+	static void _bind_methods();
 
 public:
+	Map<int, ObjectID> _playbacks;
+
 	static WebRTCPeerConnection *_create() { return memnew(WebRTCPeerConnectionJS); }
-	static void make_default() { WebRTCPeerConnection::_create = WebRTCPeerConnectionJS::_create; }
+	static void make_default() {
+		WebRTCPeerConnection::_create = WebRTCPeerConnectionJS::_create;
+		WebRTCPeerConnection::_bind_extra_methods = WebRTCPeerConnectionJS::_bind_methods;
+	}
 
 	void _on_connection_state_changed();
+	void _track_instanced(Ref<AudioStreamGeneratorPlayback> p_playback, int p_js_id);
 	virtual ConnectionState get_connection_state() const;
 
 	virtual Error initialize(Dictionary configuration = Dictionary());
@@ -54,6 +66,8 @@ public:
 	virtual Error set_remote_description(String type, String sdp);
 	virtual Error set_local_description(String type, String sdp);
 	virtual Error add_ice_candidate(String sdpMidName, int sdpMlineIndexName, String sdpName);
+	virtual Error add_track(Ref<AudioEffectRecord> p_source);
+	virtual void remove_track(Ref<AudioEffectRecord> p_source);
 	virtual Error poll();
 	virtual void close();
 

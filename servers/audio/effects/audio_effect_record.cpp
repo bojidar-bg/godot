@@ -286,6 +286,16 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 	return sample;
 }
 
+const float* AudioEffectRecord::get_recording_raw(int &r_size) const {
+	if (current_instance.is_null()) {
+		r_size = 0;
+		ERR_FAIL_COND_V(current_instance.is_null(), NULL);
+	}
+
+	r_size = current_instance->recording_data.size();
+	return current_instance->recording_data.ptr();
+}
+
 void AudioEffectRecord::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_recording_active", "record"), &AudioEffectRecord::set_recording_active);
 	ClassDB::bind_method(D_METHOD("is_recording_active"), &AudioEffectRecord::is_recording_active);

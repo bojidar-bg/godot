@@ -31,6 +31,7 @@
 #include "webrtc_peer_connection.h"
 
 WebRTCPeerConnection *(*WebRTCPeerConnection::_create)() = NULL;
+void (*WebRTCPeerConnection::_bind_extra_methods)() = NULL;
 
 Ref<WebRTCPeerConnection> WebRTCPeerConnection::create_ref() {
 
@@ -51,6 +52,7 @@ void WebRTCPeerConnection::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_local_description", "type", "sdp"), &WebRTCPeerConnection::set_local_description);
 	ClassDB::bind_method(D_METHOD("set_remote_description", "type", "sdp"), &WebRTCPeerConnection::set_remote_description);
 	ClassDB::bind_method(D_METHOD("add_ice_candidate", "media", "index", "name"), &WebRTCPeerConnection::add_ice_candidate);
+	ClassDB::bind_method(D_METHOD("add_track", "source"), &WebRTCPeerConnection::add_track);
 	ClassDB::bind_method(D_METHOD("poll"), &WebRTCPeerConnection::poll);
 	ClassDB::bind_method(D_METHOD("close"), &WebRTCPeerConnection::close);
 
@@ -58,7 +60,8 @@ void WebRTCPeerConnection::_bind_methods() {
 
 	ADD_SIGNAL(MethodInfo("session_description_created", PropertyInfo(Variant::STRING, "type"), PropertyInfo(Variant::STRING, "sdp")));
 	ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(Variant::STRING, "media"), PropertyInfo(Variant::INT, "index"), PropertyInfo(Variant::STRING, "name")));
-	ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(Variant::OBJECT, "channel")));
+	ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(Variant::OBJECT, "channel", PROPERTY_HINT_RESOURCE_TYPE, "WebRTCDataChannel")));
+	ADD_SIGNAL(MethodInfo("media_track_received", PropertyInfo(Variant::OBJECT, "track", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream")));
 
 	BIND_ENUM_CONSTANT(STATE_NEW);
 	BIND_ENUM_CONSTANT(STATE_CONNECTING);
@@ -66,6 +69,8 @@ void WebRTCPeerConnection::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATE_DISCONNECTED);
 	BIND_ENUM_CONSTANT(STATE_FAILED);
 	BIND_ENUM_CONSTANT(STATE_CLOSED);
+
+	if (_bind_extra_methods) _bind_extra_methods();
 }
 
 WebRTCPeerConnection::WebRTCPeerConnection() {

@@ -56,6 +56,7 @@ Ref<AudioStreamPlayback> AudioStreamGenerator::instance_playback() {
 	int target_buffer_size = mix_rate * buffer_len;
 	playback->buffer.resize(nearest_shift(target_buffer_size));
 	playback->buffer.clear();
+	emit_signal("playback_instanced", playback);
 	return playback;
 }
 String AudioStreamGenerator::get_stream_name() const {
@@ -76,6 +77,8 @@ void AudioStreamGenerator::_bind_methods() {
 
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "mix_rate", PROPERTY_HINT_RANGE, "20,192000,1"), "set_mix_rate", "get_mix_rate");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
+
+	ADD_SIGNAL(MethodInfo("playback_instanced", PropertyInfo(Variant::OBJECT, "playback", PROPERTY_HINT_RESOURCE_TYPE, "AudioStreamGeneratorPlayback")));
 }
 
 AudioStreamGenerator::AudioStreamGenerator() {

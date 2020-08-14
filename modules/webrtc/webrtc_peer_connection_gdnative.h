@@ -61,6 +61,8 @@ public:
 	virtual Error set_remote_description(String type, String sdp);
 	virtual Error set_local_description(String type, String sdp);
 	virtual Error add_ice_candidate(String sdpMidName, int sdpMlineIndexName, String sdpName);
+	virtual Error add_track(Ref<AudioEffectRecord> p_source) { return ERR_UNAVAILABLE; }
+	virtual void remove_track(Ref<AudioEffectRecord> p_source) {}
 	virtual Error poll();
 	virtual void close();
 

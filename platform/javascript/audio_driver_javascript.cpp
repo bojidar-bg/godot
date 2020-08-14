@@ -111,7 +111,7 @@ Error AudioDriverJavaScript::init() {
 	if (!internal_buffer || (int)memarr_len(internal_buffer) != buffer_length * channel_count) {
 		if (internal_buffer)
 			memdelete_arr(internal_buffer);
-		internal_buffer = memnew_arr(float, buffer_length *channel_count);
+		internal_buffer = memnew_arr(float, buffer_length * channel_count);
 	}
 
 	return internal_buffer ? OK : ERR_OUT_OF_MEMORY;
@@ -200,6 +200,10 @@ AudioDriver::SpeakerMode AudioDriverJavaScript::get_speaker_mode() const {
 		return ref && ref['context'] ? ref['context'].destination.channelCount : 0;
 	}, _driver_id));
 	/* clang-format on */
+}
+
+int AudioDriverJavaScript::get_js_driver_id() const {
+	return _driver_id;
 }
 
 // No locking, as threads are not supported.
